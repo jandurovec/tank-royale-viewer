@@ -153,6 +153,31 @@ body {
 
 #bot-list-container.visible {
   display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#bot-list-container.mini {
+  top: auto;
+  bottom: 20px;
+  height: auto;
+  transform: scale(0.6);
+  transform-origin: bottom center;
+  opacity: 0.7;
+}
+
+#bot-list-container.mini:hover {
+  opacity: 1;
+}
+
+#bot-list-header {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+#bot-list-container.empty #bot-list-header {
+  display: none;
 }
 
 #waiting-message {
@@ -207,6 +232,93 @@ body {
 #bot-list .bot-flag {
   margin-right: 8px;
 }
+
+#battle-container {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+
+#battle-container.visible {
+  display: flex;
+}
+
+#battle-message {
+  color: #888;
+  font-size: 18px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+#results-container {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#results-container.visible {
+  display: flex;
+}
+
+#results-container h2 {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+#results-table {
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 8px;
+  border-collapse: collapse;
+}
+
+#results-table th,
+#results-table td {
+  padding: 12px 20px;
+  text-align: left;
+}
+
+#results-table th {
+  color: #888;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-bottom: 1px solid #333;
+}
+
+#results-table td {
+  font-size: 14px;
+  border-bottom: 1px solid #222;
+}
+
+#results-table tr:last-child td {
+  border-bottom: none;
+}
+
+#results-table td:first-child {
+  font-weight: 700;
+  text-align: center;
+}
+
+#results-table td:nth-child(n+3) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#results-table tr:nth-child(1) td:first-child { color: #ffd700; }
+#results-table tr:nth-child(2) td:first-child { color: #c0c0c0; }
+#results-table tr:nth-child(3) td:first-child { color: #cd7f32; }
 
 #arena {
   width: 100vw;

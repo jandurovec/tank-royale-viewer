@@ -6,8 +6,8 @@ This document tracks implementation progress for AI assistants and developers re
 
 ## Current State
 
-**Phase:** 1 (MVP) - In Progress  
-**Status:** Connection and bot list complete, ready for battle rendering
+**Phase:** 1 (MVP) - In Progress
+**Status:** Core viewer complete (no battle rendering), results display working
 
 ### What's Working
 
@@ -17,19 +17,23 @@ This document tracks implementation progress for AI assistants and developers re
 - ✅ Status indicator: pulsing "Connecting..." → green "LIVE" box
 - ✅ Settings dialog (gear icon): server URL, secret, debug logging
 - ✅ Toast notifications for server errors
-- ✅ Bot list display with `BotListUpdate` handling
-- ✅ Country flags via `flag-icons` package (works offline)
-- ✅ "Waiting for bots to connect..." message when no bots
-- ✅ View states: Connecting → Waiting (bot list)
+- ✅ Bot list with flags and authors (`BotListUpdate`)
+- ✅ "Connected Bots" header (hidden when waiting)
+- ✅ "Waiting for bots to connect..." pulsing message
+- ✅ "Battle in progress..." pulsing message (`GameStartedEventForObserver`)
+- ✅ Full results table (`GameEndedEventForObserver`)
+- ✅ Mini bot list shown during results (60% scale, updates live)
+- ✅ Game abort handling (`GameAbortedEvent`)
+- ✅ View states: Connecting → Waiting → Battle → Results
 
 ### File Structure
 
 ```
 src/
-├── main.ts           # Entry point, wires modules together (~45 lines)
+├── main.ts           # Entry point, wires modules together (~65 lines)
 ├── connection.ts     # WebSocket + handshake + reconnect (~140 lines)
-├── ui.ts             # DOM manipulation + bot list (~95 lines)
-└── style.css         # Styling
+├── ui.ts             # DOM manipulation + view states (~165 lines)
+└── style.css         # Styling (~325 lines)
 ```
 
 ## Implementation Phases
@@ -43,13 +47,14 @@ src/
 - [x] Error notifications (toast)
 - [x] Code modularization
 - [x] Bot list with flags and authors
-- [x] View states: Connecting → Waiting (bot list)
+- [x] "Battle in progress" placeholder
+- [x] Full results table (all score columns)
+- [x] View states: Connecting → Waiting → Battle → Results
 - [ ] Game state management (`gameState.ts`)
 - [ ] PixiJS renderer setup (`renderer.ts`)
 - [ ] Simple bot shapes (circle + direction line)
 - [ ] Bullet rendering (size based on power)
 - [ ] Arena rendering with coordinate transform (Y-flip)
-- [ ] View states: Battle → Results
 
 ### Phase 2: Tank Sprites
 
@@ -89,9 +94,9 @@ src/
 
 1. Create `gameState.ts` to track bots, bullets, arena, round/turn
 2. Initialize PixiJS in `renderer.ts`
-3. Handle `GameStartedEventForObserver` and `TickEventForObserver` messages
+3. Handle `TickEventForObserver` messages during battle
 4. Render bots as simple circles with name/energy labels
-5. Add Battle and Results view states
+5. Render bullets (size based on power)
 
 ## Testing
 

@@ -8,6 +8,9 @@ const debugLogCheckbox = document.getElementById('debug-log') as HTMLInputElemen
 const saveBtn = document.getElementById('save-btn')!
 const botListContainer = document.getElementById('bot-list-container')!
 const botListBody = document.querySelector('#bot-list tbody')!
+const battleContainer = document.getElementById('battle-container')!
+const resultsContainer = document.getElementById('results-container')!
+const resultsBody = document.querySelector('#results-table tbody')!
 
 let toastTimeout: number | null = null
 
@@ -87,8 +90,75 @@ export function updateBotList(bots: BotInfo[]): void {
 
 export function showBotList(): void {
   botListContainer.classList.add('visible')
+  botListContainer.classList.remove('mini')
+  battleContainer.classList.remove('visible')
+  resultsContainer.classList.remove('visible')
 }
 
 export function hideBotList(): void {
   botListContainer.classList.remove('visible')
+}
+
+export function showBattle(): void {
+  botListContainer.classList.remove('visible')
+  battleContainer.classList.add('visible')
+  resultsContainer.classList.remove('visible')
+}
+
+export function hideBattle(): void {
+  battleContainer.classList.remove('visible')
+}
+
+export interface Participant {
+  id: number
+  name: string
+  version: string
+}
+
+export interface BotResult {
+  id: number
+  rank: number
+  totalScore: number
+  survival: number
+  lastSurvivorBonus: number
+  bulletDamage: number
+  bulletKillBonus: number
+  ramDamage: number
+  ramKillBonus: number
+  firstPlaces: number
+  secondPlaces: number
+  thirdPlaces: number
+}
+
+export function showResults(results: BotResult[], participants: Participant[]): void {
+  battleContainer.classList.remove('visible')
+  resultsContainer.classList.add('visible')
+  botListContainer.classList.add('visible')
+  botListContainer.classList.add('mini')
+
+  const participantMap = new Map(participants.map(p => [p.id, p]))
+  const sorted = [...results].sort((a, b) => a.rank - b.rank)
+
+  resultsBody.innerHTML = sorted.map(r => {
+    const bot = participantMap.get(r.id)
+    const name = bot ? `${bot.name} ${bot.version}` : `Bot #${r.id}`
+    return `<tr>
+      <td>${r.rank}</td>
+      <td>${name}</td>
+      <td>${r.totalScore}</td>
+      <td>${r.survival}</td>
+      <td>${r.lastSurvivorBonus}</td>
+      <td>${r.bulletDamage}</td>
+      <td>${r.bulletKillBonus}</td>
+      <td>${r.ramDamage}</td>
+      <td>${r.ramKillBonus}</td>
+      <td>${r.firstPlaces}</td>
+      <td>${r.secondPlaces}</td>
+      <td>${r.thirdPlaces}</td>
+    </tr>`
+  }).join('')
+}
+
+export function hideResults(): void {
+  resultsContainer.classList.remove('visible')
 }

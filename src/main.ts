@@ -2,14 +2,18 @@ import './style.css'
 import 'flag-icons/css/flag-icons.min.css'
 import { createConnection } from './connection.js'
 import * as ui from './ui.js'
-import type { BotInfo } from './ui.js'
+import type { BotInfo, Participant, BotResult } from './ui.js'
 
 let lastSettings = ui.getSettings()
+let participants: Participant[] = []
 
 const connection = createConnection({
   onConnecting: () => {
     ui.setStatus('connecting')
     ui.hideBotList()
+    ui.hideBattle()
+    ui.hideResults()
+    participants = []
   },
   onConnected: () => {
     ui.setStatus('live')
@@ -18,12 +22,27 @@ const connection = createConnection({
   onDisconnected: () => {
     ui.setStatus('connecting')
     ui.hideBotList()
+    ui.hideBattle()
+    ui.hideResults()
+    participants = []
   },
   onError: (msg) => ui.showToast(`Server: ${msg}`),
   onMessage: (msg) => {
-    const m = msg as { type: string; bots?: BotInfo[] }
-    if (m.type === 'BotListUpdate' && m.bots) {
-      ui.updateBotList(m.bots)
+    const m = msg as { type: string; bots?: BotInfo[]; participants?: Participant[]; results?: BotResult[] }
+    switch (m.type) {
+      case 'BotListUpdate':
+        ui.updateBotList(m.bots || [])
+        break
+      case 'GameStartedEventForObserver':
+        participants = m.participants || []
+        ui.showBattle()
+        break
+      case 'GameEndedEventForObserver':
+        ui.showResults(m.results || [], participants)
+        break
+      case 'GameAbortedEvent':
+        ui.showBotList()
+        break
     }
   },
   debug: (...args) => {
