@@ -217,9 +217,13 @@ body {
 #bot-list-container.mini {
   top: auto;
   bottom: 20px;
+  left: 20px;
+  width: auto;
   height: auto;
+  justify-content: flex-start;
+  align-items: flex-start;
   transform: scale(0.6);
-  transform-origin: bottom center;
+  transform-origin: bottom left;
   opacity: 0.7;
 }
 
@@ -313,7 +317,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.6);
   z-index: 10;
 }
 
