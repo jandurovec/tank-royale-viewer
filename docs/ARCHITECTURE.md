@@ -223,6 +223,17 @@ In the bot list table (State 2), show rating as:
 - Or rank tier icons (Bronze/Silver/Gold/Platinum/Diamond)
 - Tooltip showing exact mu/sigma values
 
+## Phase 6: Arena Background Customization
+
+Allow users to upload a custom arena background image.
+
+### Features
+
+- **Upload PNG image** (ideally with transparent background)
+- **Stored in localStorage** as base64 encoded string
+- **Displayed behind arena** during battle
+- **Clear/reset option** in settings
+
 ### Settings Panel (Top-Right Gear Icon)
 
 Clicking the gear icon reveals a settings overlay:
@@ -293,12 +304,20 @@ Key responsibilities:
 - Displays visual effects (explosions, hit bursts)
 - Handles coordinate transform (Y-flip from game to screen)
 
+#### Settings (`settings.ts`)
+- Manages application settings with localStorage persistence
+- Provides typed Settings interface
+- Handles load/save with fallback to defaults on parse errors
+- Settings survive browser refresh
+- Future: TrueSkill ratings, arena background image
+
 #### UI (`ui.ts`)
 - Manages DOM elements for controls
 - Server URL input and connect button
 - Connection status indicator
-- Battle information display (round, turn, TPS)
-- Bot scoreboard with live scores
+- Battle information display (round, turn)
+- Bot list and results display
+- Binds settings values to form inputs
 
 #### Main (`main.ts`)
 - Application entry point

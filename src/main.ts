@@ -148,6 +148,7 @@ const connection = createConnection({
 ui.onSettingsToggle(() => ui.toggleSettings())
 
 ui.onSettingsSave(() => {
+  ui.saveCurrentSettings()
   const settings = ui.getSettings()
   ui.closeSettings()
   if (settings.url !== lastSettings.url || settings.secret !== lastSettings.secret || !connection.isConnected()) {

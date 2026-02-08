@@ -1,6 +1,7 @@
 import javaSvg from './assets/java.svg'
 import pythonSvg from './assets/python.svg'
 import dotnetSvg from './assets/dotnet.svg'
+import * as settings from './settings.js'
 
 const toastEl = document.getElementById('toast')!
 const statusBarEl = document.getElementById('status-bar')!
@@ -17,6 +18,18 @@ const scanOpacityValue = document.getElementById('scan-opacity-value')!
 const saveBtn = document.getElementById('save-btn')!
 
 let scanOpacityCallback: ((opacity: number) => void) | null = null
+
+// Initialize form values from saved settings
+function initSettingsForm(): void {
+  const s = settings.get()
+  serverUrlInput.value = s.url
+  serverSecretInput.value = s.secret
+  debugLogCheckbox.checked = s.debug
+  scanOpacitySlider.value = String(s.scanOpacity)
+  scanOpacityValue.textContent = `${s.scanOpacity}%`
+}
+
+initSettingsForm()
 
 // Live update for scan opacity slider
 scanOpacitySlider.addEventListener('input', () => {
@@ -86,16 +99,17 @@ export function showToast(message: string): void {
   }, 5000) as unknown as number
 }
 
-export interface Settings {
-  url: string
-  secret: string
+export function getSettings(): settings.Settings {
+  return settings.get()
 }
 
-export function getSettings(): Settings {
-  return {
+export function saveCurrentSettings(): void {
+  settings.save({
     url: serverUrlInput.value,
-    secret: serverSecretInput.value
-  }
+    secret: serverSecretInput.value,
+    debug: debugLogCheckbox.checked,
+    scanOpacity: parseInt(scanOpacitySlider.value, 10)
+  })
 }
 
 export function isDebugEnabled(): boolean {

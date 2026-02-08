@@ -71,6 +71,7 @@ src/
 ├── gameState.ts      # Battle state management
 ├── ui.ts             # DOM manipulation + view states
 ├── style.css         # Styling
+├── settings.ts       # Settings persistence (localStorage)
 ├── assets/           # Platform icons (java.svg, python.svg, dotnet.svg)
 └── rendering/
     ├── index.ts      # PixiJS app lifecycle, orchestration
@@ -124,9 +125,17 @@ src/
 ### Phase 5: TrueSkill Ratings (Not Started)
 
 - [ ] Local TrueSkill implementation
-- [ ] localStorage persistence
+- [ ] Store ratings in settings module
+- [ ] Update ratings after each battle
 - [ ] Display in bot list (star rating or tier icons)
 - [ ] Export/import JSON
+
+### Phase 6: Arena Background (Not Started)
+
+- [ ] Upload PNG image in settings
+- [ ] Store as base64 in localStorage
+- [ ] Display behind arena during battle
+- [ ] Clear/reset option
 
 ## Key Technical Decisions
 
