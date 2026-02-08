@@ -31,16 +31,39 @@ body {
   top: 16px;
 }
 
-#status {
+#status-bar {
   position: fixed;
   top: 16px;
   left: 16px;
-  padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 4px;
+  display: flex;
+  gap: 0;
+  z-index: 100;
   font-size: 14px;
   font-weight: 500;
-  z-index: 100;
+  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.3));
+}
+
+#status-bar > span {
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* When battle info is shown, status has left-rounded corners */
+#status-bar.with-battle-info #status {
+  border-radius: 4px 0 0 4px;
+}
+
+/* When battle info is NOT shown, status has all rounded corners */
+#status-bar:not(.with-battle-info) #status {
+  border-radius: 4px;
+}
+
+#status-bar #round-info {
+  border-radius: 0;
+}
+
+#status-bar #turn-info {
+  border-radius: 0 4px 4px 0;
 }
 
 #status.connecting {
@@ -51,6 +74,20 @@ body {
   background: #22c55e;
   color: #fff;
   font-weight: 700;
+}
+
+#status-bar #round-info {
+  display: none;
+  background: rgba(60, 60, 60, 0.8);
+  color: #fff;
+  font-weight: 400;
+}
+
+#status-bar #turn-info {
+  display: none;
+  background: rgba(80, 80, 80, 0.8);
+  color: #fff;
+  font-weight: 400;
 }
 
 @keyframes pulse {
@@ -124,6 +161,25 @@ body {
 #settings-panel input[type="checkbox"] {
   width: auto;
   margin: 0;
+}
+
+#settings-panel label.slider {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  color: #ccc;
+}
+
+#settings-panel input[type="range"] {
+  width: 100px;
+  cursor: pointer;
+}
+
+#settings-panel label.slider span {
+  min-width: 36px;
+  text-align: right;
+  font-size: 12px;
+  color: #888;
 }
 
 #settings-panel button {
@@ -293,13 +349,20 @@ body {
 #results-table {
   background: rgba(0, 0, 0, 0.9);
   border-radius: 8px;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 4px solid #555;
+  overflow: hidden;
 }
 
 #results-table th,
 #results-table td {
-  padding: 12px 20px;
+  padding: 12px 10px;
   text-align: left;
+}
+
+#results-table td:nth-child(2) {
+  padding-right: 20px;
 }
 
 #results-table th {
@@ -320,8 +383,11 @@ body {
 }
 
 #results-table td:first-child {
-  font-weight: 700;
   text-align: center;
+}
+
+#results-table td:nth-child(2) {
+  font-weight: 600;
 }
 
 #results-table td:nth-child(n+3) {
@@ -329,9 +395,35 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-#results-table tr:nth-child(1) td:first-child { color: #ffd700; }
-#results-table tr:nth-child(2) td:first-child { color: #c0c0c0; }
-#results-table tr:nth-child(3) td:first-child { color: #cd7f32; }
+#results-table td.bonus {
+  text-align: right;
+}
+
+.rank-medal {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 13px;
+  text-align: center;
+}
+
+.rank-medal.gold {
+  background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+  color: #000;
+}
+
+.rank-medal.silver {
+  background: linear-gradient(135deg, #e8e8e8 0%, #a0a0a0 100%);
+  color: #000;
+}
+
+.rank-medal.bronze {
+  background: linear-gradient(135deg, #cd7f32 0%, #8b4513 100%);
+  color: #000;
+}
 
 #arena {
   position: fixed;

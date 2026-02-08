@@ -3,13 +3,28 @@ import pythonSvg from './assets/python.svg'
 import dotnetSvg from './assets/dotnet.svg'
 
 const toastEl = document.getElementById('toast')!
+const statusBarEl = document.getElementById('status-bar')!
 const statusEl = document.getElementById('status')!
+const roundInfoEl = document.getElementById('round-info')!
+const turnInfoEl = document.getElementById('turn-info')!
 const settingsBtn = document.getElementById('settings-btn')!
 const settingsPanel = document.getElementById('settings-panel')!
 const serverUrlInput = document.getElementById('server-url') as HTMLInputElement
 const serverSecretInput = document.getElementById('server-secret') as HTMLInputElement
 const debugLogCheckbox = document.getElementById('debug-log') as HTMLInputElement
+const scanOpacitySlider = document.getElementById('scan-opacity') as HTMLInputElement
+const scanOpacityValue = document.getElementById('scan-opacity-value')!
 const saveBtn = document.getElementById('save-btn')!
+
+let scanOpacityCallback: ((opacity: number) => void) | null = null
+
+// Live update for scan opacity slider
+scanOpacitySlider.addEventListener('input', () => {
+  scanOpacityValue.textContent = `${scanOpacitySlider.value}%`
+  if (scanOpacityCallback) {
+    scanOpacityCallback(parseInt(scanOpacitySlider.value, 10) / 100)
+  }
+})
 const botListContainer = document.getElementById('bot-list-container')!
 const botListBody = document.querySelector('#bot-list tbody')!
 const resultsContainer = document.getElementById('results-container')!
@@ -48,6 +63,20 @@ export function setStatus(state: 'connecting' | 'live'): void {
   statusEl.className = state
 }
 
+export function showRoundTurn(round: number, turn: number): void {
+  roundInfoEl.textContent = `ROUND ${round}`
+  turnInfoEl.textContent = `TURN ${turn}`
+  roundInfoEl.style.display = 'inline'
+  turnInfoEl.style.display = 'inline'
+  statusBarEl.classList.add('with-battle-info')
+}
+
+export function hideRoundTurn(): void {
+  roundInfoEl.style.display = 'none'
+  turnInfoEl.style.display = 'none'
+  statusBarEl.classList.remove('with-battle-info')
+}
+
 export function showToast(message: string): void {
   if (toastTimeout) clearTimeout(toastTimeout)
   toastEl.textContent = message
@@ -71,6 +100,16 @@ export function getSettings(): Settings {
 
 export function isDebugEnabled(): boolean {
   return debugLogCheckbox.checked
+}
+
+export function getScanOpacity(): number {
+  return parseInt(scanOpacitySlider.value, 10) / 100
+}
+
+export function onScanOpacityChange(callback: (opacity: number) => void): void {
+  scanOpacityCallback = callback
+  // Fire immediately with current value
+  callback(getScanOpacity())
 }
 
 export function closeSettings(): void {
@@ -181,6 +220,10 @@ export interface BotResult {
   thirdPlaces: number
 }
 
+function bonusCell(value: number): string {
+  return value ? `<td class="bonus">${value}</td>` : '<td class="bonus"></td>'
+}
+
 export function showResults(results: BotResult[], participants: Participant[]): void {
   resultsBackdrop.classList.add('visible')
   resultsContainer.classList.add('visible')
@@ -193,16 +236,18 @@ export function showResults(results: BotResult[], participants: Participant[]): 
   resultsBody.innerHTML = sorted.map(r => {
     const bot = participantMap.get(r.id)
     const name = bot ? `${bot.name} ${bot.version}` : `Bot #${r.id}`
+    const rankClass = r.rank === 1 ? 'gold' : r.rank === 2 ? 'silver' : r.rank === 3 ? 'bronze' : ''
+    const rankContent = rankClass ? `<span class="rank-medal ${rankClass}">${r.rank}</span>` : r.rank
     return `<tr>
-      <td>${r.rank}</td>
+      <td>${rankContent}</td>
       <td>${name}</td>
       <td>${r.totalScore}</td>
       <td>${r.survival}</td>
-      <td>${r.lastSurvivorBonus}</td>
+      ${bonusCell(r.lastSurvivorBonus)}
       <td>${r.bulletDamage}</td>
-      <td>${r.bulletKillBonus}</td>
+      ${bonusCell(r.bulletKillBonus)}
       <td>${r.ramDamage}</td>
-      <td>${r.ramKillBonus}</td>
+      ${bonusCell(r.ramKillBonus)}
       <td>${r.firstPlaces}</td>
       <td>${r.secondPlaces}</td>
       <td>${r.thirdPlaces}</td>

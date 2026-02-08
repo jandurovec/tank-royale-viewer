@@ -7,7 +7,11 @@
   </head>
   <body>
     <div id="toast"></div>
-    <div id="status"></div>
+    <div id="status-bar">
+      <span id="status"></span>
+      <span id="round-info"></span>
+      <span id="turn-info"></span>
+    </div>
     <button id="settings-btn" title="Settings">&#9881;</button>
     <div id="settings-panel">
       <label>
@@ -17,6 +21,11 @@
       <label>
         Secret (optional)
         <input type="password" id="server-secret" value="" placeholder="Leave blank if not required" />
+      </label>
+      <label class="slider">
+        Scan arc opacity
+        <input type="range" id="scan-opacity" min="0" max="100" value="5" />
+        <span id="scan-opacity-value">5%</span>
       </label>
       <label class="checkbox">
         <input type="checkbox" id="debug-log" />
@@ -49,11 +58,11 @@
             <th>Bot</th>
             <th>Total</th>
             <th>Survival</th>
-            <th>Surv. Bonus</th>
+            <th>(bonus)</th>
             <th>Bullet Dmg</th>
-            <th>Bullet Bonus</th>
+            <th>(bonus)</th>
             <th>Ram Dmg</th>
-            <th>Ram Bonus</th>
+            <th>(bonus)</th>
             <th>1sts</th>
             <th>2nds</th>
             <th>3rds</th>

@@ -105,6 +105,7 @@ const connection = createConnection({
         renderer.setArenaSize(setup.arenaWidth, setup.arenaHeight)
         ui.hideBotList()
         ui.hideResults()
+        ui.showRoundTurn(1, 0)
         renderer.show()
         break
       }
@@ -118,6 +119,8 @@ const connection = createConnection({
         gameState.updateTick(tickMsg.roundNumber, tickMsg.turnNumber, tickMsg.botStates, tickMsg.bulletStates || [])
         // Update effect system's current turn before processing events
         renderer.setCurrentTurn(tickMsg.turnNumber)
+        // Update round/turn display
+        ui.showRoundTurn(tickMsg.roundNumber, tickMsg.turnNumber)
         // Process events for effects
         for (const event of tickMsg.events || []) {
           processTickEvent(event, tickMsg.botStates)
@@ -126,10 +129,12 @@ const connection = createConnection({
       }
       case 'GameEndedEventForObserver':
         renderer.hide()
+        ui.hideRoundTurn()
         ui.showResults(m.results || [], participants)
         break
       case 'GameAbortedEvent':
         renderer.hide()
+        ui.hideRoundTurn()
         gameState.reset()
         ui.showBotList()
         break
@@ -155,5 +160,7 @@ ui.onSettingsSave(() => {
 const arenaContainer = document.getElementById('arena')!
 renderer.init(arenaContainer).then(() => {
   renderer.hide()
+  // Subscribe to scan opacity changes
+  ui.onScanOpacityChange(renderer.setScanOpacity)
   connection.connect(lastSettings.url, lastSettings.secret)
 })

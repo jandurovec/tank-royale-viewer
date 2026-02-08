@@ -6,80 +6,122 @@ This document tracks implementation progress for AI assistants and developers re
 
 ## Current State
 
-**Phase:** 1 (MVP) - In Progress
-**Status:** Core viewer complete (no battle rendering), results display working
+**Phase:** 4 (Polish) - Complete
+**Status:** Full battle viewer with tank rendering, effects, and health bars
 
 ### What's Working
 
-- ✅ Vite + TypeScript project setup
+#### Connection & Protocol
 - ✅ WebSocket connection with auto-reconnect (5s interval, 3s timeout)
 - ✅ Observer handshake protocol
-- ✅ Status indicator: pulsing "Connecting..." → green "LIVE" box
-- ✅ Settings dialog (gear icon): server URL, secret, debug logging
 - ✅ Toast notifications for server errors
-- ✅ Bot list with flags, authors, description, platform icons (`BotListUpdate`)
-- ✅ Platform icons: custom SVGs for Java, Python, .NET
-- ✅ "Connected Bots" header (hidden when waiting)
-- ✅ "Waiting for bots to connect..." pulsing message
-- ✅ "Battle in progress..." pulsing message (`GameStartedEventForObserver`)
-- ✅ Full results table (`GameEndedEventForObserver`)
-- ✅ Mini bot list shown during results (60% scale, updates live)
-- ✅ Results backdrop overlay for visual clarity
-- ✅ Auto-scaling: bot list and results scale down to fit viewport
-- ✅ Game abort handling (`GameAbortedEvent`)
+- ✅ Game state management (`gameState.ts`)
+
+#### UI & Status
+- ✅ Status indicator: pulsing "Connecting..." → green "LIVE" box with drop shadow
+- ✅ Round/turn indicator during battle (LIVE | ROUND X | TURN Y)
+- ✅ Settings dialog (gear icon): server URL, secret, debug logging, scan opacity slider
 - ✅ View states: Connecting → Waiting → Battle → Results
+
+#### Bot List
+- ✅ Bot list with flags, authors, description, platform icons
+- ✅ Platform icons: custom SVGs for Java, Python, .NET
+- ✅ "Waiting for bots to connect..." pulsing message
+- ✅ Auto-scaling to fit viewport
+
+#### Battle Rendering (PixiJS)
+- ✅ Arena background with coordinate transform (Y-flip)
+- ✅ Full tank rendering matching Kotlin GUI:
+  - Body with shading and border
+  - Tracks (static links)
+  - Turret with shadow and border
+  - Gun barrel with shading
+  - Radar dish
+- ✅ Bot colors from server applied to all parts
+- ✅ Energy text above bots
+- ✅ Name/version labels below bots
+- ✅ Bullet rendering (size based on power)
+- ✅ Scan arc rendering with configurable opacity (reduces flickering)
+
+#### Visual Effects
+- ✅ Bot death explosions (multi-circle burst)
+- ✅ Bullet hit bot effects
+- ✅ Bullet hit wall effects
+- ✅ Bullet hit bullet effects
+- ✅ Color gradient animation (white → yellow → orange → gray → black)
+
+#### Results
+- ✅ Full results table with compact bonus columns
+- ✅ Medal-style rank indicators (gold/silver/bronze circles) for top 3
+- ✅ Bold bot names
+- ✅ Mini bot list shown during results (60% scale)
+- ✅ Results backdrop overlay
+
+#### Bot Labels
+- ✅ Energy value above bot
+- ✅ Name/version below bot
+- ✅ Health bar below name (green→yellow→red gradient, shrinks toward center)
 
 ### File Structure
 
 ```
 src/
-├── main.ts           # Entry point, wires modules together (~65 lines)
-├── connection.ts     # WebSocket + handshake + reconnect (~140 lines)
-├── ui.ts             # DOM manipulation + view states (~230 lines)
-├── style.css         # Styling (~360 lines)
-└── assets/           # Platform icons (java.svg, python.svg, dotnet.svg)
+├── main.ts           # Entry point, wires modules together
+├── connection.ts     # WebSocket + handshake + reconnect
+├── gameState.ts      # Battle state management
+├── ui.ts             # DOM manipulation + view states
+├── style.css         # Styling
+├── assets/           # Platform icons (java.svg, python.svg, dotnet.svg)
+└── rendering/
+    ├── index.ts      # PixiJS app lifecycle, orchestration
+    ├── arena.ts      # Arena background rendering
+    ├── tank.ts       # Full tank graphics (body, turret, gun, radar, tracks)
+    ├── bullets.ts    # Bullet rendering
+    ├── effects.ts    # Explosions and burst effects
+    └── colors.ts     # Color utilities (HSL manipulation, parsing)
 ```
 
 ## Implementation Phases
 
-### Phase 1: MVP Core Viewer (Current)
+### Phase 1: MVP Core Viewer ✅
 
 - [x] WebSocket connection with auto-reconnect
 - [x] Observer handshake
 - [x] Status indicator (Connecting/LIVE)
 - [x] Settings dialog (URL, secret, debug)
 - [x] Error notifications (toast)
-- [x] Code modularization
 - [x] Bot list with flags and authors
-- [x] "Battle in progress" placeholder
-- [x] Full results table (all score columns)
+- [x] Results table
 - [x] View states: Connecting → Waiting → Battle → Results
-- [ ] Game state management (`gameState.ts`)
-- [ ] PixiJS renderer setup (`renderer.ts`)
-- [ ] Simple bot shapes (circle + direction line)
-- [ ] Bullet rendering (size based on power)
-- [ ] Arena rendering with coordinate transform (Y-flip)
+- [x] Game state management (`gameState.ts`)
+- [x] PixiJS renderer setup
+- [x] Bullet rendering (size based on power)
+- [x] Arena rendering with coordinate transform (Y-flip)
 
-### Phase 2: Tank Sprites
+### Phase 2: Tank Rendering ✅
 
-- [ ] Replace circles with tank body sprites
-- [ ] Turret sprite (independent rotation)
-- [ ] Radar dish sprite (independent rotation)
-- [ ] Bot colors from server applied to sprites
+- [x] Tank body with tracks (matching Kotlin)
+- [x] Turret (independent rotation)
+- [x] Gun barrel with shading
+- [x] Radar dish (independent rotation)
+- [x] Bot colors from server applied to all parts
+- [x] HSL color utilities for shading effects
 
-### Phase 3: Visual Effects
+### Phase 3: Visual Effects ✅
 
-- [ ] Scan arc rendering
-- [ ] Explosion particles on bot death
-- [ ] Hit effects
-- [ ] Smooth animations/interpolation
+- [x] Scan arc rendering with configurable opacity
+- [x] Explosion particles on bot death
+- [x] Bullet hit effects (bot, wall, bullet)
+- [x] Round/turn indicator
 
-### Phase 4: HP Bar
+### Phase 4: Polish ✅
 
-- [ ] Health bar above bots (green → red gradient)
-- [ ] Energy value text
+- [x] Energy value text above bots
+- [x] Health bar below name (green→yellow→red gradient)
+- [x] Health bar shrinks toward center as HP decreases
+- [x] Droid max HP (120) vs normal bot max HP (100) supported
 
-### Phase 5: TrueSkill Ratings
+### Phase 5: TrueSkill Ratings (Not Started)
 
 - [ ] Local TrueSkill implementation
 - [ ] localStorage persistence
@@ -89,18 +131,11 @@ src/
 ## Key Technical Decisions
 
 1. **PixiJS v8** for GPU-accelerated rendering (CPU reserved for bots/server)
-2. **Callback-based module communication** (KISS over EventEmitter)
+2. **Modular rendering system** - separate files for arena, tanks, bullets, effects, colors
 3. **Coordinate transform:** `screenY = arenaHeight - gameY` (Tank Royale is Y-up, PixiJS is Y-down)
 4. **TPS/FPS decoupling:** Game state updated every tick, renderer runs at 60fps showing latest state
-5. **flag-icons package** for offline country flags (bundled as CSS data URLs)
-
-## Next Steps (Suggested)
-
-1. Create `gameState.ts` to track bots, bullets, arena, round/turn
-2. Initialize PixiJS in `renderer.ts`
-3. Handle `TickEventForObserver` messages during battle
-4. Render bots as simple circles with name/energy labels
-5. Render bullets (size based on power)
+5. **Tick-based effects:** Effects use game turn numbers, not real time, for consistent playback
+6. **Configurable scan opacity:** Slider (0-100%) to reduce visual flickering on large displays
 
 ## Testing
 

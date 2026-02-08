@@ -6,7 +6,9 @@ export interface BotState {
   direction: number
   gunDirection: number
   radarDirection: number
+  radarSweep: number
   speed: number
+  isDroid?: boolean
   bodyColor?: string
   turretColor?: string
   radarColor?: string

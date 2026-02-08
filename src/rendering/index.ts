@@ -14,6 +14,8 @@ export {
   addBulletHitBulletEffect
 } from './effects.js'
 
+export { setScanOpacity } from './tank.js'
+
 const MARGIN = 32 // 2em at 16px base
 
 let app: Application | null = null
