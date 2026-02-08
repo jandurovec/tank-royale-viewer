@@ -1,3 +1,7 @@
+import javaSvg from './assets/java.svg'
+import pythonSvg from './assets/python.svg'
+import dotnetSvg from './assets/dotnet.svg'
+
 const toastEl = document.getElementById('toast')!
 const statusEl = document.getElementById('status')!
 const settingsBtn = document.getElementById('settings-btn')!
@@ -10,9 +14,35 @@ const botListContainer = document.getElementById('bot-list-container')!
 const botListBody = document.querySelector('#bot-list tbody')!
 const battleContainer = document.getElementById('battle-container')!
 const resultsContainer = document.getElementById('results-container')!
+const resultsBackdrop = document.getElementById('results-backdrop')!
 const resultsBody = document.querySelector('#results-table tbody')!
 
 let toastTimeout: number | null = null
+
+function scaleToFit(container: HTMLElement, padding = 40): void {
+  // Reset scale to measure natural size
+  container.style.transform = ''
+  const contentHeight = container.scrollHeight
+  const availableHeight = window.innerHeight - padding * 2
+
+  if (contentHeight > availableHeight) {
+    const scale = availableHeight / contentHeight
+    container.style.transform = `scale(${scale})`
+  }
+}
+
+function setupResizeHandler(): void {
+  window.addEventListener('resize', () => {
+    if (botListContainer.classList.contains('visible') && !botListContainer.classList.contains('mini')) {
+      scaleToFit(botListContainer)
+    }
+    if (resultsContainer.classList.contains('visible')) {
+      scaleToFit(resultsContainer)
+    }
+  })
+}
+
+setupResizeHandler()
 
 export function setStatus(state: 'connecting' | 'live'): void {
   statusEl.textContent = state === 'live' ? 'LIVE' : 'Connecting...'
@@ -65,6 +95,9 @@ export interface BotInfo {
   version: string
   authors: string[]
   countryCodes?: string[]
+  platform?: string
+  programmingLang?: string
+  description?: string
 }
 
 export function updateBotList(bots: BotInfo[]): void {
@@ -81,18 +114,48 @@ export function updateBotList(bots: BotInfo[]): void {
       authorParts.push(flag + name)
     }
 
+    const platformIcon = getPlatformIcon(bot.platform, bot.programmingLang)
+
     return `<tr>
       <td><span class="bot-name">${bot.name} ${bot.version}</span></td>
       <td>${authorParts.join(', ')}</td>
+      <td class="bot-description">${bot.description || ''}</td>
+      <td class="bot-platform">${platformIcon}</td>
     </tr>`
   }).join('')
+
+  // Scale if visible and not in mini mode
+  if (botListContainer.classList.contains('visible') && !botListContainer.classList.contains('mini')) {
+    scaleToFit(botListContainer)
+  }
+}
+
+const platformIcons: Record<string, string> = {
+  jvm: javaSvg,
+  python: pythonSvg,
+  dotnet: dotnetSvg
+}
+
+function getPlatformIcon(platform?: string, lang?: string): string {
+  const text = (platform || lang || '').toLowerCase()
+  let icon = ''
+  if (text === 'jvm' || text === 'java') {
+    icon = platformIcons.jvm
+  } else if (text.startsWith('.net') || text.startsWith('dotnet')) {
+    icon = platformIcons.dotnet
+  } else if (text === 'python') {
+    icon = platformIcons.python
+  }
+  return icon ? `<img src="${icon}" class="platform-icon" alt="${platform || lang || ''}" title="${platform || lang || ''}">` : ''
 }
 
 export function showBotList(): void {
   botListContainer.classList.add('visible')
   botListContainer.classList.remove('mini')
+  botListContainer.style.transform = ''
   battleContainer.classList.remove('visible')
   resultsContainer.classList.remove('visible')
+  scaleToFit(botListContainer)
 }
 
 export function hideBotList(): void {
@@ -132,6 +195,7 @@ export interface BotResult {
 
 export function showResults(results: BotResult[], participants: Participant[]): void {
   battleContainer.classList.remove('visible')
+  resultsBackdrop.classList.add('visible')
   resultsContainer.classList.add('visible')
   botListContainer.classList.add('visible')
   botListContainer.classList.add('mini')
@@ -157,8 +221,12 @@ export function showResults(results: BotResult[], participants: Participant[]): 
       <td>${r.thirdPlaces}</td>
     </tr>`
   }).join('')
+
+  scaleToFit(resultsContainer)
 }
 
 export function hideResults(): void {
+  resultsBackdrop.classList.remove('visible')
   resultsContainer.classList.remove('visible')
+  resultsContainer.style.transform = ''
 }

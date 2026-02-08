@@ -17,12 +17,15 @@ This document tracks implementation progress for AI assistants and developers re
 - ✅ Status indicator: pulsing "Connecting..." → green "LIVE" box
 - ✅ Settings dialog (gear icon): server URL, secret, debug logging
 - ✅ Toast notifications for server errors
-- ✅ Bot list with flags and authors (`BotListUpdate`)
+- ✅ Bot list with flags, authors, description, platform icons (`BotListUpdate`)
+- ✅ Platform icons: custom SVGs for Java, Python, .NET
 - ✅ "Connected Bots" header (hidden when waiting)
 - ✅ "Waiting for bots to connect..." pulsing message
 - ✅ "Battle in progress..." pulsing message (`GameStartedEventForObserver`)
 - ✅ Full results table (`GameEndedEventForObserver`)
 - ✅ Mini bot list shown during results (60% scale, updates live)
+- ✅ Results backdrop overlay for visual clarity
+- ✅ Auto-scaling: bot list and results scale down to fit viewport
 - ✅ Game abort handling (`GameAbortedEvent`)
 - ✅ View states: Connecting → Waiting → Battle → Results
 
@@ -32,8 +35,9 @@ This document tracks implementation progress for AI assistants and developers re
 src/
 ├── main.ts           # Entry point, wires modules together (~65 lines)
 ├── connection.ts     # WebSocket + handshake + reconnect (~140 lines)
-├── ui.ts             # DOM manipulation + view states (~165 lines)
-└── style.css         # Styling (~325 lines)
+├── ui.ts             # DOM manipulation + view states (~230 lines)
+├── style.css         # Styling (~360 lines)
+└── assets/           # Platform icons (java.svg, python.svg, dotnet.svg)
 ```
 
 ## Implementation Phases

@@ -149,6 +149,7 @@ body {
   height: 100vh;
   justify-content: center;
   align-items: center;
+  transform-origin: center center;
 }
 
 #bot-list-container.visible {
@@ -233,6 +234,21 @@ body {
   margin-right: 8px;
 }
 
+#bot-list .bot-description {
+  color: #888;
+  max-width: 300px;
+}
+
+#bot-list .bot-platform {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.platform-icon {
+  width: 24px;
+  height: 24px;
+}
+
 #battle-container {
   display: none;
   position: fixed;
@@ -254,6 +270,21 @@ body {
   animation: pulse 1.5s ease-in-out infinite;
 }
 
+#results-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 10;
+}
+
+#results-backdrop.visible {
+  display: block;
+}
+
 #results-container {
   display: none;
   position: fixed;
@@ -265,6 +296,8 @@ body {
   align-items: center;
   flex-direction: column;
   gap: 20px;
+  z-index: 11;
+  transform-origin: center center;
 }
 
 #results-container.visible {
