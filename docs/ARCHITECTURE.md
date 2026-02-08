@@ -239,7 +239,7 @@ The panel should slide in/out smoothly and auto-hide when connection is establis
 +-------------------------------------------------------------------+
 |                           Browser                                 |
 |  +-----------+  +------------+  +----------+  +-------------+     |
-|  |    UI     |  | Connection |  |  Game    |  |  Renderer   |     |
+|  |    UI     |  | Connection |  |  Game    |  |  Rendering  |     |
 |  |   (DOM)   |  | (WebSocket)|  |  State   |  |  (PixiJS)   |     |
 |  +-----+-----+  +------+-----+  +----+-----+  +------+------+     |
 |        |               |             |               |            |
@@ -275,13 +275,23 @@ The panel should slide in/out smoothly and auto-hide when connection is establis
 - Tracks round and turn numbers
 - Accumulates results for display
 
-#### Renderer (`renderer.ts`)
+#### Rendering Module (`rendering/`)
+A modular system for GPU-accelerated battle visualization:
+
+- **`index.ts`** - PixiJS application lifecycle, orchestration, re-exports
+- **`arena.ts`** - Arena background and border rendering
+- **`tank.ts`** - Bot/tank graphics creation and update
+- **`bullets.ts`** - Bullet rendering with size based on power
+- **`effects.ts`** - Explosions and burst effects (tick-based timing)
+- **`colors.ts`** - Color constants, parsing, and interpolation utilities
+
+Key responsibilities:
 - Initializes PixiJS application with WebGL
 - Creates and manages graphics objects for bots and bullets
 - Updates graphics positions each tick
-- Renders bot components: body (circle), turret (line), radar (arc)
-- Displays visual effects (explosions, hits)
-- Shows results overlay when battle ends
+- Renders bot components: body (square), turret, radar (future)
+- Displays visual effects (explosions, hit bursts)
+- Handles coordinate transform (Y-flip from game to screen)
 
 #### UI (`ui.ts`)
 - Manages DOM elements for controls

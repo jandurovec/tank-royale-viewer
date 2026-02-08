@@ -249,26 +249,6 @@ body {
   height: 24px;
 }
 
-#battle-container {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  justify-content: center;
-  align-items: center;
-}
-
-#battle-container.visible {
-  display: flex;
-}
-
-#battle-message {
-  color: #888;
-  font-size: 18px;
-  animation: pulse 1.5s ease-in-out infinite;
-}
 
 #results-backdrop {
   display: none;
@@ -354,6 +334,14 @@ body {
 #results-table tr:nth-child(3) td:first-child { color: #cd7f32; }
 
 #arena {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
+  z-index: 1;
+}
+
+#arena canvas {
+  display: block;
 }

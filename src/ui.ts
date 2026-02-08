@@ -12,7 +12,6 @@ const debugLogCheckbox = document.getElementById('debug-log') as HTMLInputElemen
 const saveBtn = document.getElementById('save-btn')!
 const botListContainer = document.getElementById('bot-list-container')!
 const botListBody = document.querySelector('#bot-list tbody')!
-const battleContainer = document.getElementById('battle-container')!
 const resultsContainer = document.getElementById('results-container')!
 const resultsBackdrop = document.getElementById('results-backdrop')!
 const resultsBody = document.querySelector('#results-table tbody')!
@@ -153,23 +152,12 @@ export function showBotList(): void {
   botListContainer.classList.add('visible')
   botListContainer.classList.remove('mini')
   botListContainer.style.transform = ''
-  battleContainer.classList.remove('visible')
   resultsContainer.classList.remove('visible')
   scaleToFit(botListContainer)
 }
 
 export function hideBotList(): void {
   botListContainer.classList.remove('visible')
-}
-
-export function showBattle(): void {
-  botListContainer.classList.remove('visible')
-  battleContainer.classList.add('visible')
-  resultsContainer.classList.remove('visible')
-}
-
-export function hideBattle(): void {
-  battleContainer.classList.remove('visible')
 }
 
 export interface Participant {
@@ -194,7 +182,6 @@ export interface BotResult {
 }
 
 export function showResults(results: BotResult[], participants: Participant[]): void {
-  battleContainer.classList.remove('visible')
   resultsBackdrop.classList.add('visible')
   resultsContainer.classList.add('visible')
   botListContainer.classList.add('visible')
