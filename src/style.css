@@ -196,6 +196,44 @@ body {
   background: #22c55e;
 }
 
+#settings-panel button.danger {
+  background: #dc2626;
+}
+
+#settings-panel button.danger:hover {
+  background: #b91c1c;
+}
+
+.settings-divider {
+  height: 1px;
+  background: #444;
+  margin: 8px 0;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-section-title {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.settings-button-row {
+  display: flex;
+  gap: 8px;
+}
+
+.settings-button-row button {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
 #bot-list-container {
   display: none;
   position: fixed;
@@ -206,6 +244,7 @@ body {
   justify-content: center;
   align-items: center;
   transform-origin: center center;
+  z-index: 5;
 }
 
 #bot-list-container.visible {
@@ -261,6 +300,7 @@ body {
   border-radius: 8px;
   border-collapse: collapse;
   min-width: 400px;
+  overflow: visible;
 }
 
 #bot-list th,
@@ -356,7 +396,7 @@ body {
   border-collapse: separate;
   border-spacing: 0;
   border: 4px solid #555;
-  overflow: hidden;
+  overflow: visible;
 }
 
 #results-table th,
@@ -375,6 +415,10 @@ body {
   font-weight: 500;
   text-transform: uppercase;
   border-bottom: 1px solid #333;
+}
+
+.no-transform {
+  text-transform: none;
 }
 
 #results-table td {
@@ -440,4 +484,72 @@ body {
 
 #arena canvas {
   display: block;
+}
+
+/* Rank tier colors */
+.rank-tier {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.tier-scrap {
+  color: #8b4513;
+}
+
+.tier-rookie {
+  color: #888;
+}
+
+.tier-veteran {
+  color: #c0c0c0;
+}
+
+.tier-elite {
+  color: #ffd700;
+}
+
+.tier-legend {
+  color: #ff6b00;
+  text-shadow: 0 0 8px rgba(255, 107, 0, 0.6);
+}
+
+/* Rating column */
+.rating-col {
+  font-variant-numeric: tabular-nums;
+  color: #aaa;
+  white-space: nowrap;
+  position: relative;
+  cursor: help;
+}
+
+.rating-col[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #555;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 9999;
+  pointer-events: none;
+  margin-top: 4px;
+}
+
+.delta-up {
+  color: #4caf50;
+}
+
+.delta-down {
+  color: #f44336;
+}
+
+.delta-zero {
+  color: #666;
 }

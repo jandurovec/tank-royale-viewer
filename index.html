@@ -28,10 +28,24 @@
         <span id="scan-opacity-value">5%</span>
       </label>
       <label class="checkbox">
+        <input type="checkbox" id="show-ratings" checked />
+        Show skill ratings
+      </label>
+      <label class="checkbox">
         <input type="checkbox" id="debug-log" />
         Enable debug logging
       </label>
       <button id="save-btn">Save</button>
+      <div class="settings-divider"></div>
+      <div class="settings-section">
+        <span class="settings-section-title">Skill Ratings</span>
+        <div class="settings-button-row">
+          <button id="export-ratings-btn" type="button">Export</button>
+          <button id="import-ratings-btn" type="button">Import</button>
+          <button id="reset-ratings-btn" type="button" class="danger">Reset</button>
+        </div>
+        <input type="file" id="import-ratings-file" accept=".json" style="display: none" />
+      </div>
     </div>
     <div id="bot-list-container">
       <div id="waiting-message">Waiting for bots to connect...</div>
@@ -40,6 +54,8 @@
         <thead>
           <tr>
             <th>Bot</th>
+            <th>Tier</th>
+            <th>Rating</th>
             <th>Author</th>
             <th>Description</th>
             <th></th>
@@ -54,8 +70,10 @@
       <table id="results-table">
         <thead>
           <tr>
-            <th>Rank</th>
+            <th>#</th>
             <th>Bot</th>
+            <th>Tier</th>
+            <th>Rating</th>
             <th>Total</th>
             <th>Survival</th>
             <th>(bonus)</th>

@@ -6,8 +6,8 @@ This document tracks implementation progress for AI assistants and developers re
 
 ## Current State
 
-**Phase:** 4 (Polish) - Complete
-**Status:** Full battle viewer with tank rendering, effects, and health bars
+**Phase:** 5 (Skill Rating System) - In Progress
+**Status:** Full battle viewer with skill ratings, only SVG rank icons remaining
 
 ### What's Working
 
@@ -20,11 +20,13 @@ This document tracks implementation progress for AI assistants and developers re
 #### UI & Status
 - ✅ Status indicator: pulsing "Connecting..." → green "LIVE" box with drop shadow
 - ✅ Round/turn indicator during battle (LIVE | ROUND X | TURN Y)
-- ✅ Settings dialog (gear icon): server URL, secret, debug logging, scan opacity slider
+- ✅ Settings dialog (gear icon): server URL, secret, debug logging, scan opacity slider, show ratings toggle
+- ✅ Skill ratings export/import/reset in settings
 - ✅ View states: Connecting → Waiting → Battle → Results
 
 #### Bot List
 - ✅ Bot list with flags, authors, description, platform icons
+- ✅ Skill rating columns: Tier + conservative rating (with μ/σ tooltip)
 - ✅ Platform icons: custom SVGs for Java, Python, .NET
 - ✅ "Waiting for bots to connect..." pulsing message
 - ✅ Auto-scaling to fit viewport
@@ -52,6 +54,7 @@ This document tracks implementation progress for AI assistants and developers re
 
 #### Results
 - ✅ Full results table with compact bonus columns
+- ✅ Skill rating columns: Tier + conservative rating with delta indicators (▲/▼)
 - ✅ Medal-style rank indicators (gold/silver/bronze circles) for top 3
 - ✅ Bold bot names
 - ✅ Mini bot list shown during results (60% scale)
@@ -72,6 +75,7 @@ src/
 ├── ui.ts             # DOM manipulation + view states
 ├── style.css         # Styling
 ├── settings.ts       # Settings persistence (localStorage)
+├── ratings.ts        # Skill rating system (OpenSkill, localStorage)
 ├── assets/           # Platform icons (java.svg, python.svg, dotnet.svg)
 └── rendering/
     ├── index.ts      # PixiJS app lifecycle, orchestration
@@ -122,13 +126,28 @@ src/
 - [x] Health bar shrinks toward center as HP decreases
 - [x] Droid max HP (120) vs normal bot max HP (100) supported
 
-### Phase 5: TrueSkill Ratings (Not Started)
+### Phase 5: Skill Rating System (In Progress)
 
-- [ ] Local TrueSkill implementation
-- [ ] Store ratings in settings module
-- [ ] Update ratings after each battle
-- [ ] Display in bot list (star rating or tier icons)
-- [ ] Export/import JSON
+Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
+
+- [x] Install openskill, create `ratings.ts` module
+- [x] Rating parameters: mu=1200, sigma=400, indexed by bot name
+- [x] Version change handling: keep mu, reset sigma
+- [x] Rank tiers based on conservative rating (mu - 3×sigma):
+  - Scrap (<600), Rookie (600-900), Veteran (900-1100), Elite (1100-1300), Legend (>1300)
+  - Rationale: With μ=1200, σ=400 initial (per OpenSkill guideline: σ=μ/3), steady-state σ≈80-100.
+    An average bot (μ=1200) at steady-state has conservative rating ~900 (Rookie).
+    New bots start at conservative rating 0 (Scrap) due to high uncertainty.
+- [x] Update ratings on GameEndedEventForObserver
+- [x] Bot list table: add rank + mu columns
+- [x] Results table: add rank + mu + change indicator (▲/▼)
+- [x] Settings: export/import JSON, reset ratings
+- [ ] Create rank tier SVG icons (hexagon badges with progression):
+  - Scrap: rusty brown with rust spots
+  - Rookie: gray with chevron
+  - Veteran: silver with star
+  - Elite: gold with star + wings
+  - Legend: ornate gold with star + wings + laurel
 
 ### Phase 6: Arena Background (Not Started)
 

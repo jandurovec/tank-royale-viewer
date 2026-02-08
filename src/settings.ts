@@ -5,13 +5,15 @@ export interface Settings {
   secret: string
   debug: boolean
   scanOpacity: number
+  showRatings: boolean
 }
 
 const DEFAULTS: Settings = {
   url: 'ws://localhost:7654',
   secret: '',
   debug: false,
-  scanOpacity: 5
+  scanOpacity: 5,
+  showRatings: true
 }
 
 let current: Settings = { ...DEFAULTS }
@@ -26,7 +28,8 @@ export function load(): Settings {
         url: typeof parsed.url === 'string' ? parsed.url : DEFAULTS.url,
         secret: typeof parsed.secret === 'string' ? parsed.secret : DEFAULTS.secret,
         debug: typeof parsed.debug === 'boolean' ? parsed.debug : DEFAULTS.debug,
-        scanOpacity: typeof parsed.scanOpacity === 'number' ? parsed.scanOpacity : DEFAULTS.scanOpacity
+        scanOpacity: typeof parsed.scanOpacity === 'number' ? parsed.scanOpacity : DEFAULTS.scanOpacity,
+        showRatings: typeof parsed.showRatings === 'boolean' ? parsed.showRatings : DEFAULTS.showRatings
       }
     }
   } catch {

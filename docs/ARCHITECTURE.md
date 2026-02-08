@@ -191,37 +191,54 @@ Bullets vary in size based on power (float range 0–3):
 
 Bullet size should be proportional to power for visual distinction.
 
-## Phase 5: TrueSkill Rating System
+## Phase 5: Skill Rating System
 
-A local rating system that tracks bot performance over time.
+A local rating system that tracks bot performance over time using the OpenSkill algorithm.
+
+### OpenSkill Configuration
+
+- **Library:** `openskill` (npm package)
+- **Parameters:** μ=1200, σ=400, β=200, z=3
+- **Conservative rating:** μ - 3σ (determines rank tier)
+- New bots start at conservative rating 0 (Scrap tier) due to high initial σ
+- Steady-state σ converges to ~80-100 after ~40-50 games
+
+### Rank Tiers
+
+Based on conservative rating (μ - 3σ):
+- **Scrap:** < 600
+- **Rookie:** 600–900
+- **Veteran:** 900–1100
+- **Elite:** 1100–1300
+- **Legend:** > 1300
 
 ### Features
 
-- **Local TrueSkill ratings** indexed by bot name
-- **Persisted in localStorage** - survives browser refresh, accumulates across sessions
-- **Recalculated after each battle** based on results (rankings)
-- **Displayed in bot list** (State 2) as star rating or rank icons
-- **Export/Import JSON** from settings dialog (nice-to-have)
+- **Local OpenSkill ratings** indexed by bot name ("Name Version" format)
+- **Persisted in localStorage** (`tank-royale-viewer-ratings`) - survives browser refresh
+- **Recalculated after each battle** based on final rankings
+- **Displayed in both tables** (connected bots and results)
+- **Enable/disable toggle** in settings (defaults to enabled)
+- **Export/Import/Reset** functionality in settings panel
 
 ### Storage Schema
 
 ```json
 {
-  "ratings": {
-    "Spin Bot 1.0": { "mu": 25.0, "sigma": 8.333 },
-    "Fire 1.0": { "mu": 27.5, "sigma": 6.2 },
-    ...
-  },
-  "lastUpdated": "2026-02-08T12:00:00Z"
+  "Spin Bot 1.0": { "mu": 1250.5, "sigma": 85.2 },
+  "Fire 1.0": { "mu": 1180.3, "sigma": 92.1 }
 }
 ```
 
+Storage key: `tank-royale-viewer-ratings`
+
 ### Display
 
-In the bot list table (State 2), show rating as:
-- Star rating (1-5 stars based on mu)
-- Or rank tier icons (Bronze/Silver/Gold/Platinum/Diamond)
-- Tooltip showing exact mu/sigma values
+Both bot list (State 2) and results (State 4) tables show:
+- **Tier column:** Rank tier name with color coding
+- **Rating column:** Conservative rating value
+- **Tooltip (CSS):** Shows μ and σ values on hover via `data-tooltip` attribute
+- **Results table:** Also shows delta indicator (▲/▼) for rating change after battle
 
 ## Phase 6: Arena Background Customization
 
@@ -309,15 +326,22 @@ Key responsibilities:
 - Provides typed Settings interface
 - Handles load/save with fallback to defaults on parse errors
 - Settings survive browser refresh
-- Future: TrueSkill ratings, arena background image
+- Includes `showRatings` toggle for enabling/disabling skill rating display
 
 #### UI (`ui.ts`)
 - Manages DOM elements for controls
 - Server URL input and connect button
 - Connection status indicator
 - Battle information display (round, turn)
-- Bot list and results display
+- Bot list and results display with optional rating columns
 - Binds settings values to form inputs
+- Handles rating export/import/reset with error toasts
+
+#### Ratings (`ratings.ts`)
+- OpenSkill integration for rating calculations
+- Persistence to localStorage
+- Rank tier calculation from conservative rating
+- Rating updates after each completed battle
 
 #### Main (`main.ts`)
 - Application entry point

@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "flag-icons": "^7.5.0",
+    "openskill": "^4.1.0",
     "pixi.js": "^8.16.0"
   }
 }

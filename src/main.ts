@@ -4,6 +4,7 @@ import { createConnection } from './connection.js'
 import * as ui from './ui.js'
 import * as renderer from './rendering/index.js'
 import * as gameState from './gameState.js'
+import * as ratings from './ratings.js'
 import type { BotInfo, Participant, BotResult } from './ui.js'
 import type { BotState, BulletState, GameSetup } from './gameState.js'
 
@@ -31,6 +32,8 @@ interface GameStartedMessage {
 
 let lastSettings = ui.getSettings()
 let participants: Participant[] = []
+let currentBots: BotInfo[] = []
+let lastResults: { results: BotResult[]; participants: Participant[]; oldRatings: ReturnType<typeof ui.captureRatingsSnapshot> } | null = null
 
 function processTickEvent(event: TickEvent, botStates: BotState[]): void {
   switch (event.type) {
@@ -94,7 +97,8 @@ const connection = createConnection({
     const m = msg as { type: string; bots?: BotInfo[]; results?: BotResult[] }
     switch (m.type) {
       case 'BotListUpdate':
-        ui.updateBotList(m.bots || [])
+        currentBots = m.bots || []
+        ui.updateBotList(currentBots)
         break
       case 'GameStartedEventForObserver': {
         const gameMsg = msg as GameStartedMessage
@@ -127,11 +131,23 @@ const connection = createConnection({
         }
         break
       }
-      case 'GameEndedEventForObserver':
+      case 'GameEndedEventForObserver': {
         renderer.hide()
         ui.hideRoundTurn()
-        ui.showResults(m.results || [], participants)
+        const results = m.results || []
+        // Capture old ratings before update for delta display
+        const oldRatings = ui.captureRatingsSnapshot(results, participants)
+        // Update ratings based on results
+        const rankedResults = results.map(r => {
+          const p = participants.find(p => p.id === r.id)
+          return { name: p?.name || '', version: p?.version || '', rank: r.rank }
+        }).filter(r => r.name)
+        ratings.updateRatings(rankedResults)
+        // Store for re-render on settings change
+        lastResults = { results, participants, oldRatings }
+        ui.showResults(results, participants, oldRatings)
         break
+      }
       case 'GameAbortedEvent':
         renderer.hide()
         ui.hideRoundTurn()
@@ -154,6 +170,16 @@ ui.onSettingsSave(() => {
   if (settings.url !== lastSettings.url || settings.secret !== lastSettings.secret || !connection.isConnected()) {
     lastSettings = settings
     connection.connect(settings.url, settings.secret)
+  }
+})
+
+// Subscribe to showRatings changes to re-render tables
+ui.onShowRatingsChange(() => {
+  if (currentBots.length > 0) {
+    ui.updateBotList(currentBots)
+  }
+  if (lastResults) {
+    ui.showResults(lastResults.results, lastResults.participants, lastResults.oldRatings)
   }
 })
 
