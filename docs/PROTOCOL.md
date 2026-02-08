@@ -61,6 +61,31 @@ Observer must respond to identify itself:
 
 The `secret` field is only required if the server has secrets enabled.
 
+## Bot List
+
+### BotListUpdate
+
+Sent to observers when bots connect or disconnect, and immediately after observer handshake:
+
+```json
+{
+  "type": "BotListUpdate",
+  "bots": [
+    {
+      "sessionId": "bot-session-id",
+      "name": "MyBot",
+      "version": "1.0",
+      "authors": ["Author Name"],
+      "countryCodes": ["US"],
+      "host": "127.0.0.1",
+      "port": 54321
+    }
+  ]
+}
+```
+
+The `bots` array contains all currently connected bots (full list, not delta). May be empty.
+
 ## Game Events
 
 ### GameStartedEventForObserver

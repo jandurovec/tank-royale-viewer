@@ -13,6 +13,7 @@
     "vite": "^7.2.4"
   },
   "dependencies": {
+    "flag-icons": "^7.5.0",
     "pixi.js": "^8.16.0"
   }
 }

@@ -140,6 +140,74 @@ body {
   background: #22c55e;
 }
 
+#bot-list-container {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+
+#bot-list-container.visible {
+  display: flex;
+}
+
+#waiting-message {
+  display: none;
+  color: #888;
+  font-size: 18px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+#bot-list-container.empty #waiting-message {
+  display: block;
+}
+
+#bot-list-container.empty #bot-list {
+  display: none;
+}
+
+#bot-list {
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  border-collapse: collapse;
+  min-width: 400px;
+}
+
+#bot-list th,
+#bot-list td {
+  padding: 12px 20px;
+  text-align: left;
+}
+
+#bot-list th {
+  color: #888;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-bottom: 1px solid #333;
+}
+
+#bot-list td {
+  font-size: 14px;
+  border-bottom: 1px solid #222;
+}
+
+#bot-list tr:last-child td {
+  border-bottom: none;
+}
+
+#bot-list .bot-name {
+  font-weight: 500;
+}
+
+#bot-list .bot-flag {
+  margin-right: 8px;
+}
+
 #arena {
   width: 100vw;
   height: 100vh;

@@ -1,16 +1,30 @@
 import './style.css'
+import 'flag-icons/css/flag-icons.min.css'
 import { createConnection } from './connection.js'
 import * as ui from './ui.js'
+import type { BotInfo } from './ui.js'
 
 let lastSettings = ui.getSettings()
 
 const connection = createConnection({
-  onConnecting: () => ui.setStatus('connecting'),
-  onConnected: () => ui.setStatus('live'),
-  onDisconnected: () => ui.setStatus('connecting'),
+  onConnecting: () => {
+    ui.setStatus('connecting')
+    ui.hideBotList()
+  },
+  onConnected: () => {
+    ui.setStatus('live')
+    ui.showBotList()
+  },
+  onDisconnected: () => {
+    ui.setStatus('connecting')
+    ui.hideBotList()
+  },
   onError: (msg) => ui.showToast(`Server: ${msg}`),
-  onMessage: (_msg) => {
-    // Future: handle game messages
+  onMessage: (msg) => {
+    const m = msg as { type: string; bots?: BotInfo[] }
+    if (m.type === 'BotListUpdate' && m.bots) {
+      ui.updateBotList(m.bots)
+    }
   },
   debug: (...args) => {
     if (ui.isDebugEnabled()) console.log(...args)

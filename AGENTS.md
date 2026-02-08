@@ -54,6 +54,24 @@ const count = items.length; // Get the length of items
 if (rating.sigma < 2.0) { ... }
 ```
 
+## Code Quality Review
+
+**After completing any feature or making significant changes**, review the code for:
+
+1. **Modularization** - Is code in the correct module per documentation in `docs/`? Each module should have a single responsibility.
+
+2. **Module coupling** - Do modules communicate via callbacks/interfaces, not direct dependencies? Modules should not know about each other's internals.
+
+3. **Code duplication** - Is there repeated code that should be extracted?
+
+4. **Complexity** - Can any code be simplified? Are there unnecessary abstractions?
+
+5. **TypeScript** - Does it compile with `npx tsc --noEmit`?
+
+6. **Whitespace** - No trailing whitespace. Lines should not end with spaces or tabs.
+
+If refactoring is needed, do it before marking the task complete.
+
 ## Key Conventions
 
 ### TypeScript
