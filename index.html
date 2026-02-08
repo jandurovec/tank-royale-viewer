@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Robocode Tank Royale Viewer</title>
+  </head>
+  <body>
+    <div id="toast"></div>
+    <div id="status"></div>
+    <button id="settings-btn" title="Settings">&#9881;</button>
+    <div id="settings-panel">
+      <label>
+        Server URL
+        <input type="text" id="server-url" value="ws://localhost:7654" />
+      </label>
+      <label>
+        Secret (optional)
+        <input type="password" id="server-secret" value="" placeholder="Leave blank if not required" />
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" id="debug-log" />
+        Enable debug logging
+      </label>
+      <button id="save-btn">Save</button>
+    </div>
+    <div id="arena"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

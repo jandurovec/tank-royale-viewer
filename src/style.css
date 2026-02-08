@@ -1,0 +1,146 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #1a1a1a;
+  color: #fff;
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+
+#toast {
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #dc2626;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 200;
+  transition: top 0.3s ease;
+  max-width: 80%;
+  text-align: center;
+}
+
+#toast.show {
+  top: 16px;
+}
+
+#status {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 100;
+}
+
+#status.connecting {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+#status.live {
+  background: #22c55e;
+  color: #fff;
+  font-weight: 700;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+#settings-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 4px;
+  color: #888;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 100;
+}
+
+#settings-btn:hover {
+  color: #fff;
+}
+
+#settings-panel {
+  display: none;
+  position: fixed;
+  top: 60px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 8px;
+  padding: 16px;
+  z-index: 100;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#settings-panel.open {
+  display: flex;
+}
+
+#settings-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #888;
+}
+
+#settings-panel label.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #ccc;
+}
+
+#settings-panel input[type="text"],
+#settings-panel input[type="password"] {
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 8px;
+  color: #fff;
+  font-size: 14px;
+  width: 250px;
+}
+
+#settings-panel input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+#settings-panel button {
+  background: #4ade80;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  color: #000;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+#settings-panel button:hover {
+  background: #22c55e;
+}
+
+#arena {
+  width: 100vw;
+  height: 100vh;
+}
