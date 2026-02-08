@@ -1,0 +1,179 @@
+# Development Guide
+
+This document describes how to set up the development environment and work on the Tank Royale Battle Viewer.
+
+## Prerequisites
+
+- **Node.js** 22 or later (LTS recommended)
+- **npm** (comes with Node.js)
+- **Tank Royale Server** for testing (optional during UI development)
+
+> **Note:** Node.js 18 reached EOL in April 2025, and Node.js 20 EOL is April 2026. Use Node.js 22 LTS for longest support (until April 2027).
+
+## Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Open http://localhost:5173 in your browser
+```
+
+## Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start Vite dev server with hot reload |
+| `npm run build` | Build for production |
+| `npm run preview` | Preview production build locally |
+| `npm run lint` | Run ESLint |
+| `npm run typecheck` | Run TypeScript type checking |
+
+## Project Structure
+
+```
+tank-royale-viewer/
+├── index.html            # Entry HTML (Vite entry point)
+├── package.json          # Dependencies and scripts
+├── tsconfig.json         # TypeScript configuration
+├── vite.config.ts        # Vite configuration
+├── docs/                 # Documentation
+│   ├── ARCHITECTURE.md   # Design decisions
+│   ├── PROTOCOL.md       # WebSocket protocol reference
+│   └── DEVELOPMENT.md    # This file
+├── AGENTS.md             # AI agent instructions
+├── README.md             # User-facing documentation
+└── src/
+    ├── main.ts           # Application entry point
+    ├── connection.ts     # WebSocket connection manager
+    ├── gameState.ts      # Game state management
+    ├── renderer.ts       # PixiJS rendering
+    ├── ui.ts             # UI controls
+    ├── styles.css        # Application styles
+    └── types/
+        └── protocol.ts   # TypeScript type definitions
+```
+
+## Development Workflow
+
+### Running with Tank Royale Server
+
+1. Download Tank Royale from [releases](https://github.com/robocode-dev/tank-royale/releases)
+2. Start the GUI: `java -jar robocode-tankroyale-gui-x.y.z.jar`
+3. The server starts automatically on `ws://localhost:7654`
+4. Start the viewer: `npm run dev`
+5. Connect to the server and start a battle in the Tank Royale GUI
+
+### Running without Server (UI Development)
+
+For UI development without a running server, you can:
+- Work on styling and layout
+- Test connection error handling
+- Mock game state for rendering tests
+
+### Hot Module Replacement
+
+Vite provides instant updates when you save files:
+- TypeScript changes: Automatically recompiled and reloaded
+- CSS changes: Injected without full page reload
+- HTML changes: Full page reload
+
+## Code Style
+
+### TypeScript
+
+- Use strict mode (`strict: true` in tsconfig)
+- Prefer `const` over `let`
+- Use explicit return types for functions
+- Use interfaces for object shapes, types for unions/primitives
+
+### Naming Conventions
+
+- **Files:** `camelCase.ts`
+- **Classes:** `PascalCase`
+- **Functions/variables:** `camelCase`
+- **Constants:** `SCREAMING_SNAKE_CASE`
+- **Types/Interfaces:** `PascalCase`
+
+### Imports
+
+- Use named imports where possible
+- Group imports: external packages first, then local modules
+- Use `.js` extension in imports (required for ES modules)
+
+```typescript
+// External
+import { Application, Graphics } from 'pixi.js';
+
+// Local
+import { GameState } from './gameState.js';
+import type { BotState } from './types/protocol.js';
+```
+
+## Testing with Tank Royale
+
+### Local Server Setup
+
+1. Ensure Java 11+ is installed
+2. Download the GUI JAR from releases
+3. Run: `java -jar robocode-tankroyale-gui-x.y.z.jar`
+4. Add sample bots from the Config menu
+5. Start a battle from Battle → New Battle
+
+### Server URL
+
+- Default: `ws://localhost:7654`
+- Can be changed in Server Options in the GUI
+
+### Server Secrets
+
+If secrets are enabled on the server:
+1. Find `server.properties` in the Tank Royale config directory
+2. Copy the `controller-secrets` value
+3. Enter it in the viewer when connecting
+
+## Building for Production
+
+```bash
+# Create optimized build
+npm run build
+
+# Output is in dist/ folder
+```
+
+The production build:
+- Bundles and minifies JavaScript
+- Tree-shakes unused code
+- Generates source maps
+- Can be served by any static file server
+
+## Troubleshooting
+
+### "WebSocket connection failed"
+
+- Ensure Tank Royale server is running
+- Check the server URL (default: `ws://localhost:7654`)
+- Check if server secrets are required
+
+### "TypeScript errors"
+
+- Run `npm run typecheck` for detailed errors
+- Ensure all imports use `.js` extension
+
+### "PixiJS WebGL not working"
+
+- Check browser WebGL support: `chrome://gpu`
+- PixiJS falls back to Canvas automatically
+- Try a different browser
+
+## Contributing
+
+1. Create a feature branch
+2. Make changes with tests
+3. Run `npm run lint` and `npm run typecheck`
+4. Submit a pull request
+
+See AGENTS.md for coding conventions that help maintain consistency.
