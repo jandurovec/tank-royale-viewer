@@ -14,7 +14,7 @@ const Z_FACTOR = 3 // Conservative rating = mu - z*sigma
 
 // Beta controls convergence speed (default is sigma/2)
 // Lower beta = faster convergence, higher = more stable but slower
-const BETA = 200 // Default would be 200 with sigma=400
+const BETA = 100 // Faster convergence - bot battles are mostly skill-determined
 
 const options: Options = {
   mu: DEFAULT_MU,

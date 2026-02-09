@@ -198,11 +198,11 @@ A local rating system that tracks bot performance over time using the OpenSkill 
 ### OpenSkill Configuration
 
 - **Library:** `openskill` (npm package)
-- **Parameters:** μ=1200, σ=400, β=200, z=3
+- **Parameters:** μ=1200, σ=400, β=100, z=3
 - **Conservative rating:** μ - 3σ (determines rank tier after placement games)
+- **Beta=100** (vs default 200): Faster convergence, assuming bot battles are mostly skill-determined
 - Bots below the ranked games threshold are **Unranked** regardless of rating
-- Bots between ranked and provisional thresholds have **Provisional** rank (icon at 60% opacity)
-- Steady-state σ converges to ~80-100 after ~40-50 games
+- Bots between ranked and provisional thresholds have **Provisional** rank (icon at 50% opacity)
 
 ### Rank Tiers
 

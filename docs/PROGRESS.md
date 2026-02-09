@@ -132,7 +132,8 @@ src/
 Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
 
 - [x] Install openskill, create `ratings.ts` module
-- [x] Rating parameters: mu=1200, sigma=400, indexed by bot name
+- [x] Rating parameters: mu=1200, sigma=400, beta=100, z=3, indexed by bot name
+- [x] Beta=100 for faster convergence (bot battles are mostly skill-determined)
 - [x] Version change handling: keep mu, reset sigma
 - [x] Rank tiers based on value-based percentiles among fully-ranked bots:
   - Scrap (bottom 20%), Rookie (20-60%), Veteran (60-80%), Elite (80-95%), Legend (top 5%)
@@ -142,8 +143,6 @@ Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
   - Provisional games threshold configurable in settings (default: 50)
   - Provisional ranks shown with 50% opacity icon and "Provisional [Tier]" tooltip
   - Unranked bots have dimmed rating display (50% opacity)
-  - Rationale: With μ=1200, σ=400 initial (per OpenSkill guideline: σ=μ/3), steady-state σ≈80-100.
-    Bots must play 20 games before receiving a ranked tier.
 - [x] Module separation: tiers.ts (pure calculation) vs ratings.ts (storage + Unranked logic)
 - [x] Debug logging for tier calculations (eligible bots, thresholds, assignments)
 - [x] Games counter: tracks number of ranked games per bot
