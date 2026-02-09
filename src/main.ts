@@ -143,6 +143,8 @@ const connection = createConnection({
           return { name: p?.name || '', version: p?.version || '', rank: r.rank }
         }).filter(r => r.name)
         ratings.updateRatings(rankedResults)
+        // Refresh bot list with updated tiers
+        ui.updateBotList(currentBots)
         // Store for re-render on settings change
         lastResults = { results, participants, oldRatings }
         ui.showResults(results, participants, oldRatings)
@@ -163,10 +165,8 @@ const connection = createConnection({
 
 ui.onSettingsToggle(() => ui.toggleSettings())
 
-ui.onSettingsSave(() => {
-  ui.saveCurrentSettings()
+ui.onConnectionSettingsChange(() => {
   const settings = ui.getSettings()
-  ui.closeSettings()
   if (settings.url !== lastSettings.url || settings.secret !== lastSettings.secret || !connection.isConnected()) {
     lastSettings = settings
     connection.connect(settings.url, settings.secret)

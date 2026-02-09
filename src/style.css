@@ -355,6 +355,14 @@ body {
   vertical-align: middle;
 }
 
+.tier-icon.provisional {
+  opacity: 0.5;
+}
+
+.rating-col.unranked {
+  opacity: 0.5;
+}
+
 
 #results-backdrop {
   display: none;

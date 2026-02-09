@@ -75,7 +75,8 @@ src/
 ├── ui.ts             # DOM manipulation + view states
 ├── style.css         # Styling
 ├── settings.ts       # Settings persistence (localStorage)
-├── ratings.ts        # Skill rating system (OpenSkill, localStorage)
+├── ratings.ts        # Skill rating system (OpenSkill, localStorage, Unranked handling)
+├── tiers.ts          # Pure tier calculation (value-based percentiles, caching)
 ├── assets/           # Platform icons (java.svg, python.svg, dotnet.svg)
 └── rendering/
     ├── index.ts      # PixiJS app lifecycle, orchestration
@@ -133,16 +134,25 @@ Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
 - [x] Install openskill, create `ratings.ts` module
 - [x] Rating parameters: mu=1200, sigma=400, indexed by bot name
 - [x] Version change handling: keep mu, reset sigma
-- [x] Rank tiers based on conservative rating (mu - 3×sigma):
-  - Scrap (<600), Rookie (600-900), Veteran (900-1100), Elite (1100-1300), Legend (>1300)
+- [x] Rank tiers based on value-based percentiles among fully-ranked bots:
+  - Scrap (bottom 20%), Rookie (20-60%), Veteran (60-80%), Elite (80-95%), Legend (top 5%)
+  - Percentile formula: threshold = min + (percentile/100) × (max - min)
+  - Minimum bot counts for tiers: 2=Veteran, 3=Elite, 4=Scrap, 5=Legend
+  - Ranked games threshold configurable in settings (default: 20)
+  - Provisional games threshold configurable in settings (default: 50)
+  - Provisional ranks shown with 50% opacity icon and "Provisional [Tier]" tooltip
+  - Unranked bots have dimmed rating display (50% opacity)
   - Rationale: With μ=1200, σ=400 initial (per OpenSkill guideline: σ=μ/3), steady-state σ≈80-100.
-    An average bot (μ=1200) at steady-state has conservative rating ~900 (Rookie).
-    New bots start at conservative rating 0 (Scrap) due to high uncertainty.
+    Bots must play 20 games before receiving a ranked tier.
+- [x] Module separation: tiers.ts (pure calculation) vs ratings.ts (storage + Unranked logic)
+- [x] Debug logging for tier calculations (eligible bots, thresholds, assignments)
+- [x] Games counter: tracks number of ranked games per bot
 - [x] Update ratings on GameEndedEventForObserver
 - [x] Bot list table: add rank + mu columns
 - [x] Results table: add rank + mu + change indicator (▲/▼)
 - [x] Settings: export/import JSON, reset ratings
 - [x] Rank tier PNG icons (hexagon badges with progression):
+  - Unranked: shown for bots with < 20 games
   - Scrap: rusty brown with rust spots
   - Rookie: gray with chevron
   - Veteran: silver with star

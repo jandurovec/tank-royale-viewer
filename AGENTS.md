@@ -54,6 +54,16 @@ const count = items.length; // Get the length of items
 if (rating.sigma < 2.0) { ... }
 ```
 
+## Clarification
+
+**Ask for clarification** when you encounter:
+- Ambiguous or contradictory requirements
+- Gaps in specifications (e.g., undefined edge cases)
+- Technical constraints that conflict with requested features
+- Values or thresholds that don't make logical sense together
+
+Do not assume or guess. It's better to ask than to implement something incorrectly.
+
 ## Code Quality Review
 
 **After completing any feature or making significant changes**, review the code for:

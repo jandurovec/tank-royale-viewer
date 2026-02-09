@@ -199,19 +199,35 @@ A local rating system that tracks bot performance over time using the OpenSkill 
 
 - **Library:** `openskill` (npm package)
 - **Parameters:** μ=1200, σ=400, β=200, z=3
-- **Conservative rating:** μ - 3σ (determines rank tier)
-- New bots start at conservative rating 0 (Scrap tier) due to high initial σ
+- **Conservative rating:** μ - 3σ (determines rank tier after placement games)
+- Bots below the ranked games threshold are **Unranked** regardless of rating
+- Bots between ranked and provisional thresholds have **Provisional** rank (icon at 60% opacity)
 - Steady-state σ converges to ~80-100 after ~40-50 games
 
 ### Rank Tiers
 
-Based on conservative rating (μ - 3σ):
-- **Scrap:** < 600
-- **Rookie:** 600–900
-- **Veteran:** 900–1100
-- **Elite:** 1100–1300
-- **Legend:** > 1300
+Bots progress through ranking stages:
+- **Unranked:** below ranked games threshold (default: 20, configurable)
+- **Provisional [Tier]:** between ranked and provisional threshold (default: 50, configurable) - icon shown at 50% opacity
+- **Full rank:** at or above provisional games threshold
 
+Ranked tiers calculated as value-based percentiles among fully-ranked bots:
+- **Scrap:** bottom 20% (rating < min + 0.20 × range)
+- **Rookie:** 20th-60th percentile
+- **Veteran:** 60th-80th percentile
+- **Elite:** 80th-95th percentile
+- **Legend:** top 5% (rating ≥ min + 0.95 × range)
+
+Percentiles are calculated from rating values, not ranks:
+- `threshold = minRating + (percentile / 100) × (maxRating - minRating)`
+- This ensures the lowest-rated bot is always at the 0th percentile (Scrap with 4+ bots)
+
+Thresholds require minimum bot counts for each tier:
+- 1 bot: everyone is Rookie
+- 2 bots: Veteran threshold at 60%
+- 3 bots: + Elite threshold at 80%
+- 4 bots: + Scrap/Rookie boundary at 20%
+- 5+ bots: + Legend threshold at 95%
 ### Features
 
 - **Local OpenSkill ratings** indexed by bot name ("Name Version" format)
@@ -225,20 +241,30 @@ Based on conservative rating (μ - 3σ):
 
 ```json
 {
-  "Spin Bot 1.0": { "mu": 1250.5, "sigma": 85.2 },
-  "Fire 1.0": { "mu": 1180.3, "sigma": 92.1 }
+  "Spin Bot 1.0": { "mu": 1250.5, "sigma": 85.2, "version": "1.0", "games": 42 },
+  "Fire 1.0": { "mu": 1180.3, "sigma": 92.1, "version": "1.0", "games": 38 }
 }
 ```
 
 Storage key: `tank-royale-viewer-ratings`
 
+The `games` field tracks the number of ranked games played. When loading data without this field (backward compatibility), it defaults to 1 if the bot has rating data. New bots start with `games: 0`.
+
 ### Display
 
 Both bot list (State 2) and results (State 4) tables show:
-- **Tier column:** Rank tier name with color coding
-- **Rating column:** Conservative rating value
+- **Tier column:** Rank tier icon (provisional icons at 50% opacity)
+- **Rating column:** Conservative rating value (dimmed at 50% opacity for unranked bots)
 - **Tooltip (CSS):** Shows μ and σ values on hover via `data-tooltip` attribute
 - **Results table:** Also shows delta indicator (▲/▼) for rating change after battle
+
+### Debug Logging
+
+When debug mode is enabled in settings, tier calculations are logged:
+- Which bots are eligible for tier calculation (games ≥ provisionalGamesThreshold)
+- Each bot's conservative rating, μ, σ, and games count
+- Calculated tier thresholds in rating points
+- Per-bot tier assignments with reasoning
 
 ## Phase 6: Arena Background Customization
 
@@ -340,8 +366,17 @@ Key responsibilities:
 #### Ratings (`ratings.ts`)
 - OpenSkill integration for rating calculations
 - Persistence to localStorage
-- Rank tier calculation from conservative rating
+- Handles "Unranked" status for bots below games threshold
+- Delegates tier calculation to tiers module
 - Rating updates after each completed battle
+- Exports `BotTier` type ('Unranked' | Tier)
+
+#### Tiers (`tiers.ts`)
+- Pure tier calculation module (no external dependencies)
+- Value-based percentile calculation: threshold = min + (percentile/100) × range
+- Caches calculated thresholds for efficient lookups
+- Exports `Tier` type ('Scrap' | 'Rookie' | 'Veteran' | 'Elite' | 'Legend')
+- Only knows about actual tiers; 'Unranked' is handled by ratings module
 
 #### Main (`main.ts`)
 - Application entry point

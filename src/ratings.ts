@@ -1,4 +1,9 @@
 import { rating, rate, ordinal, type Options } from 'openskill'
+import * as settings from './settings.js'
+import * as tiers from './tiers.js'
+
+// Bot tier includes 'Unranked' (insufficient games) plus calculated tiers
+export type BotTier = 'Unranked' | tiers.Tier
 
 const STORAGE_KEY = 'tank-royale-viewer-ratings'
 
@@ -18,13 +23,11 @@ const options: Options = {
   z: Z_FACTOR
 }
 
-// Rank tier thresholds based on conservative rating (mu - 3×sigma)
-export type RankTier = 'Scrap' | 'Rookie' | 'Veteran' | 'Elite' | 'Legend'
-
 export interface BotRating {
   mu: number
   sigma: number
   version: string // Track version for sigma reset on change
+  games: number // Number of ranked games played
 }
 
 interface RatingsStore {
@@ -37,7 +40,14 @@ export function load(): void {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
-      ratings = JSON.parse(stored)
+      const parsed = JSON.parse(stored) as RatingsStore
+      // Migrate old data: if games field is missing, assume 1 (bot has played)
+      for (const botName of Object.keys(parsed)) {
+        if (parsed[botName].games === undefined) {
+          parsed[botName].games = 1
+        }
+      }
+      ratings = parsed
     }
   } catch {
     ratings = {}
@@ -58,18 +68,18 @@ export function getRating(botName: string): BotRating | undefined {
 
 export function getOrCreateRating(botName: string, version: string): BotRating {
   const existing = ratings[botName]
-  
+
   if (!existing) {
-    // New bot - create default rating
-    ratings[botName] = { mu: DEFAULT_MU, sigma: DEFAULT_SIGMA, version }
+    // New bot - create default rating with games=0
+    ratings[botName] = { mu: DEFAULT_MU, sigma: DEFAULT_SIGMA, version, games: 0 }
     return ratings[botName]
   }
-  
+
   if (existing.version !== version) {
-    // Version changed - keep mu, reset sigma
-    ratings[botName] = { mu: existing.mu, sigma: DEFAULT_SIGMA, version }
+    // Version changed - keep mu and games, reset sigma
+    ratings[botName] = { mu: existing.mu, sigma: DEFAULT_SIGMA, version, games: existing.games }
   }
-  
+
   return ratings[botName]
 }
 
@@ -77,18 +87,71 @@ export function getConservativeRating(botRating: BotRating): number {
   return ordinal(rating({ mu: botRating.mu, sigma: botRating.sigma }), options)
 }
 
-export function getRankTier(conservativeRating: number): RankTier {
-  if (conservativeRating < 600) return 'Scrap'
-  if (conservativeRating < 900) return 'Rookie'
-  if (conservativeRating < 1100) return 'Veteran'
-  if (conservativeRating < 1300) return 'Elite'
-  return 'Legend'
+// Update tier cache with fully-ranked bot ratings
+function updateTierCache(): void {
+  const { provisionalGamesThreshold, debug } = settings.get()
+  const eligibleBots = Object.entries(ratings)
+    .filter(([, r]) => r.games >= provisionalGamesThreshold)
+  const fullyRankedRatings = eligibleBots.map(([, r]) => getConservativeRating(r))
+  
+  if (debug) {
+    console.log('[Tiers] Recalculating tier thresholds')
+    console.log('[Tiers] Eligible bots (games >= ' + provisionalGamesThreshold + '):')
+    for (const [name, r] of eligibleBots) {
+      console.log(`  ${name}: conservative=${Math.round(getConservativeRating(r))}, mu=${Math.round(r.mu)}, sigma=${Math.round(r.sigma)}, games=${r.games}`)
+    }
+  }
+  
+  tiers.recalculateTierThresholds(fullyRankedRatings)
+  
+  if (debug) {
+    const cached = tiers.getCachedTierData()
+    if (cached) {
+      console.log('[Tiers] Calculated thresholds (rankedCount=' + cached.rankedCount + '):')
+      for (const t of cached.thresholds) {
+        console.log(`  ${t.tier}: >= ${Math.round(t.rating)}`)
+      }
+    }
+  }
 }
 
-export function getRankTierForBot(botName: string): RankTier {
+export function getRankTierForBot(botName: string): BotTier {
+  const { rankedGamesThreshold, debug } = settings.get()
   const botRating = ratings[botName]
-  if (!botRating) return 'Scrap'
-  return getRankTier(getConservativeRating(botRating))
+  if (!botRating) {
+    if (debug) console.log(`[Tiers] ${botName}: Unranked (no rating data)`)
+    return 'Unranked'
+  }
+  if (botRating.games < rankedGamesThreshold) {
+    if (debug) console.log(`[Tiers] ${botName}: Unranked (games=${botRating.games} < threshold=${rankedGamesThreshold})`)
+    return 'Unranked'
+  }
+  if (!tiers.isCacheValid()) updateTierCache()
+  const conservative = getConservativeRating(botRating)
+  const tier = tiers.getTierForRating(conservative)
+  if (debug) console.log(`[Tiers] ${botName}: ${tier} (conservative=${Math.round(conservative)}, games=${botRating.games})`)
+  return tier
+}
+
+export function getGamesToRanked(botName: string): number {
+  const threshold = settings.get().rankedGamesThreshold
+  const botRating = ratings[botName]
+  if (!botRating) return threshold
+  return Math.max(0, threshold - botRating.games)
+}
+
+export function isProvisional(botName: string): boolean {
+  const { rankedGamesThreshold, provisionalGamesThreshold } = settings.get()
+  const botRating = ratings[botName]
+  if (!botRating) return false
+  return botRating.games >= rankedGamesThreshold && botRating.games < provisionalGamesThreshold
+}
+
+export function getGamesToFullRank(botName: string): number {
+  const threshold = settings.get().provisionalGamesThreshold
+  const botRating = ratings[botName]
+  if (!botRating) return threshold
+  return Math.max(0, threshold - botRating.games)
 }
 
 export interface RankedResult {
@@ -125,14 +188,17 @@ export function updateRatings(results: RankedResult[]): void {
   for (let i = 0; i < results.length; i++) {
     const result = results[i]
     const [newRating] = newRatings[i]
+    const currentGames = ratings[result.name].games
     ratings[result.name] = {
       mu: newRating.mu,
       sigma: newRating.sigma,
-      version: result.version
+      version: result.version,
+      games: currentGames + 1
     }
   }
 
   save()
+  tiers.invalidateTierCache()
 }
 
 export function getAllRatings(): RatingsStore {
@@ -146,15 +212,22 @@ export function exportRatings(): string {
 export function importRatings(json: string): boolean {
   try {
     const parsed = JSON.parse(json)
-    // Validate structure
-    for (const [, data] of Object.entries(parsed)) {
+    // Validate structure and migrate missing games field
+    for (const [botName, data] of Object.entries(parsed)) {
       const r = data as BotRating
       if (typeof r.mu !== 'number' || typeof r.sigma !== 'number' || typeof r.version !== 'string') {
+        return false
+      }
+      // Migrate: if games field is missing, assume 1
+      if (r.games === undefined) {
+        (parsed as RatingsStore)[botName].games = 1
+      } else if (typeof r.games !== 'number') {
         return false
       }
     }
     ratings = parsed
     save()
+    tiers.invalidateTierCache()
     return true
   } catch {
     return false
@@ -164,11 +237,18 @@ export function importRatings(json: string): boolean {
 export function resetRatings(): void {
   ratings = {}
   save()
+  tiers.invalidateTierCache()
 }
 
 export function resetBotRating(botName: string): void {
   delete ratings[botName]
   save()
+  tiers.invalidateTierCache()
+}
+
+// Called when settings that affect tier calculation change
+export function invalidateTierCache(): void {
+  tiers.invalidateTierCache()
 }
 
 // Initialize on module load

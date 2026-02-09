@@ -6,6 +6,8 @@ export interface Settings {
   debug: boolean
   scanOpacity: number
   showRatings: boolean
+  rankedGamesThreshold: number
+  provisionalGamesThreshold: number
 }
 
 const DEFAULTS: Settings = {
@@ -13,7 +15,9 @@ const DEFAULTS: Settings = {
   secret: '',
   debug: false,
   scanOpacity: 5,
-  showRatings: true
+  showRatings: true,
+  rankedGamesThreshold: 20,
+  provisionalGamesThreshold: 50
 }
 
 let current: Settings = { ...DEFAULTS }
@@ -29,7 +33,9 @@ export function load(): Settings {
         secret: typeof parsed.secret === 'string' ? parsed.secret : DEFAULTS.secret,
         debug: typeof parsed.debug === 'boolean' ? parsed.debug : DEFAULTS.debug,
         scanOpacity: typeof parsed.scanOpacity === 'number' ? parsed.scanOpacity : DEFAULTS.scanOpacity,
-        showRatings: typeof parsed.showRatings === 'boolean' ? parsed.showRatings : DEFAULTS.showRatings
+        showRatings: typeof parsed.showRatings === 'boolean' ? parsed.showRatings : DEFAULTS.showRatings,
+        rankedGamesThreshold: typeof parsed.rankedGamesThreshold === 'number' ? parsed.rankedGamesThreshold : DEFAULTS.rankedGamesThreshold,
+        provisionalGamesThreshold: typeof parsed.provisionalGamesThreshold === 'number' ? parsed.provisionalGamesThreshold : DEFAULTS.provisionalGamesThreshold
       }
     }
   } catch {

@@ -5,9 +5,11 @@ import tierScrapPng from './assets/tier-scrap.png'
 import tierRookiePng from './assets/tier-rookie.png'
 import tierVeteranPng from './assets/tier-veteran.png'
 import tierElitePng from './assets/tier-elite.png'
+import tierUnrankedPng from './assets/tier-unranked.png'
 import tierLegendPng from './assets/tier-legend.png'
 import * as settings from './settings.js'
 import * as ratings from './ratings.js'
+import type { BotTier } from './ratings.js'
 
 const toastEl = document.getElementById('toast')!
 const statusBarEl = document.getElementById('status-bar')!
@@ -22,14 +24,16 @@ const showRatingsCheckbox = document.getElementById('show-ratings') as HTMLInput
 const debugLogCheckbox = document.getElementById('debug-log') as HTMLInputElement
 const scanOpacitySlider = document.getElementById('scan-opacity') as HTMLInputElement
 const scanOpacityValue = document.getElementById('scan-opacity-value')!
-const saveBtn = document.getElementById('save-btn')!
 const exportRatingsBtn = document.getElementById('export-ratings-btn')!
 const importRatingsBtn = document.getElementById('import-ratings-btn')!
 const resetRatingsBtn = document.getElementById('reset-ratings-btn')!
 const importRatingsFile = document.getElementById('import-ratings-file') as HTMLInputElement
+const rankedGamesThresholdInput = document.getElementById('ranked-games-threshold') as HTMLInputElement
+const provisionalGamesThresholdInput = document.getElementById('provisional-games-threshold') as HTMLInputElement
 
 let scanOpacityCallback: ((opacity: number) => void) | null = null
 let showRatingsCallback: ((show: boolean) => void) | null = null
+let connectionSettingsCallback: (() => void) | null = null
 
 // Ratings export/import/reset handlers
 exportRatingsBtn.addEventListener('click', () => {
@@ -86,22 +90,67 @@ function initSettingsForm(): void {
   debugLogCheckbox.checked = s.debug
   scanOpacitySlider.value = String(s.scanOpacity)
   scanOpacityValue.textContent = `${s.scanOpacity}%`
+  rankedGamesThresholdInput.value = String(s.rankedGamesThreshold)
+  provisionalGamesThresholdInput.value = String(s.provisionalGamesThreshold)
 }
 
 initSettingsForm()
 
 // Live update for scan opacity slider
 scanOpacitySlider.addEventListener('input', () => {
-  scanOpacityValue.textContent = `${scanOpacitySlider.value}%`
+  const value = parseInt(scanOpacitySlider.value, 10)
+  scanOpacityValue.textContent = `${value}%`
+  settings.save({ scanOpacity: value })
   if (scanOpacityCallback) {
-    scanOpacityCallback(parseInt(scanOpacitySlider.value, 10) / 100)
+    scanOpacityCallback(value / 100)
   }
+})
+
+// Live update for server URL
+serverUrlInput.addEventListener('change', () => {
+  settings.save({ url: serverUrlInput.value })
+  if (connectionSettingsCallback) {
+    connectionSettingsCallback()
+  }
+})
+
+// Live update for server secret
+serverSecretInput.addEventListener('change', () => {
+  settings.save({ secret: serverSecretInput.value })
+  if (connectionSettingsCallback) {
+    connectionSettingsCallback()
+  }
+})
+
+// Live update for debug logging
+debugLogCheckbox.addEventListener('change', () => {
+  settings.save({ debug: debugLogCheckbox.checked })
 })
 
 // Live update for show ratings checkbox
 showRatingsCheckbox.addEventListener('change', () => {
   // Save immediately so settings.get() returns current value
   settings.save({ showRatings: showRatingsCheckbox.checked })
+  if (showRatingsCallback) {
+    showRatingsCallback(showRatingsCheckbox.checked)
+  }
+})
+
+// Live update for ranked games threshold
+rankedGamesThresholdInput.addEventListener('change', () => {
+  const value = parseInt(rankedGamesThresholdInput.value, 10) || 20
+  settings.save({ rankedGamesThreshold: value })
+  // Trigger UI refresh via showRatings callback (same UI elements affected)
+  if (showRatingsCallback) {
+    showRatingsCallback(showRatingsCheckbox.checked)
+  }
+})
+
+// Live update for provisional games threshold
+provisionalGamesThresholdInput.addEventListener('change', () => {
+  const value = parseInt(provisionalGamesThresholdInput.value, 10) || 50
+  settings.save({ provisionalGamesThreshold: value })
+  ratings.invalidateTierCache() // Threshold affects which bots are used for percentile calculation
   if (showRatingsCallback) {
     showRatingsCallback(showRatingsCheckbox.checked)
   }
@@ -171,16 +220,6 @@ export function getSettings(): settings.Settings {
   return settings.get()
 }
 
-export function saveCurrentSettings(): void {
-  settings.save({
-    url: serverUrlInput.value,
-    secret: serverSecretInput.value,
-    showRatings: showRatingsCheckbox.checked,
-    debug: debugLogCheckbox.checked,
-    scanOpacity: parseInt(scanOpacitySlider.value, 10)
-  })
-}
-
 export function isShowRatingsEnabled(): boolean {
   return showRatingsCheckbox.checked
 }
@@ -203,16 +242,16 @@ export function onShowRatingsChange(callback: (show: boolean) => void): void {
   showRatingsCallback = callback
 }
 
+export function onConnectionSettingsChange(callback: () => void): void {
+  connectionSettingsCallback = callback
+}
+
 export function closeSettings(): void {
   settingsPanel.classList.remove('open')
 }
 
 export function onSettingsToggle(callback: () => void): void {
   settingsBtn.onclick = callback
-}
-
-export function onSettingsSave(callback: () => void): void {
-  saveBtn.onclick = callback
 }
 
 export function toggleSettings(): void {
@@ -255,9 +294,10 @@ export function updateBotList(bots: BotInfo[]): void {
       const tooltipText = botRating 
         ? `μ:${Math.round(botRating.mu)}, σ:${Math.round(botRating.sigma)}`
         : 'No rating data'
+      const ratingClass = tier === 'Unranked' ? 'rating-col unranked' : 'rating-col'
       ratingCols = `
-      <td class="rank-tier">${getTierIcon(tier)}</td>
-      <td><span class="rating-col" data-tooltip="${tooltipText}">${conservative}</span></td>`
+      <td class="rank-tier">${getTierIcon(tier, bot.name)}</td>
+      <td><span class="${ratingClass}" data-tooltip="${tooltipText}">${conservative}</span></td>`
     }
 
     return `<tr>
@@ -286,7 +326,8 @@ const platformIcons: Record<string, string> = {
   dotnet: dotnetSvg
 }
 
-const tierIcons: Record<ratings.RankTier, string> = {
+const tierIcons: Record<BotTier, string> = {
+  Unranked: tierUnrankedPng,
   Scrap: tierScrapPng,
   Rookie: tierRookiePng,
   Veteran: tierVeteranPng,
@@ -294,8 +335,20 @@ const tierIcons: Record<ratings.RankTier, string> = {
   Legend: tierLegendPng
 }
 
-function getTierIcon(tier: ratings.RankTier): string {
-  return `<img src="${tierIcons[tier]}" class="tier-icon" alt="${tier}" title="${tier}">`
+function getTierIcon(tier: BotTier, botName?: string): string {
+  let title: string = tier
+  let cssClass = 'tier-icon'
+
+  if (tier === 'Unranked' && botName) {
+    const gamesToGo = ratings.getGamesToRanked(botName)
+    title = `Unranked (Games to play: ${gamesToGo})`
+  } else if (botName && ratings.isProvisional(botName)) {
+    const gamesToGo = ratings.getGamesToFullRank(botName)
+    title = `Provisional ${tier} (Games to play: ${gamesToGo})`
+    cssClass = 'tier-icon provisional'
+  }
+
+  return `<img src="${tierIcons[tier]}" class="${cssClass}" alt="${tier}" title="${title}">`
 }
 
 function getPlatformIcon(platform?: string, lang?: string): string {
@@ -349,7 +402,7 @@ function bonusCell(value: number): string {
 }
 
 export interface RatingsSnapshot {
-  [botName: string]: { conservative: number; mu: number; sigma: number; tier: ratings.RankTier }
+  [botName: string]: { conservative: number; mu: number; sigma: number; tier: BotTier }
 }
 
 export function captureRatingsSnapshot(results: BotResult[], participants: Participant[]): RatingsSnapshot {
@@ -358,7 +411,7 @@ export function captureRatingsSnapshot(results: BotResult[], participants: Parti
     const p = participants.find(p => p.id === r.id)
     if (p) {
       const botRating = ratings.getRating(p.name)
-      const defaultRating = { mu: 1200, sigma: 400, version: '' }
+      const defaultRating = { mu: 1200, sigma: 400, version: '', games: 0 }
       const rating = botRating ?? defaultRating
       snapshot[p.name] = {
         conservative: ratings.getConservativeRating(rating),
@@ -414,9 +467,10 @@ export function showResults(results: BotResult[], participants: Participant[], o
           }
         }
       }
+      const ratingClass = tier === 'Unranked' ? 'rating-col unranked' : 'rating-col'
       ratingCols = `
-      <td class="rank-tier">${getTierIcon(tier)}</td>
-      <td class="rating-value"><span class="rating-col" data-tooltip="${tooltipText}">${ratingHtml}</span></td>
+      <td class="rank-tier">${getTierIcon(tier, botName)}</td>
+      <td class="rating-value"><span class="${ratingClass}" data-tooltip="${tooltipText}">${ratingHtml}</span></td>
       <td class="rating-delta">${deltaHtml}</td>`
     }
     
