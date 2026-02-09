@@ -35,6 +35,7 @@ let lastSettings = ui.getSettings()
 let participants: Participant[] = []
 let currentBots: BotInfo[] = []
 let lastResults: { results: BotResult[]; participants: Participant[]; oldRatings: ReturnType<typeof ui.captureRatingsSnapshot> } | null = null
+let battleInProgress = false
 
 function processTickEvent(event: TickEvent, botStates: BotState[]): void {
   switch (event.type) {
@@ -102,6 +103,7 @@ const connection = createConnection({
         ui.updateBotList(currentBots)
         break
       case 'GameStartedEventForObserver': {
+        battleInProgress = true
         const gameMsg = msg as GameStartedMessage
         participants = gameMsg.participants || []
         const setup = gameMsg.gameSetup
@@ -133,6 +135,7 @@ const connection = createConnection({
         break
       }
       case 'GameEndedEventForObserver': {
+        battleInProgress = false
         renderer.hide()
         ui.hideRoundTurn()
         const results = m.results || []
@@ -152,6 +155,7 @@ const connection = createConnection({
         break
       }
       case 'GameAbortedEvent':
+        battleInProgress = false
         renderer.hide()
         ui.hideRoundTurn()
         gameState.reset()
@@ -174,8 +178,9 @@ ui.onConnectionSettingsChange(() => {
   }
 })
 
-// Subscribe to showRatings changes to re-render tables
+// Subscribe to showRatings changes to re-render tables (only when not in battle)
 ui.onShowRatingsChange(() => {
+  if (battleInProgress) return
   if (currentBots.length > 0) {
     ui.updateBotList(currentBots)
   }
