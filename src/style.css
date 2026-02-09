@@ -355,6 +355,10 @@ body {
   vertical-align: middle;
 }
 
+#results-table .tier-icon {
+  height: 40px;
+}
+
 .tier-icon.provisional {
   opacity: 0.5;
 }
@@ -400,13 +404,13 @@ body {
 
 #results-container h2 {
   color: #fff;
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 600;
 }
 
 #results-table {
   background: rgba(0, 0, 0, 0.9);
-  border-radius: 8px;
+  border-radius: 10px;
   border-collapse: separate;
   border-spacing: 0;
   border: 4px solid #555;
@@ -415,17 +419,17 @@ body {
 
 #results-table th,
 #results-table td {
-  padding: 12px 10px;
+  padding: 16px 14px;
   text-align: left;
 }
 
 #results-table td:nth-child(2) {
-  padding-right: 20px;
+  padding-right: 26px;
 }
 
 #results-table th {
   color: #888;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   text-transform: uppercase;
   border-bottom: 1px solid #333;
@@ -436,7 +440,7 @@ body {
 }
 
 #results-table td {
-  font-size: 14px;
+  font-size: 18px;
   border-bottom: 1px solid #222;
 }
 
@@ -463,12 +467,12 @@ body {
 
 .rank-medal {
   display: inline-block;
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
   border-radius: 50%;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 16px;
   text-align: center;
 }
 
