@@ -377,6 +377,7 @@ Key responsibilities:
 - Caches calculated thresholds for efficient lookups
 - Exports `Tier` type ('Scrap' | 'Rookie' | 'Veteran' | 'Elite' | 'Legend')
 - Only knows about actual tiers; 'Unranked' is handled by ratings module
+- Unit tested (`tiers.test.ts`)
 
 #### Main (`main.ts`)
 - Application entry point

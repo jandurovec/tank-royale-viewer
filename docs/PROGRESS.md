@@ -145,6 +145,7 @@ Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
   - Unranked bots have dimmed rating display (50% opacity)
 - [x] Module separation: tiers.ts (pure calculation) vs ratings.ts (storage + Unranked logic)
 - [x] Debug logging for tier calculations (eligible bots, thresholds, assignments)
+- [x] Unit tests for tier calculation (vitest)
 - [x] Games counter: tracks number of ranked games per bot
 - [x] Update ratings on GameEndedEventForObserver
 - [x] Bot list table: add rank + mu columns
@@ -176,6 +177,13 @@ Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
 
 ## Testing
 
+### Unit Tests
+```bash
+npm test              # Run tests in watch mode
+npm test -- --run     # Single test run
+```
+
+### Manual Testing
 Run viewer against Tank Royale server:
 ```bash
 npm run dev                    # Start viewer at http://localhost:5173
