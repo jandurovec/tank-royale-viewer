@@ -600,7 +600,8 @@ body {
   cursor: help;
 }
 
-.rating-col[data-tooltip]:hover::after {
+.rating-col[data-tooltip]:hover::after,
+#settings-panel label[data-tooltip]:hover::after {
   content: attr(data-tooltip);
   position: absolute;
   top: 100%;
@@ -616,6 +617,18 @@ body {
   z-index: 9999;
   pointer-events: none;
   margin-top: 4px;
+}
+
+#settings-panel label[data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+#settings-panel label[data-tooltip]:hover::after {
+  white-space: normal;
+  max-width: 250px;
+  left: 0;
+  transform: none;
 }
 
 .delta-up {

@@ -65,11 +65,11 @@
           </div>
           <input type="file" id="import-ratings-file" accept=".json" style="display: none" />
         </div>
-        <label>
+        <label data-tooltip="Minimum games before a bot gets a rank tier (below this shows as Unranked)">
           Ranked games threshold
           <input type="number" id="ranked-games-threshold" min="1" max="100" value="20" />
         </label>
-        <label>
+        <label data-tooltip="Games until rating confidence is high (below this shows as Provisional). Only bots above this threshold are used to calculate rank percentile boundaries.">
           Provisional games threshold
           <input type="number" id="provisional-games-threshold" min="1" max="200" value="50" />
         </label>
