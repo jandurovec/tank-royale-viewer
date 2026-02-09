@@ -1,6 +1,11 @@
 import javaSvg from './assets/java.svg'
 import pythonSvg from './assets/python.svg'
 import dotnetSvg from './assets/dotnet.svg'
+import tierScrapPng from './assets/tier-scrap.png'
+import tierRookiePng from './assets/tier-rookie.png'
+import tierVeteranPng from './assets/tier-veteran.png'
+import tierElitePng from './assets/tier-elite.png'
+import tierLegendPng from './assets/tier-legend.png'
 import * as settings from './settings.js'
 import * as ratings from './ratings.js'
 
@@ -251,7 +256,7 @@ export function updateBotList(bots: BotInfo[]): void {
         ? `μ:${Math.round(botRating.mu)}, σ:${Math.round(botRating.sigma)}`
         : 'No rating data'
       ratingCols = `
-      <td class="rank-tier tier-${tier.toLowerCase()}">${tier}</td>
+      <td class="rank-tier">${getTierIcon(tier)}</td>
       <td><span class="rating-col" data-tooltip="${tooltipText}">${conservative}</span></td>`
     }
 
@@ -279,6 +284,18 @@ const platformIcons: Record<string, string> = {
   jvm: javaSvg,
   python: pythonSvg,
   dotnet: dotnetSvg
+}
+
+const tierIcons: Record<ratings.RankTier, string> = {
+  Scrap: tierScrapPng,
+  Rookie: tierRookiePng,
+  Veteran: tierVeteranPng,
+  Elite: tierElitePng,
+  Legend: tierLegendPng
+}
+
+function getTierIcon(tier: ratings.RankTier): string {
+  return `<img src="${tierIcons[tier]}" class="tier-icon" alt="${tier}" title="${tier}">`
 }
 
 function getPlatformIcon(platform?: string, lang?: string): string {
@@ -378,28 +395,29 @@ export function showResults(results: BotResult[], participants: Participant[], o
       const tier = ratings.getRankTierForBot(botName)
       
       let ratingHtml = '-'
+      let deltaHtml = ''
       let tooltipText = 'No rating data'
       if (botRating) {
         const conservative = Math.round(ratings.getConservativeRating(botRating))
         const mu = Math.round(botRating.mu)
         const sigma = Math.round(botRating.sigma)
         tooltipText = `μ:${mu}, σ:${sigma}`
+        ratingHtml = String(conservative)
         
-        let deltaHtml = ''
         if (oldRatings && botName) {
           const oldConservative = oldRatings[botName]?.conservative ?? 0
           const delta = conservative - Math.round(oldConservative)
           if (delta > 0) {
-            deltaHtml = ` <span class="delta-up">(▲${delta})</span>`
+            deltaHtml = `<span class="delta-up">▲${delta}</span>`
           } else if (delta < 0) {
-            deltaHtml = ` <span class="delta-down">(▼${Math.abs(delta)})</span>`
+            deltaHtml = `<span class="delta-down">▼${Math.abs(delta)}</span>`
           }
         }
-        ratingHtml = `${conservative}${deltaHtml}`
       }
       ratingCols = `
-      <td class="rank-tier tier-${tier.toLowerCase()}">${tier}</td>
-      <td><span class="rating-col" data-tooltip="${tooltipText}">${ratingHtml}</span></td>`
+      <td class="rank-tier">${getTierIcon(tier)}</td>
+      <td class="rating-value"><span class="rating-col" data-tooltip="${tooltipText}">${ratingHtml}</span></td>
+      <td class="rating-delta">${deltaHtml}</td>`
     }
     
     return `<tr>
@@ -421,7 +439,7 @@ export function showResults(results: BotResult[], participants: Participant[], o
   // Update header visibility
   const resultsHeader = document.querySelector('#results-table thead tr')!
   resultsHeader.innerHTML = showRatings
-    ? '<th>#</th><th>Bot</th><th>Tier</th><th>Rating</th><th>Total</th><th>Survival</th><th>(bonus)</th><th>Bullet Dmg</th><th>(bonus)</th><th>Ram Dmg</th><th>(bonus)</th><th>1sts</th><th>2nds</th><th>3rds</th>'
+    ? '<th>#</th><th>Bot</th><th>Tier</th><th>Rating</th><th></th><th>Total</th><th>Survival</th><th>(bonus)</th><th>Bullet Dmg</th><th>(bonus)</th><th>Ram Dmg</th><th>(bonus)</th><th>1sts</th><th>2nds</th><th>3rds</th>'
     : '<th>#</th><th>Bot</th><th>Total</th><th>Survival</th><th>(bonus)</th><th>Bullet Dmg</th><th>(bonus)</th><th>Ram Dmg</th><th>(bonus)</th><th>1sts</th><th>2nds</th><th>3rds</th>'
 
   scaleToFit(resultsContainer)

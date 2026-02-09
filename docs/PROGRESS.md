@@ -2,12 +2,12 @@
 
 This document tracks implementation progress for AI assistants and developers resuming work on this project.
 
-**Last updated:** 2026-02-08
+**Last updated:** 2026-02-09
 
 ## Current State
 
-**Phase:** 5 (Skill Rating System) - In Progress
-**Status:** Full battle viewer with skill ratings, only SVG rank icons remaining
+**Phase:** 5 (Skill Rating System) - Complete
+**Status:** Full battle viewer with skill ratings and tier icons
 
 ### What's Working
 
@@ -126,7 +126,7 @@ src/
 - [x] Health bar shrinks toward center as HP decreases
 - [x] Droid max HP (120) vs normal bot max HP (100) supported
 
-### Phase 5: Skill Rating System (In Progress)
+### Phase 5: Skill Rating System ✅
 
 Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
 
@@ -142,7 +142,7 @@ Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
 - [x] Bot list table: add rank + mu columns
 - [x] Results table: add rank + mu + change indicator (▲/▼)
 - [x] Settings: export/import JSON, reset ratings
-- [ ] Create rank tier SVG icons (hexagon badges with progression):
+- [x] Rank tier PNG icons (hexagon badges with progression):
   - Scrap: rusty brown with rust spots
   - Rookie: gray with chevron
   - Veteran: silver with star
