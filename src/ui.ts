@@ -397,7 +397,7 @@ export function updateBotList(bots: BotInfo[]): void {
     }
 
     return `<tr>
-      <td><span class="bot-name">${bot.name} ${bot.version}</span></td>${ratingCols}
+      <td><span class="bot-name">${bot.name} <span class="bot-version">${bot.version}</span></span></td>${ratingCols}
       <td>${authorParts.join(', ')}</td>
       <td class="bot-description">${bot.description || ''}</td>
       <td class="bot-platform">${platformIcon}</td>
@@ -532,7 +532,7 @@ export function showResults(results: BotResult[], participants: Participant[], o
 
   resultsBody.innerHTML = sorted.map(r => {
     const bot = participantMap.get(r.id)
-    const name = bot ? `${bot.name} ${bot.version}` : `Bot #${r.id}`
+    const name = bot ? `${bot.name} <span class="bot-version">${bot.version}</span>` : `Bot #${r.id}`
     const rankClass = r.rank === 1 ? 'gold' : r.rank === 2 ? 'silver' : r.rank === 3 ? 'bronze' : ''
     const rankContent = rankClass ? `<span class="rank-medal ${rankClass}">${r.rank}</span>` : r.rank
     

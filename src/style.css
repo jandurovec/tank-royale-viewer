@@ -1,3 +1,63 @@
+/* ==========================================================================
+   Color Palette
+   ========================================================================== */
+:root {
+  /* Base colors */
+  --color-bg: #1a1a1a;
+  --color-text: #fff;
+  --color-text-secondary: #bbb;
+  --color-text-muted: #888;
+
+  /* Surface colors (solid) */
+  --color-surface: #333;
+  --color-surface-elevated: #555;
+  --color-surface-elevated-hover: #666;
+
+  /* Overlay backgrounds (semi-transparent) */
+  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-overlay-heavy: rgba(0, 0, 0, 0.85);
+  --color-overlay-dark: rgba(50, 50, 50, 0.8);
+  --color-overlay-light: rgba(75, 75, 75, 0.8);
+  --color-panel-bg: rgba(45, 45, 45, 0.95);
+
+  /* Borders and dividers */
+  --color-border: #555;
+  --color-border-subtle: #444;
+  --color-border-dark: #333;
+  --color-border-darker: #222;
+
+  /* Status colors */
+  --color-success: #22c55e;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+
+  /* Disabled state */
+  --color-disabled-text: #666;
+
+  /* Tier colors */
+  --color-tier-scrap: #8b4513;
+  --color-tier-rookie: #888;
+  --color-tier-veteran: #c0c0c0;
+  --color-tier-elite: #ffd700;
+  --color-tier-legend: #ff6b00;
+
+  /* Medal gradients */
+  --color-medal-gold-start: #ffd700;
+  --color-medal-gold-end: #b8860b;
+  --color-medal-silver-start: #e8e8e8;
+  --color-medal-silver-end: #a0a0a0;
+  --color-medal-bronze-start: #cd7f32;
+  --color-medal-bronze-end: #8b4513;
+
+  /* Rating delta colors */
+  --color-delta-up: #4caf50;
+  --color-delta-down: #f44336;
+  --color-delta-zero: #666;
+}
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
 * {
   margin: 0;
   padding: 0;
@@ -5,8 +65,8 @@
 }
 
 body {
-  background: #1a1a1a;
-  color: #fff;
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: system-ui, -apple-system, sans-serif;
   overflow: hidden;
 }
@@ -16,8 +76,8 @@ body {
   top: -100px;
   left: 50%;
   transform: translateX(-50%);
-  background: #dc2626;
-  color: #fff;
+  background: var(--color-danger);
+  color: var(--color-text);
   padding: 12px 24px;
   border-radius: 8px;
   font-size: 14px;
@@ -28,7 +88,7 @@ body {
 }
 
 #toast.success {
-  background: #22c55e;
+  background: var(--color-success);
 }
 
 #toast.show {
@@ -49,7 +109,7 @@ body {
 
 #status-bar > span {
   padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--color-overlay);
 }
 
 /* When battle info is shown, status has left-rounded corners */
@@ -75,22 +135,22 @@ body {
 }
 
 #status.live {
-  background: #22c55e;
-  color: #fff;
+  background: var(--color-success);
+  color: var(--color-text);
   font-weight: 700;
 }
 
 #status-bar #round-info {
   display: none;
-  background: rgba(60, 60, 60, 0.8);
-  color: #fff;
+  background: var(--color-overlay-dark);
+  color: var(--color-text);
   font-weight: 400;
 }
 
 #status-bar #turn-info {
   display: none;
-  background: rgba(80, 80, 80, 0.8);
-  color: #fff;
+  background: var(--color-overlay-light);
+  color: var(--color-text);
   font-weight: 400;
 }
 
@@ -105,17 +165,17 @@ body {
   right: 16px;
   width: 36px;
   height: 36px;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--color-overlay);
   border: none;
   border-radius: 4px;
-  color: #888;
+  color: var(--color-text-muted);
   font-size: 20px;
   cursor: pointer;
   z-index: 100;
 }
 
 #settings-btn:hover {
-  color: #fff;
+  color: var(--color-text);
 }
 
 #settings-panel {
@@ -123,7 +183,8 @@ body {
   position: fixed;
   top: 60px;
   right: 16px;
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--color-panel-bg);
+  border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
   padding: 16px;
   z-index: 100;
@@ -140,7 +201,7 @@ body {
   flex-direction: column;
   gap: 4px;
   font-size: 12px;
-  color: #888;
+  color: var(--color-text-muted);
 }
 
 #settings-panel label.checkbox {
@@ -148,16 +209,16 @@ body {
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  color: #ccc;
+  color: var(--color-text-secondary);
 }
 
 #settings-panel input[type="text"],
 #settings-panel input[type="password"] {
-  background: #333;
-  border: 1px solid #555;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   padding: 8px;
-  color: #fff;
+  color: var(--color-text);
   font-size: 14px;
   width: 320px;
 }
@@ -171,7 +232,7 @@ body {
   flex-direction: row;
   align-items: center;
   gap: 8px;
-  color: #ccc;
+  color: var(--color-text-secondary);
   width: 320px;
 }
 
@@ -189,61 +250,61 @@ body {
   min-width: 36px;
   text-align: right;
   font-size: 12px;
-  color: #888;
+  color: var(--color-text-muted);
 }
 
 #settings-panel button.icon-btn {
   padding: 4px 8px;
   font-size: 14px;
   min-width: 28px;
-  background: #555;
-  color: #fff;
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
 }
 
 #settings-panel button.icon-btn:hover {
-  background: #666;
+  background: var(--color-surface-elevated-hover);
 }
 
 #settings-panel button.icon-btn.danger {
-  background: #dc2626;
+  background: var(--color-danger);
 }
 
 #settings-panel button.icon-btn.danger:hover {
-  background: #b91c1c;
+  background: var(--color-danger-hover);
 }
 
 #settings-panel button.icon-btn:disabled {
-  background: #333;
-  color: #666;
+  background: var(--color-surface);
+  color: var(--color-disabled-text);
   cursor: not-allowed;
 }
 
 
 #settings-panel button {
-  background: #555;
+  background: var(--color-surface-elevated);
   border: none;
   border-radius: 4px;
   padding: 8px 16px;
-  color: #fff;
+  color: var(--color-text);
   font-weight: 500;
   cursor: pointer;
 }
 
 #settings-panel button:hover {
-  background: #666;
+  background: var(--color-surface-elevated-hover);
 }
 
 #settings-panel button.danger {
-  background: #dc2626;
+  background: var(--color-danger);
 }
 
 #settings-panel button.danger:hover {
-  background: #b91c1c;
+  background: var(--color-danger-hover);
 }
 
 .settings-divider {
   height: 1px;
-  background: #444;
+  background: var(--color-border-subtle);
   margin: 8px 0;
 }
 
@@ -262,7 +323,7 @@ body {
 
 .settings-section-title {
   font-size: 11px;
-  color: #888;
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -320,7 +381,7 @@ body {
 }
 
 #bot-list-header {
-  color: #fff;
+  color: var(--color-text);
   font-size: 24px;
   font-weight: 600;
 }
@@ -331,7 +392,7 @@ body {
 
 #waiting-message {
   display: none;
-  color: #888;
+  color: var(--color-text-muted);
   font-size: 18px;
   animation: pulse 1.5s ease-in-out infinite;
 }
@@ -345,7 +406,7 @@ body {
 }
 
 #bot-list {
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--color-overlay-heavy);
   border-radius: 8px;
   border-collapse: collapse;
   min-width: 400px;
@@ -359,16 +420,16 @@ body {
 }
 
 #bot-list th {
-  color: #888;
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 500;
   text-transform: uppercase;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--color-border-dark);
 }
 
 #bot-list td {
   font-size: 14px;
-  border-bottom: 1px solid #222;
+  border-bottom: 1px solid var(--color-border-darker);
 }
 
 #bot-list tr:last-child td {
@@ -379,12 +440,17 @@ body {
   font-weight: 500;
 }
 
+.bot-version {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
 #bot-list .bot-flag {
   margin-right: 8px;
 }
 
 #bot-list .bot-description {
-  color: #888;
+  color: var(--color-text-muted);
   max-width: 300px;
 }
 
@@ -424,7 +490,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--color-overlay);
   z-index: 10;
 }
 
@@ -452,17 +518,18 @@ body {
 }
 
 #results-container h2 {
-  color: #fff;
+  color: var(--color-text);
   font-size: 30px;
   font-weight: 600;
 }
 
 #results-table {
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--color-overlay-heavy);
+  backdrop-filter: blur(2px);
   border-radius: 10px;
   border-collapse: separate;
   border-spacing: 0;
-  border: 4px solid #555;
+  border: 4px solid var(--color-border);
   overflow: visible;
 }
 
@@ -477,11 +544,11 @@ body {
 }
 
 #results-table th {
-  color: #888;
+  color: var(--color-text-muted);
   font-size: 14px;
   font-weight: 500;
   text-transform: uppercase;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--color-border-dark);
 }
 
 .no-transform {
@@ -490,7 +557,7 @@ body {
 
 #results-table td {
   font-size: 18px;
-  border-bottom: 1px solid #222;
+  border-bottom: 1px solid var(--color-border-darker);
 }
 
 #results-table tr:last-child td {
@@ -526,17 +593,17 @@ body {
 }
 
 .rank-medal.gold {
-  background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+  background: linear-gradient(135deg, var(--color-medal-gold-start) 0%, var(--color-medal-gold-end) 100%);
   color: #000;
 }
 
 .rank-medal.silver {
-  background: linear-gradient(135deg, #e8e8e8 0%, #a0a0a0 100%);
+  background: linear-gradient(135deg, var(--color-medal-silver-start) 0%, var(--color-medal-silver-end) 100%);
   color: #000;
 }
 
 .rank-medal.bronze {
-  background: linear-gradient(135deg, #cd7f32 0%, #8b4513 100%);
+  background: linear-gradient(135deg, var(--color-medal-bronze-start) 0%, var(--color-medal-bronze-end) 100%);
   color: #000;
 }
 
@@ -560,23 +627,23 @@ body {
 }
 
 .tier-scrap {
-  color: #8b4513;
+  color: var(--color-tier-scrap);
 }
 
 .tier-rookie {
-  color: #888;
+  color: var(--color-tier-rookie);
 }
 
 .tier-veteran {
-  color: #c0c0c0;
+  color: var(--color-tier-veteran);
 }
 
 .tier-elite {
-  color: #ffd700;
+  color: var(--color-tier-elite);
 }
 
 .tier-legend {
-  color: #ff6b00;
+  color: var(--color-tier-legend);
   text-shadow: 0 0 8px rgba(255, 107, 0, 0.6);
 }
 
@@ -594,7 +661,7 @@ body {
 
 .rating-col {
   font-variant-numeric: tabular-nums;
-  color: #aaa;
+  color: var(--color-text-secondary);
   white-space: nowrap;
   position: relative;
   cursor: help;
@@ -607,11 +674,11 @@ body {
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  background: #333;
-  color: #fff;
+  background: var(--color-surface);
+  color: var(--color-text);
   padding: 6px 10px;
   border-radius: 4px;
-  border: 1px solid #555;
+  border: 1px solid var(--color-border);
   font-size: 12px;
   white-space: nowrap;
   z-index: 9999;
@@ -632,13 +699,13 @@ body {
 }
 
 .delta-up {
-  color: #4caf50;
+  color: var(--color-delta-up);
 }
 
 .delta-down {
-  color: #f44336;
+  color: var(--color-delta-down);
 }
 
 .delta-zero {
-  color: #666;
+  color: var(--color-delta-zero);
 }
