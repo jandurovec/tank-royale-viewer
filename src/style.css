@@ -27,6 +27,10 @@ body {
   text-align: center;
 }
 
+#toast.success {
+  background: #22c55e;
+}
+
 #toast.show {
   top: 16px;
 }
@@ -155,7 +159,7 @@ body {
   padding: 8px;
   color: #fff;
   font-size: 14px;
-  width: 250px;
+  width: 320px;
 }
 
 #settings-panel input[type="checkbox"] {
@@ -168,32 +172,65 @@ body {
   align-items: center;
   gap: 8px;
   color: #ccc;
+  width: 320px;
+}
+
+#settings-panel .slider-label {
+  min-width: 100px;
 }
 
 #settings-panel input[type="range"] {
-  width: 100px;
+  flex: 1;
+  min-width: 60px;
   cursor: pointer;
 }
 
-#settings-panel label.slider span {
+#settings-panel label.slider span:first-of-type {
   min-width: 36px;
   text-align: right;
   font-size: 12px;
   color: #888;
 }
 
+#settings-panel button.icon-btn {
+  padding: 4px 8px;
+  font-size: 14px;
+  min-width: 28px;
+  background: #555;
+  color: #fff;
+}
+
+#settings-panel button.icon-btn:hover {
+  background: #666;
+}
+
+#settings-panel button.icon-btn.danger {
+  background: #dc2626;
+}
+
+#settings-panel button.icon-btn.danger:hover {
+  background: #b91c1c;
+}
+
+#settings-panel button.icon-btn:disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
+
 #settings-panel button {
-  background: #4ade80;
+  background: #555;
   border: none;
   border-radius: 4px;
   padding: 8px 16px;
-  color: #000;
+  color: #fff;
   font-weight: 500;
   cursor: pointer;
 }
 
 #settings-panel button:hover {
-  background: #22c55e;
+  background: #666;
 }
 
 #settings-panel button.danger {
@@ -216,11 +253,23 @@ body {
   gap: 8px;
 }
 
+.settings-row-with-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .settings-section-title {
   font-size: 11px;
   color: #888;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.settings-section-actions {
+  display: flex;
+  gap: 4px;
 }
 
 .settings-button-row {

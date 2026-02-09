@@ -1,5 +1,6 @@
 import './style.css'
 import 'flag-icons/css/flag-icons.min.css'
+import '@fortawesome/fontawesome-free/css/all.min.css'
 import { createConnection } from './connection.js'
 import * as ui from './ui.js'
 import * as renderer from './rendering/index.js'
@@ -187,7 +188,9 @@ ui.onShowRatingsChange(() => {
 const arenaContainer = document.getElementById('arena')!
 renderer.init(arenaContainer).then(() => {
   renderer.hide()
-  // Subscribe to scan opacity changes
+  // Subscribe to scan opacity, logo opacity, and logo size changes
   ui.onScanOpacityChange(renderer.setScanOpacity)
+  ui.onLogoOpacityChange(renderer.setLogoOpacity)
+  ui.onLogoSizeChange(renderer.setLogoSize)
   connection.connect(lastSettings.url, lastSettings.secret)
 })

@@ -9,6 +9,7 @@ import tierUnrankedPng from './assets/tier-unranked.png'
 import tierLegendPng from './assets/tier-legend.png'
 import * as settings from './settings.js'
 import * as ratings from './ratings.js'
+import * as logoStorage from './logoStorage.js'
 import type { BotTier } from './ratings.js'
 
 const toastEl = document.getElementById('toast')!
@@ -30,8 +31,17 @@ const resetRatingsBtn = document.getElementById('reset-ratings-btn')!
 const importRatingsFile = document.getElementById('import-ratings-file') as HTMLInputElement
 const rankedGamesThresholdInput = document.getElementById('ranked-games-threshold') as HTMLInputElement
 const provisionalGamesThresholdInput = document.getElementById('provisional-games-threshold') as HTMLInputElement
+const uploadLogoBtn = document.getElementById('upload-logo-btn')!
+const clearLogoBtn = document.getElementById('clear-logo-btn') as HTMLButtonElement
+const logoOpacitySlider = document.getElementById('logo-opacity') as HTMLInputElement
+const logoOpacityValue = document.getElementById('logo-opacity-value')!
+const logoSizeSlider = document.getElementById('logo-size') as HTMLInputElement
+const logoSizeValue = document.getElementById('logo-size-value')!
+const uploadLogoFile = document.getElementById('upload-logo-file') as HTMLInputElement
 
 let scanOpacityCallback: ((opacity: number) => void) | null = null
+let logoOpacityCallback: ((opacity: number) => void) | null = null
+let logoSizeCallback: ((size: number) => void) | null = null
 let showRatingsCallback: ((show: boolean) => void) | null = null
 let connectionSettingsCallback: (() => void) | null = null
 
@@ -60,7 +70,7 @@ importRatingsFile.addEventListener('change', () => {
     const json = reader.result as string
     const success = ratings.importRatings(json)
     if (success) {
-      showToast('Ratings imported successfully')
+      showToast('Ratings imported successfully', 'success')
     } else {
       showToast('Failed to import ratings: invalid JSON format')
     }
@@ -77,9 +87,69 @@ importRatingsFile.addEventListener('change', () => {
 resetRatingsBtn.addEventListener('click', () => {
   if (confirm('Reset all skill ratings? This cannot be undone.')) {
     ratings.resetRatings()
-    showToast('All ratings have been reset')
+    showToast('All ratings have been reset', 'success')
   }
 })
+
+// Logo opacity slider
+logoOpacitySlider.addEventListener('input', () => {
+  const value = parseInt(logoOpacitySlider.value, 10)
+  logoOpacityValue.textContent = `${value}%`
+  settings.save({ logoOpacity: value })
+  if (logoOpacityCallback) {
+    logoOpacityCallback(value / 100)
+  }
+})
+
+// Logo size slider
+logoSizeSlider.addEventListener('input', () => {
+  const value = parseInt(logoSizeSlider.value, 10)
+  logoSizeValue.textContent = `${value}%`
+  settings.save({ logoSize: value })
+  if (logoSizeCallback) {
+    logoSizeCallback(value / 100)
+  }
+})
+
+function updateClearLogoButton(): void {
+  const hasLogo = logoStorage.getLogo() !== null
+  clearLogoBtn.disabled = !hasLogo
+}
+
+// Logo upload/clear handlers
+uploadLogoBtn.addEventListener('click', () => {
+  uploadLogoFile.click()
+})
+
+uploadLogoFile.addEventListener('change', () => {
+  const file = uploadLogoFile.files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    const base64 = reader.result as string
+    const success = logoStorage.saveLogo(base64)
+    if (success) {
+      showToast('Logo uploaded', 'success')
+      updateClearLogoButton()
+    } else {
+      showToast('Failed to save logo (storage quota exceeded?)')
+    }
+  }
+  reader.onerror = () => {
+    showToast('Failed to read file')
+  }
+  reader.readAsDataURL(file)
+  uploadLogoFile.value = ''
+})
+
+clearLogoBtn.addEventListener('click', () => {
+  logoStorage.clearLogo()
+  showToast('Logo removed', 'success')
+  updateClearLogoButton()
+})
+
+updateClearLogoButton()
 
 // Initialize form values from saved settings
 function initSettingsForm(): void {
@@ -90,6 +160,10 @@ function initSettingsForm(): void {
   debugLogCheckbox.checked = s.debug
   scanOpacitySlider.value = String(s.scanOpacity)
   scanOpacityValue.textContent = `${s.scanOpacity}%`
+  logoOpacitySlider.value = String(s.logoOpacity)
+  logoOpacityValue.textContent = `${s.logoOpacity}%`
+  logoSizeSlider.value = String(s.logoSize)
+  logoSizeValue.textContent = `${s.logoSize}%`
   rankedGamesThresholdInput.value = String(s.rankedGamesThreshold)
   provisionalGamesThresholdInput.value = String(s.provisionalGamesThreshold)
 }
@@ -207,9 +281,11 @@ export function hideRoundTurn(): void {
   statusBarEl.classList.remove('with-battle-info')
 }
 
-export function showToast(message: string): void {
+export function showToast(message: string, type: 'error' | 'success' = 'error'): void {
   if (toastTimeout) clearTimeout(toastTimeout)
   toastEl.textContent = message
+  toastEl.classList.remove('success')
+  if (type === 'success') toastEl.classList.add('success')
   toastEl.classList.add('show')
   toastTimeout = setTimeout(() => {
     toastEl.classList.remove('show')
@@ -236,6 +312,26 @@ export function onScanOpacityChange(callback: (opacity: number) => void): void {
   scanOpacityCallback = callback
   // Fire immediately with current value
   callback(getScanOpacity())
+}
+
+export function getLogoOpacity(): number {
+  return parseInt(logoOpacitySlider.value, 10) / 100
+}
+
+export function onLogoOpacityChange(callback: (opacity: number) => void): void {
+  logoOpacityCallback = callback
+  // Fire immediately with current value
+  callback(getLogoOpacity())
+}
+
+export function getLogoSize(): number {
+  return parseInt(logoSizeSlider.value, 10) / 100
+}
+
+export function onLogoSizeChange(callback: (size: number) => void): void {
+  logoSizeCallback = callback
+  // Fire immediately with current value
+  callback(getLogoSize())
 }
 
 export function onShowRatingsChange(callback: (show: boolean) => void): void {

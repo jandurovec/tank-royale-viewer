@@ -6,8 +6,8 @@ This document tracks implementation progress for AI assistants and developers re
 
 ## Current State
 
-**Phase:** 5 (Skill Rating System) - Complete
-**Status:** Full battle viewer with skill ratings and tier icons
+**Phase:** 6 (Custom Logo) - Complete
+**Status:** Full battle viewer with skill ratings, tier icons, and custom arena logo
 
 ### What's Working
 
@@ -20,8 +20,10 @@ This document tracks implementation progress for AI assistants and developers re
 #### UI & Status
 - ✅ Status indicator: pulsing "Connecting..." → green "LIVE" box with drop shadow
 - ✅ Round/turn indicator during battle (LIVE | ROUND X | TURN Y)
-- ✅ Settings dialog (gear icon): server URL, secret, debug logging, scan opacity slider, show ratings toggle
-- ✅ Skill ratings export/import/reset in settings
+- ✅ Settings dialog (gear icon): server URL, secret, debug logging, scan opacity slider
+- ✅ Arena Logo section: opacity slider (5-100%), size slider (10-100%), upload/remove buttons
+- ✅ Skill Ratings section with icon buttons (import/export/reset using Font Awesome)
+- ✅ Toast notifications: green for success, red for errors
 - ✅ View states: Connecting → Waiting → Battle → Results
 
 #### Bot List
@@ -33,6 +35,7 @@ This document tracks implementation progress for AI assistants and developers re
 
 #### Battle Rendering (PixiJS)
 - ✅ Arena background with coordinate transform (Y-flip)
+- ✅ Custom arena logo (user-uploaded, configurable size, 15% opacity)
 - ✅ Full tank rendering matching Kotlin GUI:
   - Body with shading and border
   - Tracks (static links)
@@ -77,6 +80,7 @@ src/
 ├── settings.ts       # Settings persistence (localStorage)
 ├── ratings.ts        # Skill rating system (OpenSkill, localStorage, Unranked handling)
 ├── tiers.ts          # Pure tier calculation (value-based percentiles, caching)
+├── logoStorage.ts    # Custom logo storage (localStorage)
 ├── assets/           # Platform icons (java.svg, python.svg, dotnet.svg)
 └── rendering/
     ├── index.ts      # PixiJS app lifecycle, orchestration
@@ -159,12 +163,24 @@ Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
   - Elite: gold with star + wings
   - Legend: ornate gold with star + wings + laurel
 
-### Phase 6: Arena Background (Not Started)
+### Phase 6: Custom Logo ✅
 
-- [ ] Upload PNG image in settings
-- [ ] Store as base64 in localStorage
-- [ ] Display behind arena during battle
-- [ ] Clear/reset option
+Display a custom logo/image centered on the arena floor during battles.
+
+**Approach:** PixiJS sprite rendered in arena.
+- Logo stored as base64 data URL in localStorage (`tank-royale-viewer-logo`)
+- Rendered as PixiJS Sprite with configurable opacity and size
+- Separate settings section with sliders and buttons
+- Logo updates immediately when settings change
+
+- [x] Settings UI: dedicated "Arena Logo" section
+- [x] Opacity slider (5-100%, default 50%)
+- [x] Size slider (10-100%, default 50%)
+- [x] Upload/Remove buttons with Font Awesome icons
+- [x] Remove button disabled when no logo stored
+- [x] Store image as base64 in localStorage (`tank-royale-viewer-logo`)
+- [x] `logoStorage.ts`: load/save/clear logo, change callbacks
+- [x] `rendering/arena.ts`: render logo as PixiJS Sprite behind bots/bullets
 
 ## Key Technical Decisions
 
@@ -174,6 +190,9 @@ Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
 4. **TPS/FPS decoupling:** Game state updated every tick, renderer runs at 60fps showing latest state
 5. **Tick-based effects:** Effects use game turn numbers, not real time, for consistent playback
 6. **Configurable scan opacity:** Slider (0-100%) to reduce visual flickering on large displays
+7. **Font Awesome** for consistent icon styling in settings UI
+8. **Logo as PixiJS Sprite** - simple approach, may be slightly blurry when scaled up
+9. **Toast types** - green for success actions, red for errors
 
 ## Testing
 

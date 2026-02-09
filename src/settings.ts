@@ -5,6 +5,8 @@ export interface Settings {
   secret: string
   debug: boolean
   scanOpacity: number
+  logoOpacity: number
+  logoSize: number
   showRatings: boolean
   rankedGamesThreshold: number
   provisionalGamesThreshold: number
@@ -15,6 +17,8 @@ const DEFAULTS: Settings = {
   secret: '',
   debug: false,
   scanOpacity: 5,
+  logoOpacity: 50,
+  logoSize: 50,
   showRatings: true,
   rankedGamesThreshold: 20,
   provisionalGamesThreshold: 50
@@ -33,6 +37,8 @@ export function load(): Settings {
         secret: typeof parsed.secret === 'string' ? parsed.secret : DEFAULTS.secret,
         debug: typeof parsed.debug === 'boolean' ? parsed.debug : DEFAULTS.debug,
         scanOpacity: typeof parsed.scanOpacity === 'number' ? parsed.scanOpacity : DEFAULTS.scanOpacity,
+        logoOpacity: typeof parsed.logoOpacity === 'number' ? parsed.logoOpacity : DEFAULTS.logoOpacity,
+        logoSize: typeof parsed.logoSize === 'number' ? parsed.logoSize : DEFAULTS.logoSize,
         showRatings: typeof parsed.showRatings === 'boolean' ? parsed.showRatings : DEFAULTS.showRatings,
         rankedGamesThreshold: typeof parsed.rankedGamesThreshold === 'number' ? parsed.rankedGamesThreshold : DEFAULTS.rankedGamesThreshold,
         provisionalGamesThreshold: typeof parsed.provisionalGamesThreshold === 'number' ? parsed.provisionalGamesThreshold : DEFAULTS.provisionalGamesThreshold

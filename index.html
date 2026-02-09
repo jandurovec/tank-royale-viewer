@@ -23,7 +23,7 @@
         <input type="password" id="server-secret" value="" placeholder="Leave blank if not required" />
       </label>
       <label class="slider">
-        Scan arc opacity
+        <span class="slider-label">Scan arc opacity</span>
         <input type="range" id="scan-opacity" min="0" max="100" value="5" />
         <span id="scan-opacity-value">5%</span>
       </label>
@@ -33,11 +33,38 @@
       </label>
       <div class="settings-divider"></div>
       <div class="settings-section">
-        <span class="settings-section-title">Skill Ratings</span>
-        <label class="checkbox">
-          <input type="checkbox" id="show-ratings" checked />
-          Show skill ratings
+        <span class="settings-section-title">Arena Logo</span>
+        <div class="settings-button-row">
+          <button type="button" id="upload-logo-btn" title="Upload"><i class="fa-solid fa-folder-open"></i> Upload</button>
+          <button type="button" id="clear-logo-btn" class="danger" title="Remove"><i class="fa-solid fa-trash"></i> Remove</button>
+        </div>
+        <input type="file" id="upload-logo-file" accept="image/*" style="display: none" />
+        <label class="slider">
+          <span class="slider-label">Opacity</span>
+          <input type="range" id="logo-opacity" min="5" max="100" value="50" />
+          <span id="logo-opacity-value">50%</span>
         </label>
+        <label class="slider">
+          <span class="slider-label">Size</span>
+          <input type="range" id="logo-size" min="10" max="100" value="50" />
+          <span id="logo-size-value">50%</span>
+        </label>
+      </div>
+      <div class="settings-divider"></div>
+      <div class="settings-section">
+        <span class="settings-section-title">Skill Ratings</span>
+        <div class="settings-row-with-actions">
+          <label class="checkbox">
+            <input type="checkbox" id="show-ratings" checked />
+            Show skill ratings
+          </label>
+          <div class="settings-section-actions">
+            <button id="import-ratings-btn" type="button" class="icon-btn" title="Import"><i class="fa-solid fa-file-import"></i></button>
+            <button id="export-ratings-btn" type="button" class="icon-btn" title="Export"><i class="fa-solid fa-file-export"></i></button>
+            <button id="reset-ratings-btn" type="button" class="icon-btn danger" title="Reset"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <input type="file" id="import-ratings-file" accept=".json" style="display: none" />
+        </div>
         <label>
           Ranked games threshold
           <input type="number" id="ranked-games-threshold" min="1" max="100" value="20" />
@@ -46,12 +73,6 @@
           Provisional games threshold
           <input type="number" id="provisional-games-threshold" min="1" max="200" value="50" />
         </label>
-        <div class="settings-button-row">
-          <button id="export-ratings-btn" type="button">Export</button>
-          <button id="import-ratings-btn" type="button">Import</button>
-          <button id="reset-ratings-btn" type="button" class="danger">Reset</button>
-        </div>
-        <input type="file" id="import-ratings-file" accept=".json" style="display: none" />
       </div>
     </div>
     <div id="bot-list-container">

@@ -15,6 +15,7 @@ export {
 } from './effects.js'
 
 export { setScanOpacity } from './tank.js'
+export { setLogoOpacity, setLogoSize } from './arena.js'
 
 const MARGIN = 32 // 2em at 16px base
 
