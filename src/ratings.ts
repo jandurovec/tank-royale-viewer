@@ -7,20 +7,28 @@ export type BotTier = 'Unranked' | tiers.Tier
 
 const STORAGE_KEY = 'tank-royale-viewer-ratings'
 
-// Rating parameters
-const DEFAULT_MU = 1200
-const DEFAULT_SIGMA = 400
-const Z_FACTOR = 3 // Conservative rating = mu - z*sigma
+// Z factor for conservative rating = mu - z*sigma
+const Z_FACTOR = 3
 
-// Beta controls convergence speed (default is sigma/2)
-// Lower beta = faster convergence, higher = more stable but slower
-const BETA = 100 // Faster convergence - bot battles are mostly skill-determined
+// Build OpenSkill options from current settings
+function getOptions(): Options {
+  const s = settings.get()
+  return {
+    mu: s.ratingMu,
+    sigma: s.ratingSigma,
+    beta: s.ratingBeta,
+    tau: s.ratingTau,
+    z: Z_FACTOR
+  }
+}
 
-const options: Options = {
-  mu: DEFAULT_MU,
-  sigma: DEFAULT_SIGMA,
-  beta: BETA,
-  z: Z_FACTOR
+// Get default mu/sigma from settings (for new bots)
+function getDefaultMu(): number {
+  return settings.get().ratingMu
+}
+
+function getDefaultSigma(): number {
+  return settings.get().ratingSigma
 }
 
 export interface BotRating {
@@ -71,20 +79,20 @@ export function getOrCreateRating(botName: string, version: string): BotRating {
 
   if (!existing) {
     // New bot - create default rating with games=0
-    ratings[botName] = { mu: DEFAULT_MU, sigma: DEFAULT_SIGMA, version, games: 0 }
+    ratings[botName] = { mu: getDefaultMu(), sigma: getDefaultSigma(), version, games: 0 }
     return ratings[botName]
   }
 
   if (existing.version !== version) {
     // Version changed - keep mu and games, reset sigma
-    ratings[botName] = { mu: existing.mu, sigma: DEFAULT_SIGMA, version, games: existing.games }
+    ratings[botName] = { mu: existing.mu, sigma: getDefaultSigma(), version, games: existing.games }
   }
 
   return ratings[botName]
 }
 
 export function getConservativeRating(botRating: BotRating): number {
-  return ordinal(rating({ mu: botRating.mu, sigma: botRating.sigma }), options)
+  return ordinal(rating({ mu: botRating.mu, sigma: botRating.sigma }), getOptions())
 }
 
 // Update tier cache with fully-ranked bot ratings
@@ -182,7 +190,7 @@ export function updateRatings(results: RankedResult[]): void {
   const ranks = results.map(r => r.rank)
 
   // Calculate new ratings
-  const newRatings = rate(teams, { ...options, rank: ranks })
+  const newRatings = rate(teams, { ...getOptions(), rank: ranks })
 
   // Update stored ratings
   for (let i = 0; i < results.length; i++) {

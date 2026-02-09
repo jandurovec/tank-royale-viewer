@@ -31,6 +31,10 @@ const resetRatingsBtn = document.getElementById('reset-ratings-btn')!
 const importRatingsFile = document.getElementById('import-ratings-file') as HTMLInputElement
 const rankedGamesThresholdInput = document.getElementById('ranked-games-threshold') as HTMLInputElement
 const provisionalGamesThresholdInput = document.getElementById('provisional-games-threshold') as HTMLInputElement
+const ratingMuInput = document.getElementById('rating-mu') as HTMLInputElement
+const ratingSigmaInput = document.getElementById('rating-sigma') as HTMLInputElement
+const ratingBetaInput = document.getElementById('rating-beta') as HTMLInputElement
+const ratingTauInput = document.getElementById('rating-tau') as HTMLInputElement
 const uploadLogoBtn = document.getElementById('upload-logo-btn')!
 const clearLogoBtn = document.getElementById('clear-logo-btn') as HTMLButtonElement
 const logoOpacitySlider = document.getElementById('logo-opacity') as HTMLInputElement
@@ -166,6 +170,10 @@ function initSettingsForm(): void {
   logoSizeValue.textContent = `${s.logoSize}%`
   rankedGamesThresholdInput.value = String(s.rankedGamesThreshold)
   provisionalGamesThresholdInput.value = String(s.provisionalGamesThreshold)
+  ratingMuInput.value = String(s.ratingMu)
+  ratingSigmaInput.value = String(s.ratingSigma)
+  ratingBetaInput.value = String(s.ratingBeta)
+  ratingTauInput.value = String(s.ratingTau)
 }
 
 initSettingsForm()
@@ -229,6 +237,33 @@ provisionalGamesThresholdInput.addEventListener('change', () => {
     showRatingsCallback(showRatingsCheckbox.checked)
   }
 })
+
+// OpenSkill parameter inputs
+const RATING_PARAM_WARNING = 'OpenSkill parameter has changed. Resetting stored ratings is strongly recommended.'
+
+ratingMuInput.addEventListener('change', () => {
+  const value = parseFloat(ratingMuInput.value) || 1200
+  settings.save({ ratingMu: value })
+  showToast(RATING_PARAM_WARNING, 'warning')
+})
+
+ratingSigmaInput.addEventListener('change', () => {
+  const value = parseFloat(ratingSigmaInput.value) || 400
+  settings.save({ ratingSigma: value })
+  showToast(RATING_PARAM_WARNING, 'warning')
+})
+
+ratingBetaInput.addEventListener('change', () => {
+  const value = parseFloat(ratingBetaInput.value) || 100
+  settings.save({ ratingBeta: value })
+  showToast(RATING_PARAM_WARNING, 'warning')
+})
+
+ratingTauInput.addEventListener('change', () => {
+  const value = parseFloat(ratingTauInput.value) || 1
+  settings.save({ ratingTau: value })
+  showToast(RATING_PARAM_WARNING, 'warning')
+})
 const botListContainer = document.getElementById('bot-list-container')!
 const botListBody = document.querySelector('#bot-list tbody')!
 const resultsContainer = document.getElementById('results-container')!
@@ -281,11 +316,12 @@ export function hideRoundTurn(): void {
   statusBarEl.classList.remove('with-battle-info')
 }
 
-export function showToast(message: string, type: 'error' | 'success' = 'error'): void {
+export function showToast(message: string, type: 'error' | 'success' | 'warning' = 'error'): void {
   if (toastTimeout) clearTimeout(toastTimeout)
   toastEl.textContent = message
-  toastEl.classList.remove('success')
+  toastEl.classList.remove('success', 'warning')
   if (type === 'success') toastEl.classList.add('success')
+  if (type === 'warning') toastEl.classList.add('warning')
   toastEl.classList.add('show')
   toastTimeout = setTimeout(() => {
     toastEl.classList.remove('show')
@@ -503,11 +539,12 @@ export interface RatingsSnapshot {
 
 export function captureRatingsSnapshot(results: BotResult[], participants: Participant[]): RatingsSnapshot {
   const snapshot: RatingsSnapshot = {}
+  const s = settings.get()
   for (const r of results) {
     const p = participants.find(p => p.id === r.id)
     if (p) {
       const botRating = ratings.getRating(p.name)
-      const defaultRating = { mu: 1200, sigma: 400, version: '', games: 0 }
+      const defaultRating = { mu: s.ratingMu, sigma: s.ratingSigma, version: '', games: 0 }
       const rating = botRating ?? defaultRating
       snapshot[p.name] = {
         conservative: ratings.getConservativeRating(rating),

@@ -10,6 +10,11 @@ export interface Settings {
   showRatings: boolean
   rankedGamesThreshold: number
   provisionalGamesThreshold: number
+  // OpenSkill rating parameters
+  ratingMu: number
+  ratingSigma: number
+  ratingBeta: number
+  ratingTau: number
 }
 
 const DEFAULTS: Settings = {
@@ -21,7 +26,12 @@ const DEFAULTS: Settings = {
   logoSize: 50,
   showRatings: true,
   rankedGamesThreshold: 20,
-  provisionalGamesThreshold: 50
+  provisionalGamesThreshold: 50,
+  // OpenSkill defaults
+  ratingMu: 1200,
+  ratingSigma: 400,
+  ratingBeta: 100,
+  ratingTau: 1
 }
 
 let current: Settings = { ...DEFAULTS }
@@ -41,7 +51,11 @@ export function load(): Settings {
         logoSize: typeof parsed.logoSize === 'number' ? parsed.logoSize : DEFAULTS.logoSize,
         showRatings: typeof parsed.showRatings === 'boolean' ? parsed.showRatings : DEFAULTS.showRatings,
         rankedGamesThreshold: typeof parsed.rankedGamesThreshold === 'number' ? parsed.rankedGamesThreshold : DEFAULTS.rankedGamesThreshold,
-        provisionalGamesThreshold: typeof parsed.provisionalGamesThreshold === 'number' ? parsed.provisionalGamesThreshold : DEFAULTS.provisionalGamesThreshold
+        provisionalGamesThreshold: typeof parsed.provisionalGamesThreshold === 'number' ? parsed.provisionalGamesThreshold : DEFAULTS.provisionalGamesThreshold,
+        ratingMu: typeof parsed.ratingMu === 'number' ? parsed.ratingMu : DEFAULTS.ratingMu,
+        ratingSigma: typeof parsed.ratingSigma === 'number' ? parsed.ratingSigma : DEFAULTS.ratingSigma,
+        ratingBeta: typeof parsed.ratingBeta === 'number' ? parsed.ratingBeta : DEFAULTS.ratingBeta,
+        ratingTau: typeof parsed.ratingTau === 'number' ? parsed.ratingTau : DEFAULTS.ratingTau
       }
     }
   } catch {

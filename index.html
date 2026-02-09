@@ -52,7 +52,7 @@
       </div>
       <div class="settings-divider"></div>
       <div class="settings-section">
-        <span class="settings-section-title">Skill Ratings</span>
+        <span class="settings-section-title">OpenSkill Ratings</span>
         <div class="settings-row-with-actions">
           <label class="checkbox">
             <input type="checkbox" id="show-ratings" checked />
@@ -73,6 +73,24 @@
           Provisional games threshold
           <input type="number" id="provisional-games-threshold" min="1" max="200" value="50" />
         </label>
+        <div class="settings-param-row">
+          <label class="param-input" data-tooltip="Initial mean rating for new bots">
+            μ
+            <input type="number" id="rating-mu" min="0" max="5000" value="1200" />
+          </label>
+          <label class="param-input" data-tooltip="Initial uncertainty (std dev). Higher values make early ratings change faster">
+            σ
+            <input type="number" id="rating-sigma" min="1" max="1000" value="400" />
+          </label>
+          <label class="param-input" data-tooltip="Performance variance - models luck/randomness in game outcomes. Lower values assume results are more skill-determined (less luck)">
+            β
+            <input type="number" id="rating-beta" min="1" max="1000" value="100" />
+          </label>
+          <label class="param-input" data-tooltip="Dynamics factor - adds uncertainty after each game. A small value (1-2) allows ongoing correction for early misestimates while keeping ratings stable. Set to 0 for fastest convergence, higher values keep ratings volatile">
+            τ
+            <input type="number" id="rating-tau" min="0" max="100" step="0.1" value="1" />
+          </label>
+        </div>
       </div>
     </div>
     <div id="bot-list-container">
