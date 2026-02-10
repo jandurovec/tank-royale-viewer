@@ -422,14 +422,15 @@ export function updateBotList(bots: BotInfo[]): void {
     if (showRatings) {
       const botRating = ratings.getRating(bot.name)
       const tier = ratings.getRankTierForBot(bot.name)
-      const conservative = botRating ? Math.round(ratings.getConservativeRating(botRating)) : '-'
+      const percentile = ratings.getPercentileForBot(bot.name)
       const tooltipText = botRating 
         ? `μ:${Math.round(botRating.mu)}, σ:${Math.round(botRating.sigma)}`
         : 'No rating data'
-      const ratingClass = tier === 'Unranked' ? 'rating-col unranked' : 'rating-col'
+      const { text: percentileText, cssClass: ratingClass } = formatPercentile(bot.name, tier, percentile)
+      
       ratingCols = `
       <td class="rank-tier">${getTierIcon(tier, bot.name)}</td>
-      <td><span class="${ratingClass}" data-tooltip="${tooltipText}">${conservative}</span></td>`
+      <td><span class="${ratingClass}" data-tooltip="${tooltipText}">${percentileText}</span></td>`
     }
 
     return `<tr>
@@ -443,7 +444,7 @@ export function updateBotList(bots: BotInfo[]): void {
   // Update header visibility
   const botListHeader = document.querySelector('#bot-list thead tr')!
   botListHeader.innerHTML = showRatings
-    ? '<th>Bot</th><th>Tier</th><th>Rating</th><th>Author</th><th>Description</th><th></th>'
+    ? `<th>Bot</th><th>Tier</th><th class="rating-header" data-tooltip="${RATING_HEADER_TOOLTIP}">Rating</th><th>Author</th><th>Description</th><th></th>`
     : '<th>Bot</th><th>Author</th><th>Description</th><th></th>'
 
   // Scale if visible and not in mini mode
@@ -533,23 +534,29 @@ function bonusCell(value: number): string {
   return value ? `<td class="bonus">${value}</td>` : '<td class="bonus"></td>'
 }
 
+const RATING_HEADER_TOOLTIP = 'Percentile in ranked bot distribution'
+
+function formatPercentile(botName: string, tier: BotTier, percentile: number | null): { text: string; cssClass: string } {
+  if (tier === 'Unranked') {
+    return { text: '-', cssClass: 'rating-col unranked' }
+  }
+  if (ratings.isProvisional(botName)) {
+    return { text: percentile !== null ? `(${percentile.toFixed(1)})` : '-', cssClass: 'rating-col provisional' }
+  }
+  return { text: percentile !== null ? percentile.toFixed(1) : '-', cssClass: 'rating-col' }
+}
+
 export interface RatingsSnapshot {
-  [botName: string]: { conservative: number; mu: number; sigma: number; tier: BotTier }
+  [botName: string]: { percentile: number | null; tier: BotTier }
 }
 
 export function captureRatingsSnapshot(results: BotResult[], participants: Participant[]): RatingsSnapshot {
   const snapshot: RatingsSnapshot = {}
-  const s = settings.get()
   for (const r of results) {
     const p = participants.find(p => p.id === r.id)
     if (p) {
-      const botRating = ratings.getRating(p.name)
-      const defaultRating = { mu: s.ratingMu, sigma: s.ratingSigma, version: '', games: 0 }
-      const rating = botRating ?? defaultRating
       snapshot[p.name] = {
-        conservative: ratings.getConservativeRating(rating),
-        mu: rating.mu,
-        sigma: rating.sigma,
+        percentile: ratings.getPercentileForBot(p.name),
         tier: ratings.getRankTierForBot(p.name)
       }
     }
@@ -579,32 +586,31 @@ export function showResults(results: BotResult[], participants: Participant[], o
       const botName = bot?.name || ''
       const botRating = ratings.getRating(botName)
       const tier = ratings.getRankTierForBot(botName)
+      const percentile = ratings.getPercentileForBot(botName)
       
-      let ratingHtml = '-'
-      let deltaHtml = ''
-      let tooltipText = 'No rating data'
-      if (botRating) {
-        const conservative = Math.round(ratings.getConservativeRating(botRating))
-        const mu = Math.round(botRating.mu)
-        const sigma = Math.round(botRating.sigma)
-        tooltipText = `μ:${mu}, σ:${sigma}`
-        ratingHtml = String(conservative)
-        
-        if (oldRatings && botName) {
-          const oldConservative = oldRatings[botName]?.conservative ?? 0
-          const delta = conservative - Math.round(oldConservative)
-          if (delta > 0) {
-            deltaHtml = `<span class="delta-up">▲${delta}</span>`
-          } else if (delta < 0) {
-            deltaHtml = `<span class="delta-down">▼${Math.abs(delta)}</span>`
+      const tooltipText = botRating
+        ? `μ:${Math.round(botRating.mu)}, σ:${Math.round(botRating.sigma)}`
+        : 'No rating data'
+      const { text: percentileText, cssClass: ratingClass } = formatPercentile(botName, tier, percentile)
+      
+      // Calculate delta in percentile
+      let deltaText = ''
+      if (oldRatings && botName && percentile !== null) {
+        const oldPercentile = oldRatings[botName]?.percentile
+        if (oldPercentile !== null && oldPercentile !== undefined) {
+          const delta = percentile - oldPercentile
+          if (delta > 0.05) {
+            deltaText = `<span class="delta-up">▲${delta.toFixed(1)}</span>`
+          } else if (delta < -0.05) {
+            deltaText = `<span class="delta-down">▼${Math.abs(delta).toFixed(1)}</span>`
           }
         }
       }
-      const ratingClass = tier === 'Unranked' ? 'rating-col unranked' : 'rating-col'
+      
       ratingCols = `
       <td class="rank-tier">${getTierIcon(tier, botName)}</td>
-      <td class="rating-value"><span class="${ratingClass}" data-tooltip="${tooltipText}">${ratingHtml}</span></td>
-      <td class="rating-delta">${deltaHtml}</td>`
+      <td class="rating-value"><span class="${ratingClass}" data-tooltip="${tooltipText}">${percentileText}</span></td>
+      <td class="rating-delta">${deltaText}</td>`
     }
     
     return `<tr>
@@ -626,7 +632,7 @@ export function showResults(results: BotResult[], participants: Participant[], o
   // Update header visibility
   const resultsHeader = document.querySelector('#results-table thead tr')!
   resultsHeader.innerHTML = showRatings
-    ? '<th>#</th><th>Bot</th><th>Tier</th><th>Rating</th><th></th><th>Total</th><th>Survival</th><th>(bonus)</th><th>Bullet Dmg</th><th>(bonus)</th><th>Ram Dmg</th><th>(bonus)</th><th>1sts</th><th>2nds</th><th>3rds</th>'
+    ? `<th>#</th><th>Bot</th><th>Tier</th><th class="rating-header" data-tooltip="${RATING_HEADER_TOOLTIP}">Rating</th><th></th><th>Total</th><th>Survival</th><th>(bonus)</th><th>Bullet Dmg</th><th>(bonus)</th><th>Ram Dmg</th><th>(bonus)</th><th>1sts</th><th>2nds</th><th>3rds</th>`
     : '<th>#</th><th>Bot</th><th>Total</th><th>Survival</th><th>(bonus)</th><th>Bullet Dmg</th><th>(bonus)</th><th>Ram Dmg</th><th>(bonus)</th><th>1sts</th><th>2nds</th><th>3rds</th>'
 
   scaleToFit(resultsContainer)

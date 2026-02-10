@@ -22,6 +22,8 @@ const TIER_CONFIG: Array<{ minBots: number; percentile: number; tier: Tier }> = 
 // Cached tier thresholds (rating values, not percentiles)
 interface CachedTierData {
   rankedCount: number
+  min: number
+  max: number
   thresholds: Array<{ tier: Tier; rating: number }>  // sorted by rating descending
 }
 
@@ -36,7 +38,7 @@ export function recalculateTierThresholds(fullyRankedRatings: number[]): void {
   const n = fullyRankedRatings.length
 
   if (n === 0) {
-    cachedTierData = { rankedCount: 0, thresholds: [] }
+    cachedTierData = { rankedCount: 0, min: 0, max: 0, thresholds: [] }
     return
   }
 
@@ -58,7 +60,7 @@ export function recalculateTierThresholds(fullyRankedRatings: number[]): void {
   // Sort by rating descending for efficient lookup
   thresholds.sort((a, b) => b.rating - a.rating)
 
-  cachedTierData = { rankedCount: n, thresholds }
+  cachedTierData = { rankedCount: n, min, max, thresholds }
 }
 
 /**
@@ -94,6 +96,21 @@ export function isCacheValid(): boolean {
 /**
  * Get current cached tier data for debugging.
  */
-export function getCachedTierData(): { rankedCount: number; thresholds: Array<{ tier: Tier; rating: number }> } | null {
+export function getCachedTierData(): { rankedCount: number; min: number; max: number; thresholds: Array<{ tier: Tier; rating: number }> } | null {
   return cachedTierData ? { ...cachedTierData, thresholds: [...cachedTierData.thresholds] } : null
+}
+
+/**
+ * Calculate percentile for a given rating value.
+ * Uses cached min/max from fully-ranked bots.
+ * @returns percentile (can be < 0 or > 100 for ratings outside ranked range), or null if insufficient data
+ */
+export function getPercentileForRating(conservativeRating: number): number | null {
+  if (!cachedTierData || cachedTierData.rankedCount < 2) return null
+  
+  const { min, max } = cachedTierData
+  const range = max - min
+  if (range === 0) return 50 // All bots have same rating
+  
+  return ((conservativeRating - min) / range) * 100
 }

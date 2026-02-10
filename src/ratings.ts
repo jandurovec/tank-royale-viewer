@@ -162,6 +162,20 @@ export function getGamesToFullRank(botName: string): number {
   return Math.max(0, threshold - botRating.games)
 }
 
+/**
+ * Get percentile for a bot based on their conservative rating.
+ * @returns percentile (can be < 0 or > 100 for provisional bots), or null if unranked or insufficient data
+ */
+export function getPercentileForBot(botName: string): number | null {
+  const { rankedGamesThreshold } = settings.get()
+  const botRating = ratings[botName]
+  if (!botRating || botRating.games < rankedGamesThreshold) return null
+  
+  if (!tiers.isCacheValid()) updateTierCache()
+  const conservative = getConservativeRating(botRating)
+  return tiers.getPercentileForRating(conservative)
+}
+
 export interface RankedResult {
   name: string
   version: string

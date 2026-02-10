@@ -2,12 +2,12 @@
 
 This document tracks implementation progress for AI assistants and developers resuming work on this project.
 
-**Last updated:** 2026-02-09
+**Last updated:** 2026-02-10
 
 ## Current State
 
-**Phase:** 6 (Custom Logo) - Complete
-**Status:** Full battle viewer with skill ratings, tier icons, and custom arena logo
+**Phase:** 7 (Percentile Display) - Complete
+**Status:** Full battle viewer with skill ratings displayed as percentiles
 
 ### What's Working
 
@@ -28,7 +28,7 @@ This document tracks implementation progress for AI assistants and developers re
 
 #### Bot List
 - ✅ Bot list with flags, authors, description, platform icons
-- ✅ Skill rating columns: Tier + conservative rating (with μ/σ tooltip)
+- ✅ Skill rating columns: Tier + percentile (with μ/σ tooltip)
 - ✅ Platform icons: custom SVGs for Java, Python, .NET
 - ✅ "Waiting for bots to connect..." pulsing message
 - ✅ Auto-scaling to fit viewport
@@ -57,7 +57,7 @@ This document tracks implementation progress for AI assistants and developers re
 
 #### Results
 - ✅ Full results table with compact bonus columns
-- ✅ Skill rating columns: Tier + conservative rating with delta indicators (▲/▼)
+- ✅ Skill rating columns: Tier + percentile with delta indicators (▲/▼)
 - ✅ Medal-style rank indicators (gold/silver/bronze circles) for top 3
 - ✅ Bold bot names
 - ✅ Mini bot list shown during results (60% scale)
@@ -181,6 +181,25 @@ Display a custom logo/image centered on the arena floor during battles.
 - [x] Store image as base64 in localStorage (`tank-royale-viewer-logo`)
 - [x] `logoStorage.ts`: load/save/clear logo, change callbacks
 - [x] `rendering/arena.ts`: render logo as PixiJS Sprite behind bots/bullets
+
+### Phase 7: Percentile Display ✅
+
+Replace raw rating numbers with percentile-based display for more intuitive UX.
+
+**Rationale:** OpenSkill ratings are unbounded (can go negative, no upper limit). Raw numbers are unpredictable and confusing. Percentiles normalize ratings to a 0-100 scale based on the ranked bot population.
+
+- [x] Add percentile calculation to `tiers.ts` (uses min/max from fully-ranked bots)
+- [x] Add percentile API to `ratings.ts` (getPercentileForBot)
+- [x] Update bot list table: show percentile instead of conservative rating
+- [x] Update results table: show percentile and percentile delta
+- [x] Display rules:
+  - Unranked bots: "-" (no percentile shown)
+  - Provisional bots: dimmed percentile in brackets, e.g. "(45.3)"
+  - Fully-ranked bots: percentile, e.g. "45.3"
+- [x] Percentile can go < 0 or > 100 for provisional bots (rating outside ranked range)
+- [x] Format: 1 decimal place for percentiles and deltas
+- [x] Keep μ/σ in tooltip for debugging
+- [x] Header tooltip explains "Percentile in ranked bot distribution"
 
 ## Key Technical Decisions
 

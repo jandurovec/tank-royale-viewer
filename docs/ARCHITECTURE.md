@@ -254,9 +254,26 @@ The `games` field tracks the number of ranked games played. When loading data wi
 
 Both bot list (State 2) and results (State 4) tables show:
 - **Tier column:** Rank tier icon (provisional icons at 50% opacity)
-- **Rating column:** Conservative rating value (dimmed at 50% opacity for unranked bots)
+- **Percentile column:** Percentile value (0-100 scale based on ranked bot population)
 - **Tooltip (CSS):** Shows μ and σ values on hover via `data-tooltip` attribute
-- **Results table:** Also shows delta indicator (▲/▼) for rating change after battle
+- **Results table:** Also shows delta indicator (▲/▼) for percentile change after battle
+
+#### Percentile Calculation
+
+Percentiles are calculated from conservative ratings using the min/max range of fully-ranked bots:
+- Formula: `percentile = ((rating - min) / (max - min)) * 100`
+- Range is based only on bots with games ≥ provisionalGamesThreshold
+- Percentile can exceed 0-100 bounds for provisional bots (rating outside ranked range)
+
+#### Display Rules by Bot Status
+
+| Status | Percentile Display | Delta Display |
+|--------|-------------------|---------------|
+| Unranked (games < ranked threshold) | "-" | (not shown) |
+| Provisional (ranked ≤ games < provisional) | "(45.3)" dimmed | "▲2.5" |
+| Fully Ranked (games ≥ provisional) | "45.3" | "▲2.5" |
+
+Percentiles and deltas are shown with 1 decimal place.
 
 ### Debug Logging
 

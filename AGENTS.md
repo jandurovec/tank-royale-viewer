@@ -82,6 +82,26 @@ Do not assume or guess. It's better to ask than to implement something incorrect
 
 If refactoring is needed, do it before marking the task complete.
 
+## Commit Messages
+
+- **Focus on delta** - Describe changes relative to the previous commit, not the entire implementation process. Intermediate refactorings that happened during development don't need to be mentioned.
+- **Short and concise** - Keep messages brief and to the point.
+- **Business value** - Focus on functional changes to the product (what the user/viewer can now do or see differently).
+- **Skip routine refactoring** - Moving constants, renaming variables, extracting helpers, etc. are normal development activities (BAU) and don't need explicit mention unless something significant changed (e.g., new module created, architecture change).
+
+```
+# GOOD - focuses on functional change with business context
+Display rating as percentile instead of raw conservative rating
+
+Percentile is calculated from ranked bot distribution only. Provisional
+bots may show values outside 0-100 range (displayed dimmed in brackets).
+
+# BAD - lists implementation details
+Add getPercentileForRating to tiers.ts, extract formatPercentile helper,
+update RatingsSnapshot interface, refactor duplicate code in ui.ts,
+add RATING_HEADER_TOOLTIP constant
+```
+
 ## Key Conventions
 
 ### TypeScript

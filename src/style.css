@@ -503,7 +503,8 @@ body {
   opacity: 0.5;
 }
 
-.rating-col.unranked {
+.rating-col.unranked,
+.rating-col.provisional {
   opacity: 0.5;
 }
 
@@ -692,7 +693,13 @@ body {
   cursor: help;
 }
 
+.rating-header {
+  position: relative;
+  cursor: help;
+}
+
 .rating-col[data-tooltip]:hover::after,
+.rating-header[data-tooltip]:hover::after,
 #settings-panel label[data-tooltip]:hover::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -709,6 +716,7 @@ body {
   z-index: 9999;
   pointer-events: none;
   margin-top: 4px;
+  text-transform: none;
 }
 
 #settings-panel label[data-tooltip] {
