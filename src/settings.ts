@@ -10,12 +10,17 @@ export interface Settings {
   showRatings: boolean
   rankedGamesThreshold: number
   provisionalGamesThreshold: number
-  // OpenSkill rating parameters
   ratingMu: number
   ratingSigma: number
   ratingBeta: number
   ratingTau: number
 }
+
+// OpenSkill library defaults
+const OPENSKILL_MU = 25
+const OPENSKILL_SIGMA = OPENSKILL_MU / 3
+const OPENSKILL_BETA = OPENSKILL_SIGMA / 2
+const OPENSKILL_TAU = OPENSKILL_MU / 300
 
 const DEFAULTS: Settings = {
   url: 'ws://localhost:7654',
@@ -27,11 +32,10 @@ const DEFAULTS: Settings = {
   showRatings: true,
   rankedGamesThreshold: 20,
   provisionalGamesThreshold: 50,
-  // OpenSkill defaults
-  ratingMu: 1200,
-  ratingSigma: 400,
-  ratingBeta: 100,
-  ratingTau: 1
+  ratingMu: OPENSKILL_MU,
+  ratingSigma: OPENSKILL_SIGMA,
+  ratingBeta: OPENSKILL_BETA,
+  ratingTau: OPENSKILL_TAU
 }
 
 let current: Settings = { ...DEFAULTS }
@@ -41,21 +45,12 @@ export function load(): Settings {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       const parsed = JSON.parse(stored)
-      // Merge with defaults (handles missing/invalid properties)
-      current = {
-        url: typeof parsed.url === 'string' ? parsed.url : DEFAULTS.url,
-        secret: typeof parsed.secret === 'string' ? parsed.secret : DEFAULTS.secret,
-        debug: typeof parsed.debug === 'boolean' ? parsed.debug : DEFAULTS.debug,
-        scanOpacity: typeof parsed.scanOpacity === 'number' ? parsed.scanOpacity : DEFAULTS.scanOpacity,
-        logoOpacity: typeof parsed.logoOpacity === 'number' ? parsed.logoOpacity : DEFAULTS.logoOpacity,
-        logoSize: typeof parsed.logoSize === 'number' ? parsed.logoSize : DEFAULTS.logoSize,
-        showRatings: typeof parsed.showRatings === 'boolean' ? parsed.showRatings : DEFAULTS.showRatings,
-        rankedGamesThreshold: typeof parsed.rankedGamesThreshold === 'number' ? parsed.rankedGamesThreshold : DEFAULTS.rankedGamesThreshold,
-        provisionalGamesThreshold: typeof parsed.provisionalGamesThreshold === 'number' ? parsed.provisionalGamesThreshold : DEFAULTS.provisionalGamesThreshold,
-        ratingMu: typeof parsed.ratingMu === 'number' ? parsed.ratingMu : DEFAULTS.ratingMu,
-        ratingSigma: typeof parsed.ratingSigma === 'number' ? parsed.ratingSigma : DEFAULTS.ratingSigma,
-        ratingBeta: typeof parsed.ratingBeta === 'number' ? parsed.ratingBeta : DEFAULTS.ratingBeta,
-        ratingTau: typeof parsed.ratingTau === 'number' ? parsed.ratingTau : DEFAULTS.ratingTau
+      // Merge with defaults, validating types for each property
+      current = { ...DEFAULTS }
+      for (const key of Object.keys(DEFAULTS) as (keyof Settings)[]) {
+        if (typeof parsed[key] === typeof DEFAULTS[key]) {
+          current[key] = parsed[key] as never
+        }
       }
     }
   } catch {

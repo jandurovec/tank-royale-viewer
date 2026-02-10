@@ -7,28 +7,9 @@ export type BotTier = 'Unranked' | tiers.Tier
 
 const STORAGE_KEY = 'tank-royale-viewer-ratings'
 
-// Z factor for conservative rating = mu - z*sigma
-const Z_FACTOR = 3
-
-// Build OpenSkill options from current settings
 function getOptions(): Options {
-  const s = settings.get()
-  return {
-    mu: s.ratingMu,
-    sigma: s.ratingSigma,
-    beta: s.ratingBeta,
-    tau: s.ratingTau,
-    z: Z_FACTOR
-  }
-}
-
-// Get default mu/sigma from settings (for new bots)
-function getDefaultMu(): number {
-  return settings.get().ratingMu
-}
-
-function getDefaultSigma(): number {
-  return settings.get().ratingSigma
+  const { ratingMu, ratingSigma, ratingBeta, ratingTau } = settings.get()
+  return { mu: ratingMu, sigma: ratingSigma, beta: ratingBeta, tau: ratingTau }
 }
 
 export interface BotRating {
@@ -77,15 +58,17 @@ export function getRating(botName: string): BotRating | undefined {
 export function getOrCreateRating(botName: string, version: string): BotRating {
   const existing = ratings[botName]
 
+  const { ratingMu, ratingSigma } = settings.get()
+
   if (!existing) {
     // New bot - create default rating with games=0
-    ratings[botName] = { mu: getDefaultMu(), sigma: getDefaultSigma(), version, games: 0 }
+    ratings[botName] = { mu: ratingMu, sigma: ratingSigma, version, games: 0 }
     return ratings[botName]
   }
 
   if (existing.version !== version) {
     // Version changed - keep mu and games, reset sigma
-    ratings[botName] = { mu: existing.mu, sigma: getDefaultSigma(), version, games: existing.games }
+    ratings[botName] = { mu: existing.mu, sigma: ratingSigma, version, games: existing.games }
   }
 
   return ratings[botName]

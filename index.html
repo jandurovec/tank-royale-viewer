@@ -76,19 +76,19 @@
         <div class="settings-param-row">
           <label class="param-input" data-tooltip="Initial mean rating for new bots">
             μ
-            <input type="number" id="rating-mu" min="0" max="5000" value="1200" />
+            <input type="number" id="rating-mu" min="0" max="5000" value="25" />
           </label>
           <label class="param-input" data-tooltip="Initial uncertainty (std dev). Higher values make early ratings change faster">
             σ
-            <input type="number" id="rating-sigma" min="1" max="1000" value="400" />
+            <input type="number" id="rating-sigma" min="0" max="1000" step="0.001" value="8.333" />
           </label>
           <label class="param-input" data-tooltip="Performance variance - models luck/randomness in game outcomes. Lower values assume results are more skill-determined (less luck)">
             β
-            <input type="number" id="rating-beta" min="1" max="1000" value="100" />
+            <input type="number" id="rating-beta" min="0" max="1000" step="0.001" value="4.167" />
           </label>
-          <label class="param-input" data-tooltip="Dynamics factor - adds uncertainty after each game. A small value (1-2) allows ongoing correction for early misestimates while keeping ratings stable. Set to 0 for fastest convergence, higher values keep ratings volatile">
+          <label class="param-input" data-tooltip="Dynamics factor - adds uncertainty after each game. A small value allows ongoing correction for early misestimates while keeping ratings stable. Set to 0 for fastest convergence, higher values keep ratings volatile">
             τ
-            <input type="number" id="rating-tau" min="0" max="100" step="0.1" value="1" />
+            <input type="number" id="rating-tau" min="0" max="100" step="0.001" value="0.083" />
           </label>
         </div>
       </div>

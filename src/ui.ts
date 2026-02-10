@@ -240,27 +240,28 @@ provisionalGamesThresholdInput.addEventListener('change', () => {
 
 // OpenSkill parameter inputs
 const RATING_PARAM_WARNING = 'OpenSkill parameter has changed. Resetting stored ratings is strongly recommended.'
+const defaults = settings.getDefaults()
 
 ratingMuInput.addEventListener('change', () => {
-  const value = parseFloat(ratingMuInput.value) || 1200
+  const value = parseFloat(ratingMuInput.value) || defaults.ratingMu
   settings.save({ ratingMu: value })
   showToast(RATING_PARAM_WARNING, 'warning')
 })
 
 ratingSigmaInput.addEventListener('change', () => {
-  const value = parseFloat(ratingSigmaInput.value) || 400
+  const value = parseFloat(ratingSigmaInput.value) || defaults.ratingSigma
   settings.save({ ratingSigma: value })
   showToast(RATING_PARAM_WARNING, 'warning')
 })
 
 ratingBetaInput.addEventListener('change', () => {
-  const value = parseFloat(ratingBetaInput.value) || 100
+  const value = parseFloat(ratingBetaInput.value) || defaults.ratingBeta
   settings.save({ ratingBeta: value })
   showToast(RATING_PARAM_WARNING, 'warning')
 })
 
 ratingTauInput.addEventListener('change', () => {
-  const value = parseFloat(ratingTauInput.value) || 1
+  const value = parseFloat(ratingTauInput.value) || defaults.ratingTau
   settings.save({ ratingTau: value })
   showToast(RATING_PARAM_WARNING, 'warning')
 })
