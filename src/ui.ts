@@ -403,7 +403,29 @@ export interface BotInfo {
 export function updateBotList(bots: BotInfo[]): void {
   botListContainer.classList.toggle('empty', bots.length === 0)
   const showRatings = settings.get().showRatings
-  const sorted = [...bots].sort((a, b) => a.name.localeCompare(b.name))
+
+  const sorted = [...bots].sort((a, b) => {
+    if (!showRatings) {
+      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+    }
+
+    // Sort by percentile (highest first), unranked at bottom
+    const pctA = ratings.getPercentileForBot(a.name)
+    const pctB = ratings.getPercentileForBot(b.name)
+
+    // Unranked (null) goes to bottom
+    if (pctA === null && pctB === null) {
+      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+    }
+    if (pctA === null) return 1
+    if (pctB === null) return -1
+
+    // Both have percentile - sort descending (highest first)
+    if (pctA !== pctB) return pctB - pctA
+
+    // Tie - sort by name
+    return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+  })
   botListBody.innerHTML = sorted.map(bot => {
     const codes = bot.countryCodes || []
     const authors = bot.authors
