@@ -10,6 +10,7 @@ import tierLegendPng from './assets/tier-legend.png'
 import * as settings from './settings.js'
 import * as ratings from './ratings.js'
 import * as logoStorage from './logoStorage.js'
+import { getState } from './gameState.js'
 import type { BotTier } from './ratings.js'
 
 const toastEl = document.getElementById('toast')!
@@ -532,12 +533,6 @@ export function hideBotList(): void {
   botListContainer.classList.remove('visible')
 }
 
-export interface Participant {
-  id: number
-  name: string
-  version: string
-}
-
 export interface BotResult {
   id: number
   rank: number
@@ -573,10 +568,11 @@ export interface RatingsSnapshot {
   [botName: string]: { percentile: number | null; tier: BotTier }
 }
 
-export function captureRatingsSnapshot(results: BotResult[], participants: Participant[]): RatingsSnapshot {
+export function captureRatingsSnapshot(results: BotResult[]): RatingsSnapshot {
   const snapshot: RatingsSnapshot = {}
+  const participantMap = getState().participants
   for (const r of results) {
-    const p = participants.find(p => p.id === r.id)
+    const p = participantMap.get(r.id)
     if (p) {
       snapshot[p.name] = {
         percentile: ratings.getPercentileForBot(p.name),
@@ -587,14 +583,14 @@ export function captureRatingsSnapshot(results: BotResult[], participants: Parti
   return snapshot
 }
 
-export function showResults(results: BotResult[], participants: Participant[], oldRatings?: RatingsSnapshot): void {
+export function showResults(results: BotResult[], oldRatings?: RatingsSnapshot): void {
   resultsBackdrop.classList.add('visible')
   resultsContainer.classList.add('visible')
   botListContainer.classList.add('visible')
   botListContainer.classList.add('mini')
 
   const showRatings = settings.get().showRatings
-  const participantMap = new Map(participants.map(p => [p.id, p]))
+  const participantMap = getState().participants
   const sorted = [...results].sort((a, b) => a.rank - b.rank)
 
   resultsBody.innerHTML = sorted.map(r => {

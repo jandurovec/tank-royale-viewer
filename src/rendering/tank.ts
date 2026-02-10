@@ -170,13 +170,14 @@ export function updateBotGraphics(
     energyText.text = bot.energy.toFixed(1)
   }
 
-  // Update name text (only set once)
+  // Update name text based on current participant
   const nameText = container.getChildByLabel('name') as Text
-  if (nameText && nameText.text === '') {
+  if (nameText) {
     const gameState = getState()
     const participant = gameState.participants.get(bot.id)
-    if (participant) {
-      nameText.text = `${participant.name} ${participant.version}`
+    const expectedName = participant ? `${participant.name} ${participant.version}` : ''
+    if (nameText.text !== expectedName) {
+      nameText.text = expectedName
     }
   }
 }

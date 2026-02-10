@@ -6,8 +6,8 @@ import * as ui from './ui.js'
 import * as renderer from './rendering/index.js'
 import * as gameState from './gameState.js'
 import * as ratings from './ratings.js'
-import type { BotInfo, Participant, BotResult } from './ui.js'
-import type { BotState, BulletState, GameSetup } from './gameState.js'
+import type { BotInfo, BotResult } from './ui.js'
+import type { BotState, BulletState, GameSetup, Participant } from './gameState.js'
 
 interface TickMessage {
   type: string
@@ -32,9 +32,8 @@ interface GameStartedMessage {
 }
 
 let lastSettings = ui.getSettings()
-let participants: Participant[] = []
 let currentBots: BotInfo[] = []
-let lastResults: { results: BotResult[]; participants: Participant[]; oldRatings: ReturnType<typeof ui.captureRatingsSnapshot> } | null = null
+let lastResults: { results: BotResult[]; oldRatings: ReturnType<typeof ui.captureRatingsSnapshot> } | null = null
 let battleInProgress = false
 
 function processTickEvent(event: TickEvent, botStates: BotState[]): void {
@@ -80,7 +79,6 @@ const connection = createConnection({
     ui.hideResults()
     renderer.hide()
     gameState.reset()
-    participants = []
   },
   onConnected: () => {
     ui.setStatus('live')
@@ -92,7 +90,6 @@ const connection = createConnection({
     ui.hideResults()
     renderer.hide()
     gameState.reset()
-    participants = []
   },
   onError: (msg) => ui.showToast(`Server: ${msg}`),
   onMessage: (msg) => {
@@ -105,10 +102,9 @@ const connection = createConnection({
       case 'GameStartedEventForObserver': {
         battleInProgress = true
         const gameMsg = msg as GameStartedMessage
-        participants = gameMsg.participants || []
         const setup = gameMsg.gameSetup
         gameState.setGameSetup(setup)
-        gameState.setParticipants(participants)
+        gameState.setParticipants(gameMsg.participants || [])
         renderer.setArenaSize(setup.arenaWidth, setup.arenaHeight)
         ui.hideBotList()
         ui.hideResults()
@@ -139,19 +135,20 @@ const connection = createConnection({
         renderer.hide()
         ui.hideRoundTurn()
         const results = m.results || []
+        const state = gameState.getState()
         // Capture old ratings before update for delta display
-        const oldRatings = ui.captureRatingsSnapshot(results, participants)
+        const oldRatings = ui.captureRatingsSnapshot(results)
         // Update ratings based on results
         const rankedResults = results.map(r => {
-          const p = participants.find(p => p.id === r.id)
+          const p = state.participants.get(r.id)
           return { name: p?.name || '', version: p?.version || '', rank: r.rank }
         }).filter(r => r.name)
         ratings.updateRatings(rankedResults)
         // Refresh bot list with updated tiers
         ui.updateBotList(currentBots)
         // Store for re-render on settings change
-        lastResults = { results, participants, oldRatings }
-        ui.showResults(results, participants, oldRatings)
+        lastResults = { results, oldRatings }
+        ui.showResults(results, oldRatings)
         break
       }
       case 'GameAbortedEvent':
@@ -185,7 +182,7 @@ ui.onShowRatingsChange(() => {
     ui.updateBotList(currentBots)
   }
   if (lastResults) {
-    ui.showResults(lastResults.results, lastResults.participants, lastResults.oldRatings)
+    ui.showResults(lastResults.results, lastResults.oldRatings)
   }
 })
 
