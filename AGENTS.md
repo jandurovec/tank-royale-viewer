@@ -19,9 +19,9 @@ A web-based viewer for Robocode Tank Royale battles designed for **large display
 ```bash
 npm install          # Install dependencies
 npm run dev          # Start dev server (http://localhost:5173)
-npm run build        # Production build
-npm run typecheck    # Check TypeScript types
+npm run build        # Production build (includes tsc type checking)
 npm run lint         # Run linter
+npm test             # Run tests
 ```
 
 ## Project Structure
@@ -101,6 +101,16 @@ Add getPercentileForRating to tiers.ts, extract formatPercentile helper,
 update RatingsSnapshot interface, refactor duplicate code in ui.ts,
 add RATING_HEADER_TOOLTIP constant
 ```
+
+## Before Committing
+
+**Always run the linter before committing:**
+
+```bash
+npm run lint -- --fix
+```
+
+Fix any errors before committing. Do not commit code with lint errors.
 
 ## Key Conventions
 

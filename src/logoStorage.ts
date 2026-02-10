@@ -1,7 +1,7 @@
 const STORAGE_KEY = 'tank-royale-viewer-logo'
 
 let cachedLogo: string | null = null
-let changeCallbacks: Array<(logo: string | null) => void> = []
+const changeCallbacks: Array<(logo: string | null) => void> = []
 
 export function getLogo(): string | null {
   if (cachedLogo !== null) return cachedLogo

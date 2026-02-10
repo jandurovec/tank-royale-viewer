@@ -21,7 +21,7 @@ const MARGIN = 32 // 2em at 16px base
 
 let app: Application | null = null
 let arenaContainer: Container | null = null
-let botGraphics: Map<number, Container> = new Map()
+const botGraphics: Map<number, Container> = new Map()
 let bulletGraphics: Graphics | null = null
 let effectsGraphics: Graphics | null = null
 

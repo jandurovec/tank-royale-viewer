@@ -68,7 +68,7 @@ importRatingsBtn.addEventListener('click', () => {
 importRatingsFile.addEventListener('change', () => {
   const file = importRatingsFile.files?.[0]
   if (!file) return
-  
+
   const reader = new FileReader()
   reader.onload = () => {
     const json = reader.result as string
@@ -83,7 +83,7 @@ importRatingsFile.addEventListener('change', () => {
     showToast('Failed to read file')
   }
   reader.readAsText(file)
-  
+
   // Reset file input so same file can be re-imported
   importRatingsFile.value = ''
 })
@@ -438,18 +438,18 @@ export function updateBotList(bots: BotInfo[]): void {
     }
 
     const platformIcon = getPlatformIcon(bot.platform, bot.programmingLang)
-    
+
     // Rating columns (conditional)
     let ratingCols = ''
     if (showRatings) {
       const botRating = ratings.getRating(bot.name)
       const tier = ratings.getRankTierForBot(bot.name)
       const percentile = ratings.getPercentileForBot(bot.name)
-      const tooltipText = botRating 
+      const tooltipText = botRating
         ? `μ:${Math.round(botRating.mu)}, σ:${Math.round(botRating.sigma)}`
         : 'No rating data'
       const { text: percentileText, cssClass: ratingClass } = formatPercentile(bot.name, tier, percentile)
-      
+
       ratingCols = `
       <td class="rank-tier">${getTierIcon(tier, bot.name)}</td>
       <td><span class="${ratingClass}" data-tooltip="${tooltipText}">${percentileText}</span></td>`
@@ -601,7 +601,7 @@ export function showResults(results: BotResult[], participants: Participant[], o
     const name = bot ? `${bot.name} <span class="bot-version">${bot.version}</span>` : `Bot #${r.id}`
     const rankClass = r.rank === 1 ? 'gold' : r.rank === 2 ? 'silver' : r.rank === 3 ? 'bronze' : ''
     const rankContent = rankClass ? `<span class="rank-medal ${rankClass}">${r.rank}</span>` : r.rank
-    
+
     // Rating columns (conditional)
     let ratingCols = ''
     if (showRatings) {
@@ -609,12 +609,12 @@ export function showResults(results: BotResult[], participants: Participant[], o
       const botRating = ratings.getRating(botName)
       const tier = ratings.getRankTierForBot(botName)
       const percentile = ratings.getPercentileForBot(botName)
-      
+
       const tooltipText = botRating
         ? `μ:${Math.round(botRating.mu)}, σ:${Math.round(botRating.sigma)}`
         : 'No rating data'
       const { text: percentileText, cssClass: ratingClass } = formatPercentile(botName, tier, percentile)
-      
+
       // Calculate delta in percentile
       let deltaText = ''
       if (oldRatings && botName && percentile !== null) {
@@ -628,13 +628,13 @@ export function showResults(results: BotResult[], participants: Participant[], o
           }
         }
       }
-      
+
       ratingCols = `
       <td class="rank-tier">${getTierIcon(tier, botName)}</td>
       <td class="rating-value"><span class="${ratingClass}" data-tooltip="${tooltipText}">${percentileText}</span></td>
       <td class="rating-delta">${deltaText}</td>`
     }
-    
+
     return `<tr>
       <td>${rankContent}</td>
       <td>${name}</td>${ratingCols}

@@ -107,10 +107,10 @@ export function getCachedTierData(): { rankedCount: number; min: number; max: nu
  */
 export function getPercentileForRating(conservativeRating: number): number | null {
   if (!cachedTierData || cachedTierData.rankedCount < 2) return null
-  
+
   const { min, max } = cachedTierData
   const range = max - min
   if (range === 0) return 50 // All bots have same rating
-  
+
   return ((conservativeRating - min) / range) * 100
 }

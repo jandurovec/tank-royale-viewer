@@ -101,7 +101,7 @@ function updateTierCache(): void {
   const eligibleBots = Object.entries(ratings)
     .filter(([, r]) => r.games >= provisionalGamesThreshold)
   const fullyRankedRatings = eligibleBots.map(([, r]) => getConservativeRating(r))
-  
+
   if (debug) {
     console.log('[Tiers] Recalculating tier thresholds')
     console.log('[Tiers] Eligible bots (games >= ' + provisionalGamesThreshold + '):')
@@ -109,9 +109,9 @@ function updateTierCache(): void {
       console.log(`  ${name}: conservative=${Math.round(getConservativeRating(r))}, mu=${Math.round(r.mu)}, sigma=${Math.round(r.sigma)}, games=${r.games}`)
     }
   }
-  
+
   tiers.recalculateTierThresholds(fullyRankedRatings)
-  
+
   if (debug) {
     const cached = tiers.getCachedTierData()
     if (cached) {
@@ -170,7 +170,7 @@ export function getPercentileForBot(botName: string): number | null {
   const { rankedGamesThreshold } = settings.get()
   const botRating = ratings[botName]
   if (!botRating || botRating.games < rankedGamesThreshold) return null
-  
+
   if (!tiers.isCacheValid()) updateTierCache()
   const conservative = getConservativeRating(botRating)
   return tiers.getPercentileForRating(conservative)
