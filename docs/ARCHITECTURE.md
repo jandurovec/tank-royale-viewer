@@ -103,44 +103,43 @@ The viewer has four distinct states:
 ```
 +-------------------------------------------------------------+
 | LIVE | ROUND 1 | TURN 75                                 *  |
-|                                                              |
-|                          98.8                                |
-|                        +-----+                               |
-|          o             | BOT |              o                |
-|                        +-----+                               |
-|                      Spin Bot 1.0                            |
-|    +-----+                                  +-----+          |
-|    | BOT |           \                      | BOT |          |
-|    +-----+            \  (scan arc)         +-----+          |
-|                                                              |
+|              +--------------------------------+             |
+| +-----------+:            ARENA               |             |
+| | Bot List  |:                                |             |
+| | (behind)  |:         o       98.8       o   |             |
+| | - Spin    |:               +-----+          |             |
+| | - Fire    |:               | BOT |          |             |
+| | - Crazy   |:               +-----+          |             |
+| +-----------+:              MyBot 1.0         |             |
+|  70% opacity +--------------------------------+             |
+|                       (arena is on top of bot list)         |
 +-------------------------------------------------------------+
+          ^--- transparent canvas margin where bot list shows through
 ```
 - "LIVE | ROUND X | TURN Y" indicator
 - Arena with bots, bullets, scan arcs, explosions
+- Bot list docked left, behind the arena (lower z-index)
+- Visible in transparent canvas margins on wide displays
 - NO scoreboard (scores not available during battle)
 
 #### State 4: Battle Ended
 ```
 +-------------------------------------------------------------+
 | LIVE                                                     *  |
-|                                                              |
-|    (dimmed) +---------------------------------------+        |
-|             | Bot list table...                     |        |
-|             +---------------------------------------+        |
-|                                                              |
-|          +---------------------------------------+           |
-|          |          BATTLE RESULTS               |           |
-|          |---------------------------------------|           |
-|          | 1. Spin Bot 1.0      2250 pts         |           |
-|          | 2. Fire 1.0          1890 pts         |           |
-|          | 3. Crazy 1.0         1456 pts         |           |
-|          +---------------------------------------+           |
-|                                                              |
+|                                                             |
+| +-----------+      +----------------------------------+     |
+| | Bot List  |      |         BATTLE RESULTS           |     |
+| | (behind)  |      |----------------------------------|     |
+| | - Spin    |      | 1. Spin Bot 1.0      2250 pts    |     |
+| | - Fire    |      | 2. Fire 1.0          1890 pts    |     |
+| | - Crazy   |      | 3. Crazy 1.0         1456 pts    |     |
+| +-----------+      +----------------------------------+     |
+|  70% opacity           (results overlay centered)           |
 +-------------------------------------------------------------+
 ```
 - "LIVE" indicator (no round/turn)
-- Background: dimmed bot list table
-- Foreground: solid results overlay (no transparency)
+- Bot list remains docked left (same position as during battle)
+- Results overlay centered on screen
 - Results disappear when new battle starts
 
 #### State Transitions
@@ -155,7 +154,7 @@ The viewer has four distinct states:
          +--> |   Waiting   | <------ on battle end
          |    |   (State 2) |         (show results)
          |    +------+------+
-         |           | on GameStarted
+         |           | on GameStarted (bot list docks to left)
          |           v
          |    +-------------+
          |    |   Battle    |
@@ -171,6 +170,17 @@ The viewer has four distinct states:
                      v
               (back to State 3)
 ```
+
+### Bot List Dock Transition
+
+When a battle starts, the bot list animates from centered to docked on the left. This keeps bot information at least partially visible during battles—fully visible on wide displays where the arena doesn't fill the viewport.
+
+- **Animation:** 1 second ease-out CSS transition
+- **Scale:** Shrinks from 100% to 80%
+- **Position:** Docks to left, vertically centered
+- **Opacity:** Fades to 70% (100% on hover)
+- **Z-order:** Bot list (z-index: 0) renders behind arena canvas (z-index: 1)
+- **Canvas:** PixiJS uses transparent background so docked list shows through margins
 
 ### Bot Labels
 

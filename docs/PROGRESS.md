@@ -6,8 +6,8 @@ This document tracks implementation progress for AI assistants and developers re
 
 ## Current State
 
-**Phase:** 7 (Percentile Display) - Complete
-**Status:** Full battle viewer with skill ratings displayed as percentiles
+**Phase:** 8 (Docked Bot List) - Complete
+**Status:** Full battle viewer with bot list visible during battles
 
 ### What's Working
 
@@ -60,7 +60,7 @@ This document tracks implementation progress for AI assistants and developers re
 - ✅ Skill rating columns: Tier + percentile with delta indicators (▲/▼)
 - ✅ Medal-style rank indicators (gold/silver/bronze circles) for top 3
 - ✅ Bold bot names
-- ✅ Mini bot list shown during results (60% scale)
+- ✅ Bot list docked left during battle and results (80% scale, behind arena)
 - ✅ Results backdrop overlay
 
 #### Bot Labels
@@ -200,6 +200,19 @@ Replace raw rating numbers with percentile-based display for more intuitive UX.
 - [x] Format: 1 decimal place for percentiles and deltas
 - [x] Keep μ/σ in tooltip for debugging
 - [x] Header tooltip explains "Percentile in ranked bot distribution"
+
+### Phase 8: Docked Bot List ✅
+
+Keep bot list visible during battles by docking it to the left, behind the arena.
+
+- [x] Bot list docks to left when battle starts (animated 1s transition)
+- [x] Scale: 80%, vertically centered
+- [x] Opacity: 70% (100% on hover)
+- [x] Z-order: bot list behind arena canvas (z-index 0 vs 1)
+- [x] PixiJS canvas uses transparent background (`backgroundAlpha: 0`)
+- [x] Visible in margins on wide displays, covered by arena on narrow displays
+- [x] `showBotListMini()` function in ui.ts
+- [x] Ratings toggle updates bot list during battle
 
 ## Key Technical Decisions
 

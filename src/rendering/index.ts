@@ -32,7 +32,7 @@ let scale = 1
 export async function init(container: HTMLElement): Promise<void> {
   app = new Application()
   await app.init({
-    background: '#1a1a1a',
+    backgroundAlpha: 0,
     resizeTo: container,
     antialias: true
   })

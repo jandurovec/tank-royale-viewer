@@ -529,6 +529,12 @@ export function showBotList(): void {
   scaleToFit(botListContainer)
 }
 
+export function showBotListMini(): void {
+  botListContainer.classList.add('visible')
+  botListContainer.classList.add('mini')
+  botListContainer.style.transform = ''
+}
+
 export function hideBotList(): void {
   botListContainer.classList.remove('visible')
 }

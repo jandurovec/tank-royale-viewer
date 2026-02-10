@@ -106,7 +106,7 @@ const connection = createConnection({
         gameState.setGameSetup(setup)
         gameState.setParticipants(gameMsg.participants || [])
         renderer.setArenaSize(setup.arenaWidth, setup.arenaHeight)
-        ui.hideBotList()
+        ui.showBotListMini()
         ui.hideResults()
         ui.showRoundTurn(1, 0)
         renderer.show()
@@ -175,13 +175,14 @@ ui.onConnectionSettingsChange(() => {
   }
 })
 
-// Subscribe to showRatings changes to re-render tables (only when not in battle)
+// Subscribe to showRatings changes to re-render tables
 ui.onShowRatingsChange(() => {
-  if (battleInProgress) return
+  // Bot list content can be updated anytime (doesn't change visibility)
   if (currentBots.length > 0) {
     ui.updateBotList(currentBots)
   }
-  if (lastResults) {
+  // Results should only be re-rendered when not in battle (showResults changes visibility)
+  if (!battleInProgress && lastResults) {
     ui.showResults(lastResults.results, lastResults.oldRatings)
   }
 })
