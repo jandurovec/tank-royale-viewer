@@ -10,6 +10,7 @@ import tierLegendPng from './assets/tier-legend.png'
 import * as settings from './settings.js'
 import * as ratings from './ratings.js'
 import * as logoStorage from './logoStorage.js'
+import { getTeamColor } from './teamColors.js'
 import { getState } from './gameState.js'
 import type { BotTier } from './ratings.js'
 
@@ -400,72 +401,129 @@ export interface BotInfo {
   platform?: string
   programmingLang?: string
   description?: string
+  // Team fields (optional - only present for team members)
+  teamId?: number
+  teamName?: string
+  teamVersion?: string
+  isDroid?: boolean
 }
 
 export function updateBotList(bots: BotInfo[]): void {
   botListContainer.classList.toggle('empty', bots.length === 0)
   const showRatings = settings.get().showRatings
 
-  const sorted = [...bots].sort((a, b) => {
+  // Group bots by team
+  const teams = new Map<number, { name: string; version: string; members: BotInfo[] }>()
+  const soloBots: BotInfo[] = []
+
+  for (const bot of bots) {
+    if (bot.teamId !== undefined && bot.teamName) {
+      let team = teams.get(bot.teamId)
+      if (!team) {
+        team = { name: bot.teamName, version: bot.teamVersion || '', members: [] }
+        teams.set(bot.teamId, team)
+      }
+      team.members.push(bot)
+    } else {
+      soloBots.push(bot)
+    }
+  }
+
+  // Create unified list of entries (teams and solo bots) for sorting
+  type Entry =
+    | { type: 'team'; teamId: number; name: string; version: string; members: BotInfo[] }
+    | { type: 'solo'; bot: BotInfo }
+
+  const entries: Entry[] = []
+  for (const [teamId, team] of teams) {
+    entries.push({ type: 'team', teamId, name: team.name, version: team.version, members: team.members })
+  }
+  for (const bot of soloBots) {
+    entries.push({ type: 'solo', bot })
+  }
+
+  // Sort all entries together by rating
+  const getName = (e: Entry) => e.type === 'team' ? e.name : e.bot.name
+  entries.sort((a, b) => {
+    const nameA = getName(a)
+    const nameB = getName(b)
     if (!showRatings) {
-      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+      return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' })
     }
-
-    // Sort by percentile (highest first), unranked at bottom
-    const pctA = ratings.getPercentileForBot(a.name)
-    const pctB = ratings.getPercentileForBot(b.name)
-
-    // Unranked (null) goes to bottom
-    if (pctA === null && pctB === null) {
-      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
-    }
+    const pctA = ratings.getPercentileForBot(nameA)
+    const pctB = ratings.getPercentileForBot(nameB)
+    if (pctA === null && pctB === null) return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' })
     if (pctA === null) return 1
     if (pctB === null) return -1
-
-    // Both have percentile - sort descending (highest first)
     if (pctA !== pctB) return pctB - pctA
-
-    // Tie - sort by name
-    return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+    return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' })
   })
-  botListBody.innerHTML = sorted.map(bot => {
-    const codes = bot.countryCodes || []
-    const authors = bot.authors
-    const authorParts: string[] = []
 
-    for (let i = 0; i < Math.max(codes.length, authors.length); i++) {
-      const flag = codes[i] ? `<span class="bot-flag fi fi-${codes[i].toLowerCase()}"></span>` : ''
-      const name = authors[i] || ''
-      authorParts.push(flag + name)
+  // Build rows
+  const rows: string[] = []
+
+  for (const entry of entries) {
+    if (entry.type === 'team') {
+      const teamColor = getTeamColor(entry.teamId)
+      const teamIndicator = `<i class="fa-solid fa-fw fa-bookmark team-indicator" style="color: ${teamColor}" title="Team"></i>`
+
+      // Team header row
+      const teamRatingCols = showRatings ? buildRatingCells(entry.name) : ''
+
+      rows.push(`<tr class="team-row">
+        <td><span class="bot-name">${entry.name} <span class="bot-version">${entry.version}</span></span> ${teamIndicator}</td>${teamRatingCols}
+        <td></td>
+        <td class="bot-description"></td>
+        <td class="bot-platform"></td>
+      </tr>`)
+
+      // Sort members: leaders (non-droids) first, then droids, each alphabetically
+      const sortedMembers = [...entry.members].sort((a, b) => {
+        if (a.isDroid !== b.isDroid) return a.isDroid ? 1 : -1
+        return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+      })
+
+      // Team member rows
+      for (const bot of sortedMembers) {
+        const leaderIcon = bot.isDroid
+          ? ''
+          : ' <i class="fa-solid fa-fw fa-crown role-icon" title="Leader"></i>'
+
+        const authorParts = formatAuthors(bot)
+        const platformIcon = getPlatformIcon(bot.platform, bot.programmingLang)
+
+        let memberRatingCols = ''
+        if (showRatings) {
+          memberRatingCols = '<td class="rank-tier"></td><td></td>'
+        }
+
+        rows.push(`<tr class="team-member-row">
+          <td><span class="member-indent"><span class="bot-name">${bot.name} <span class="bot-version">${bot.version}</span></span></span>${teamIndicator}${leaderIcon}</td>${memberRatingCols}
+          <td>${authorParts}</td>
+          <td class="bot-description">${bot.description || ''}</td>
+          <td class="bot-platform">${platformIcon}</td>
+        </tr>`)
+      }
+    } else {
+      // Solo bot
+      const bot = entry.bot
+      const authorParts = formatAuthors(bot)
+      const platformIcon = getPlatformIcon(bot.platform, bot.programmingLang)
+
+      const ratingCols = showRatings ? buildRatingCells(bot.name) : ''
+
+      rows.push(`<tr>
+        <td><span class="bot-name">${bot.name} <span class="bot-version">${bot.version}</span></span></td>${ratingCols}
+        <td>${authorParts}</td>
+        <td class="bot-description">${bot.description || ''}</td>
+        <td class="bot-platform">${platformIcon}</td>
+      </tr>`)
     }
+  }
 
-    const platformIcon = getPlatformIcon(bot.platform, bot.programmingLang)
+  botListBody.innerHTML = rows.join('')
 
-    // Rating columns (conditional)
-    let ratingCols = ''
-    if (showRatings) {
-      const botRating = ratings.getRating(bot.name)
-      const tier = ratings.getRankTierForBot(bot.name)
-      const percentile = ratings.getPercentileForBot(bot.name)
-      const tooltipText = botRating
-        ? `μ:${Math.round(botRating.mu)}, σ:${Math.round(botRating.sigma)}`
-        : 'No rating data'
-      const { text: percentileText, cssClass: ratingClass } = formatPercentile(bot.name, tier, percentile)
-
-      ratingCols = `
-      <td class="rank-tier">${getTierIcon(tier, bot.name)}</td>
-      <td><span class="${ratingClass}" data-tooltip="${tooltipText}">${percentileText}</span></td>`
-    }
-
-    return `<tr>
-      <td><span class="bot-name">${bot.name} <span class="bot-version">${bot.version}</span></span></td>${ratingCols}
-      <td>${authorParts.join(', ')}</td>
-      <td class="bot-description">${bot.description || ''}</td>
-      <td class="bot-platform">${platformIcon}</td>
-    </tr>`
-  }).join('')
-
-  // Update header visibility
+  // Update header
   const botListHeader = document.querySelector('#bot-list thead tr')!
   botListHeader.innerHTML = showRatings
     ? `<th>Bot</th><th>Tier</th><th class="rating-header" data-tooltip="${RATING_HEADER_TOOLTIP}">Rating</th><th>Author</th><th>Description</th><th></th>`
@@ -475,6 +533,18 @@ export function updateBotList(bots: BotInfo[]): void {
   if (botListContainer.classList.contains('visible') && !botListContainer.classList.contains('mini')) {
     scaleToFit(botListContainer)
   }
+}
+
+function formatAuthors(bot: BotInfo): string {
+  const codes = bot.countryCodes || []
+  const authors = bot.authors
+  const authorParts: string[] = []
+  for (let i = 0; i < Math.max(codes.length, authors.length); i++) {
+    const flag = codes[i] ? `<span class="bot-flag fi fi-${codes[i].toLowerCase()}"></span>` : ''
+    const name = authors[i] || ''
+    authorParts.push(flag + name)
+  }
+  return authorParts.join(', ')
 }
 
 const platformIcons: Record<string, string> = {
@@ -541,7 +611,10 @@ export function hideBotList(): void {
 
 export interface BotResult {
   id: number
-  rank: number
+  name: string
+  version: string
+  // Note: server sends 'rank' but it's unreliable (always 0 for multi-member teams, stale for others)
+  // We compute rank locally by sorting by totalScore
   totalScore: number
   survival: number
   lastSurvivorBonus: number
@@ -552,6 +625,24 @@ export interface BotResult {
   firstPlaces: number
   secondPlaces: number
   thirdPlaces: number
+}
+
+/**
+ * Build a Set of "teamId:teamName" keys for quick team result detection.
+ * Must check BOTH id AND name because teamId can collide with botId.
+ *
+ * This is ONLY needed for the team indicator in results. If the server API is
+ * updated to explicitly mark results as team vs bot, this can be simplified to
+ * just check a flag on the result object.
+ */
+function buildTeamKeys(participantMap: Map<number, { teamId?: number; teamName?: string }>): Set<string> {
+  const keys = new Set<string>()
+  for (const p of participantMap.values()) {
+    if (p.teamId !== undefined && p.teamName) {
+      keys.add(`${p.teamId}:${p.teamName}`)
+    }
+  }
+  return keys
 }
 
 function bonusCell(value: number): string {
@@ -570,20 +661,31 @@ function formatPercentile(botName: string, tier: BotTier, percentile: number | n
   return { text: percentile !== null ? percentile.toFixed(1) : '-', cssClass: 'rating-col' }
 }
 
+function getRatingTooltip(botName: string): string {
+  const r = ratings.getRating(botName)
+  return r ? `μ:${Math.round(r.mu)}, σ:${Math.round(r.sigma)}` : 'No rating data'
+}
+
+function buildRatingCells(botName: string): string {
+  const tier = ratings.getRankTierForBot(botName)
+  const percentile = ratings.getPercentileForBot(botName)
+  const { text, cssClass } = formatPercentile(botName, tier, percentile)
+  return `
+        <td class="rank-tier">${getTierIcon(tier, botName)}</td>
+        <td><span class="${cssClass}" data-tooltip="${getRatingTooltip(botName)}">${text}</span></td>`
+}
+
 export interface RatingsSnapshot {
   [botName: string]: { percentile: number | null; tier: BotTier }
 }
 
 export function captureRatingsSnapshot(results: BotResult[]): RatingsSnapshot {
   const snapshot: RatingsSnapshot = {}
-  const participantMap = getState().participants
+  // Use result.name directly - server provides teamName for teams, botName for solo bots
   for (const r of results) {
-    const p = participantMap.get(r.id)
-    if (p) {
-      snapshot[p.name] = {
-        percentile: ratings.getPercentileForBot(p.name),
-        tier: ratings.getRankTierForBot(p.name)
-      }
+    snapshot[r.name] = {
+      percentile: ratings.getPercentileForBot(r.name),
+      tier: ratings.getRankTierForBot(r.name)
     }
   }
   return snapshot
@@ -595,32 +697,40 @@ export function showResults(results: BotResult[], oldRatings?: RatingsSnapshot):
   botListContainer.classList.add('visible')
   botListContainer.classList.add('mini')
 
-  const showRatings = settings.get().showRatings
+  const showRatingsCol = settings.get().showRatings
   const participantMap = getState().participants
-  const sorted = [...results].sort((a, b) => a.rank - b.rank)
 
-  resultsBody.innerHTML = sorted.map(r => {
-    const bot = participantMap.get(r.id)
-    const name = bot ? `${bot.name} <span class="bot-version">${bot.version}</span>` : `Bot #${r.id}`
-    const rankClass = r.rank === 1 ? 'gold' : r.rank === 2 ? 'silver' : r.rank === 3 ? 'bronze' : ''
-    const rankContent = rankClass ? `<span class="rank-medal ${rankClass}">${r.rank}</span>` : r.rank
+  // Sort by totalScore descending (server rank is broken for teams)
+  const sorted = [...results].sort((a, b) => b.totalScore - a.totalScore)
+
+  // Build team lookup for O(1) detection
+  const teamKeys = buildTeamKeys(participantMap)
+
+  resultsBody.innerHTML = sorted.map((r, index) => {
+    // Compute rank locally (index + 1)
+    const computedRank = index + 1
+
+    // Team indicator (after version) for team results
+    const isTeam = teamKeys.has(`${r.id}:${r.name}`)
+    const teamIndicator = isTeam
+      ? ` <i class="fa-solid fa-fw fa-bookmark team-indicator" style="color: ${getTeamColor(r.id)}" title="Team"></i>`
+      : ''
+
+    const name = `${r.name} <span class="bot-version">${r.version}</span>${teamIndicator}`
+    const rankClass = computedRank === 1 ? 'gold' : computedRank === 2 ? 'silver' : computedRank === 3 ? 'bronze' : ''
+    const rankContent = rankClass ? `<span class="rank-medal ${rankClass}">${computedRank}</span>` : computedRank
 
     // Rating columns (conditional)
     let ratingCols = ''
-    if (showRatings) {
-      const botName = bot?.name || ''
-      const botRating = ratings.getRating(botName)
+    if (showRatingsCol) {
+      const botName = r.name
       const tier = ratings.getRankTierForBot(botName)
       const percentile = ratings.getPercentileForBot(botName)
-
-      const tooltipText = botRating
-        ? `μ:${Math.round(botRating.mu)}, σ:${Math.round(botRating.sigma)}`
-        : 'No rating data'
       const { text: percentileText, cssClass: ratingClass } = formatPercentile(botName, tier, percentile)
 
       // Calculate delta in percentile
       let deltaText = ''
-      if (oldRatings && botName && percentile !== null) {
+      if (oldRatings && percentile !== null) {
         const oldPercentile = oldRatings[botName]?.percentile
         if (oldPercentile !== null && oldPercentile !== undefined) {
           const delta = percentile - oldPercentile
@@ -634,14 +744,14 @@ export function showResults(results: BotResult[], oldRatings?: RatingsSnapshot):
 
       ratingCols = `
       <td class="rank-tier">${getTierIcon(tier, botName)}</td>
-      <td class="rating-value"><span class="${ratingClass}" data-tooltip="${tooltipText}">${percentileText}</span></td>
+      <td class="rating-value"><span class="${ratingClass}" data-tooltip="${getRatingTooltip(botName)}">${percentileText}</span></td>
       <td class="rating-delta">${deltaText}</td>`
     }
 
     return `<tr>
       <td>${rankContent}</td>
-      <td>${name}</td>${ratingCols}
-      <td>${r.totalScore}</td>
+      <td class="result-bot-name">${name}</td>${ratingCols}
+      <td class="result-score">${r.totalScore}</td>
       <td>${r.survival}</td>
       ${bonusCell(r.lastSurvivorBonus)}
       <td>${r.bulletDamage}</td>
@@ -654,11 +764,11 @@ export function showResults(results: BotResult[], oldRatings?: RatingsSnapshot):
     </tr>`
   }).join('')
 
-  // Update header visibility
+  // Update header
   const resultsHeader = document.querySelector('#results-table thead tr')!
-  resultsHeader.innerHTML = showRatings
+  resultsHeader.innerHTML = showRatingsCol
     ? `<th>#</th><th>Bot</th><th>Tier</th><th class="rating-header" data-tooltip="${RATING_HEADER_TOOLTIP}">Rating</th><th></th><th>Total</th><th>Survival</th><th>(bonus)</th><th>Bullet Dmg</th><th>(bonus)</th><th>Ram Dmg</th><th>(bonus)</th><th>1sts</th><th>2nds</th><th>3rds</th>`
-    : '<th>#</th><th>Bot</th><th>Total</th><th>Survival</th><th>(bonus)</th><th>Bullet Dmg</th><th>(bonus)</th><th>Ram Dmg</th><th>(bonus)</th><th>1sts</th><th>2nds</th><th>3rds</th>'
+    : `<th>#</th><th>Bot</th><th>Total</th><th>Survival</th><th>(bonus)</th><th>Bullet Dmg</th><th>(bonus)</th><th>Ram Dmg</th><th>(bonus)</th><th>1sts</th><th>2nds</th><th>3rds</th>`
 
   scaleToFit(resultsContainer)
 }

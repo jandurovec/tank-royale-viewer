@@ -2,11 +2,11 @@
 
 This document tracks implementation progress for AI assistants and developers resuming work on this project.
 
-**Last updated:** 2026-02-10
+**Last updated:** 2026-02-14
 
 ## Current State
 
-**Phase:** 8 (Docked Bot List) - Complete
+**Phase:** 10 (Team Support) - Complete
 **Status:** Full battle viewer with bot list visible during battles
 
 ### What's Working
@@ -32,6 +32,9 @@ This document tracks implementation progress for AI assistants and developers re
 - ✅ Platform icons: custom SVGs for Java, Python, .NET
 - ✅ "Waiting for bots to connect..." pulsing message
 - ✅ Auto-scaling to fit viewport
+- ✅ Team support: teams grouped with header row, members indented below
+- ✅ Team color indicators (bookmark icon with assigned color)
+- ✅ Leader icon (crown) for non-droid team members
 
 #### Battle Rendering (PixiJS)
 - ✅ Arena background with coordinate transform (Y-flip)
@@ -62,11 +65,14 @@ This document tracks implementation progress for AI assistants and developers re
 - ✅ Bold bot names
 - ✅ Bot list docked left during battle and results (80% scale, behind arena)
 - ✅ Results backdrop overlay
+- ✅ Team color indicators for team results
+- ✅ Rank computed locally (server rank is broken for teams)
 
 #### Bot Labels
 - ✅ Energy value above bot
 - ✅ Name/version below bot
-- ✅ Health bar below name (green→yellow→red gradient, shrinks toward center)
+- ✅ Team name below bot name (in team color, only for team members)
+- ✅ Health bar below name/team (green→yellow→red gradient, shrinks toward center)
 
 ### File Structure
 
@@ -81,6 +87,7 @@ src/
 ├── ratings.ts        # Skill rating system (OpenSkill, localStorage, Unranked handling)
 ├── tiers.ts          # Pure tier calculation (value-based percentiles, caching)
 ├── logoStorage.ts    # Custom logo storage (localStorage)
+├── teamColors.ts     # Team color allocation (stateful, consistent across views)
 ├── assets/           # Platform icons (java.svg, python.svg, dotnet.svg)
 └── rendering/
     ├── index.ts      # PixiJS app lifecycle, orchestration
@@ -229,6 +236,20 @@ Handle battles with multiple instances of the same bot correctly.
   - Pass synthetic ranking to OpenSkill
 - [x] Preprocessing done in main.ts before calling `updateRatings()`
 - [x] `RankedResult` interface unchanged (caller provides deduplicated results)
+
+### Phase 10: Team Support ✅
+
+Display teams in bot list, arena, and results.
+
+- [x] Extend `BotInfo` with team fields (`teamId`, `teamName`, `teamVersion`, `isDroid`)
+- [x] Extend `Participant` in gameState with team fields
+- [x] `teamColors.ts`: stateful color allocation with pool-based reuse
+- [x] Bot list: group by team, team header row with rating, member rows indented
+- [x] Leader indicated by crown icon, droids have no icon (just spacing)
+- [x] Arena: team name label below bot name (in team color)
+- [x] Results: team color indicator, rank computed locally (server rank broken)
+- [x] Rating system: teams rated as unit under team name
+- [x] Colors purged on disconnect, returned to pool for reuse
 
 ## Key Technical Decisions
 

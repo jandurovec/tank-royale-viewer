@@ -304,6 +304,27 @@ Allow users to upload a custom arena background image.
 - **Displayed behind arena** during battle
 - **Clear/reset option** in settings
 
+## Team Support
+
+The viewer supports team battles where multiple bots form a team.
+
+### Team Colors
+
+**Decision:** Use a stateful color allocation module (`teamColors.ts`) with a curated palette.
+
+**Rationale:**
+- Colors must be consistent across bot list, arena labels, and results
+- When teams disconnect, their colors should be freed for reuse
+- A pool-based approach ensures the same team always gets the same color within a session
+
+The module maintains a map of allocated colors and returns freed colors to the pool when teams disconnect (triggered on `BotListUpdate`).
+
+### Team Detection in Results
+
+**Challenge:** Team IDs and bot IDs can collide (there can be a team and a bot with the same ID), and the server doesn't explicitly mark results as team vs bot.
+
+**Solution:** Check both `result.id` AND `result.name` against participant team data. This is only needed for displaying team color indicators in results.
+
 ### Settings Panel (Top-Right Gear Icon)
 
 Clicking the gear icon reveals a settings overlay:

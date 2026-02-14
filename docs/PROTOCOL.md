@@ -78,13 +78,19 @@ Sent to observers when bots connect or disconnect, and immediately after observe
       "authors": ["Author Name"],
       "countryCodes": ["US"],
       "host": "127.0.0.1",
-      "port": 54321
+      "port": 54321,
+      "teamId": 1,
+      "teamName": "MyTeam",
+      "teamVersion": "1.0",
+      "isDroid": false
     }
   ]
 }
 ```
 
 The `bots` array contains all currently connected bots (full list, not delta). May be empty.
+
+Team fields (`teamId`, `teamName`, `teamVersion`, `isDroid`) are only present for bots that are part of a team. A droid is a team member with no radar but +20 energy (120 HP).
 
 ## Game Events
 
@@ -114,7 +120,10 @@ Sent when a battle begins:
       "countryCodes": ["US"],
       "gameTypes": ["classic", "melee"],
       "platform": "JVM",
-      "programmingLang": "Java"
+      "programmingLang": "Java",
+      "teamId": 1,
+      "teamName": "MyTeam",
+      "teamVersion": "1.0"
     },
     ...
   ]
@@ -252,6 +261,8 @@ Sent when the entire battle ends:
   "results": [
     {
       "id": 1,
+      "name": "MyBot",
+      "version": "1.0",
       "rank": 1,
       "survival": 500,
       "lastSurvivorBonus": 100,
@@ -268,6 +279,18 @@ Sent when the entire battle ends:
   ]
 }
 ```
+
+#### Team Results
+
+For team battles, the server aggregates scores at the team level:
+- **Team result:** `id` = teamId, `name` = teamName, `version` = teamVersion
+- **Solo bot result:** `id` = botId, `name` = botName, `version` = botVersion
+
+**Known issues:**
+
+1. **ID collision:** Team IDs and bot IDs can have the same numeric value (e.g., Team 3 and Bot 3 can coexist). To detect whether a result is for a team, check if any participant has matching `teamId` AND `teamName`.
+
+2. **Rank field unreliable:** The `rank` field is broken for team battles. Multi-member teams always have `rank=0` due to a server bug in score aggregation. Sort results by `totalScore` descending and compute rank locally.
 
 ### GameAbortedEvent
 

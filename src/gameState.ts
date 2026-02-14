@@ -38,6 +38,10 @@ export interface Participant {
   id: number
   name: string
   version: string
+  // Team fields (optional - only present for team members)
+  teamId?: number
+  teamName?: string
+  teamVersion?: string
 }
 
 export interface GameState {

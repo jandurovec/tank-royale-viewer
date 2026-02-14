@@ -84,18 +84,26 @@ export function createBotGraphics(): Container {
   container.addChild(energyText)
 
   // Name text (below bot)
-  const nameStyle = new TextStyle({
+  const labelStyle = new TextStyle({
     fontSize: 11,
     fill: 0xcccccc,
     fontFamily: 'system-ui, sans-serif'
   })
-  const nameText = new Text({ text: '', style: nameStyle })
+  const nameText = new Text({ text: '', style: labelStyle })
   nameText.label = 'name'
   nameText.anchor.set(0.5, 0)
   nameText.y = BOT_SIZE / 2 + 4
   container.addChild(nameText)
 
-  // Health bar (below name)
+  // Team name text (below bot name, only shown if bot is in a team)
+  const teamText = new Text({ text: '', style: labelStyle.clone() })
+  teamText.label = 'teamName'
+  teamText.anchor.set(0.5, 0)
+  teamText.y = BOT_SIZE / 2 + 17
+  teamText.style.fontSize = 10
+  container.addChild(teamText)
+
+  // Health bar (below name or team name)
   const healthBar = new Graphics()
   healthBar.label = 'healthBar'
   healthBar.y = BOT_SIZE / 2 + 17
@@ -104,10 +112,16 @@ export function createBotGraphics(): Container {
   return container
 }
 
+export interface TeamInfo {
+  teamName: string
+  teamColor: number
+}
+
 export function updateBotGraphics(
   container: Container,
   bot: BotState,
-  arenaHeight: number
+  arenaHeight: number,
+  teamInfo?: TeamInfo
 ): void {
   // Transform coordinates: Y-flip
   container.x = bot.x
@@ -178,6 +192,21 @@ export function updateBotGraphics(
     const expectedName = participant ? `${participant.name} ${participant.version}` : ''
     if (nameText.text !== expectedName) {
       nameText.text = expectedName
+    }
+  }
+
+  // Update team name text
+  const teamText = container.getChildByLabel('teamName') as Text
+  if (teamText) {
+    if (teamInfo) {
+      teamText.text = teamInfo.teamName
+      teamText.style.fill = teamInfo.teamColor
+      teamText.visible = true
+      if (healthBar) healthBar.y = BOT_SIZE / 2 + 29
+    } else {
+      teamText.text = ''
+      teamText.visible = false
+      if (healthBar) healthBar.y = BOT_SIZE / 2 + 17
     }
   }
 }

@@ -6,6 +6,7 @@ import * as ui from './ui.js'
 import * as renderer from './rendering/index.js'
 import * as gameState from './gameState.js'
 import * as ratings from './ratings.js'
+import { purgeInactiveTeams } from './teamColors.js'
 import type { BotInfo, BotResult } from './ui.js'
 import type { BotState, BulletState, GameSetup, Participant } from './gameState.js'
 
@@ -95,10 +96,14 @@ const connection = createConnection({
   onMessage: (msg) => {
     const m = msg as { type: string; bots?: BotInfo[]; results?: BotResult[] }
     switch (m.type) {
-      case 'BotListUpdate':
+      case 'BotListUpdate': {
         currentBots = m.bots || []
+        // Purge colors for teams that are no longer connected
+        const activeTeamIds = [...new Set(currentBots.map(b => b.teamId).filter((id): id is number => id !== undefined))]
+        purgeInactiveTeams(activeTeamIds)
         ui.updateBotList(currentBots)
         break
+      }
       case 'GameStartedEventForObserver': {
         battleInProgress = true
         const gameMsg = msg as GameStartedMessage
@@ -135,19 +140,17 @@ const connection = createConnection({
         renderer.hide()
         ui.hideRoundTurn()
         const results = m.results || []
-        const state = gameState.getState()
         // Capture old ratings before update for delta display
         const oldRatings = ui.captureRatingsSnapshot(results)
-        // Preprocess results: deduplicate bot instances by averaging scores
+        // Preprocess results: deduplicate by name (works for both teams and solo bots)
+        // Use r.name directly - server provides teamName for teams, botName for solo bots
         const botScores = new Map<string, { version: string; scores: number[] }>()
         for (const r of results) {
-          const p = state.participants.get(r.id)
-          if (!p) continue
-          const existing = botScores.get(p.name)
+          const existing = botScores.get(r.name)
           if (existing) {
             existing.scores.push(r.totalScore)
           } else {
-            botScores.set(p.name, { version: p.version, scores: [r.totalScore] })
+            botScores.set(r.name, { version: r.version, scores: [r.totalScore] })
           }
         }
 

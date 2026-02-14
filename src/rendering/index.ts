@@ -1,9 +1,10 @@
 import { Application, Container, Graphics } from 'pixi.js'
 import { getState } from '../gameState.js'
 import { drawArenaBackground } from './arena.js'
-import { createBotGraphics, updateBotGraphics } from './tank.js'
+import { createBotGraphics, updateBotGraphics, type TeamInfo } from './tank.js'
 import { renderBullets } from './bullets.js'
 import { renderEffects, clearEffects } from './effects.js'
+import { getTeamColorNumeric } from '../teamColors.js'
 
 // Re-export effects API for main.ts
 export {
@@ -97,7 +98,17 @@ function render(): void {
       arenaContainer.addChild(botContainer)
     }
 
-    updateBotGraphics(botContainer, bot, arenaHeight)
+    // Get team info if bot is in a team
+    const participant = state.participants.get(id)
+    let teamInfo: TeamInfo | undefined
+    if (participant?.teamId !== undefined && participant.teamName) {
+      teamInfo = {
+        teamName: participant.teamName,
+        teamColor: getTeamColorNumeric(participant.teamId)
+      }
+    }
+
+    updateBotGraphics(botContainer, bot, arenaHeight, teamInfo)
   }
 
   // Remove bots that are no longer in the state

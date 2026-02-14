@@ -34,13 +34,6 @@
   /* Disabled state */
   --color-disabled-text: #666;
 
-  /* Tier colors */
-  --color-tier-scrap: #8b4513;
-  --color-tier-rookie: #888;
-  --color-tier-veteran: #c0c0c0;
-  --color-tier-elite: #ffd700;
-  --color-tier-legend: #ff6b00;
-
   /* Medal gradients */
   --color-medal-gold-start: #ffd700;
   --color-medal-gold-end: #b8860b;
@@ -52,7 +45,6 @@
   /* Rating delta colors */
   --color-delta-up: #4caf50;
   --color-delta-down: #f44336;
-  --color-delta-zero: #666;
 }
 
 /* ==========================================================================
@@ -441,7 +433,7 @@ body {
 
 #bot-list th,
 #bot-list td {
-  padding: 12px 20px;
+  padding: 8px 16px;
   text-align: left;
 }
 
@@ -578,10 +570,6 @@ body {
   border-bottom: 1px solid var(--color-border-dark);
 }
 
-.no-transform {
-  text-transform: none;
-}
-
 #results-table td {
   font-size: 18px;
   border-bottom: 1px solid var(--color-border-darker);
@@ -595,11 +583,13 @@ body {
   text-align: center;
 }
 
-#results-table td:nth-child(2) {
+#results-table td.result-bot-name {
   font-weight: 600;
+  text-align: left;
 }
 
-#results-table td:nth-child(n+3) {
+#results-table td.result-score,
+#results-table td.result-score ~ td {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
@@ -651,27 +641,6 @@ body {
 #bot-list td.rank-tier,
 #results-table td.rank-tier {
   text-align: center;
-}
-
-.tier-scrap {
-  color: var(--color-tier-scrap);
-}
-
-.tier-rookie {
-  color: var(--color-tier-rookie);
-}
-
-.tier-veteran {
-  color: var(--color-tier-veteran);
-}
-
-.tier-elite {
-  color: var(--color-tier-elite);
-}
-
-.tier-legend {
-  color: var(--color-tier-legend);
-  text-shadow: 0 0 8px rgba(255, 107, 0, 0.6);
 }
 
 /* Rating columns */
@@ -748,6 +717,25 @@ body {
   color: var(--color-delta-down);
 }
 
-.delta-zero {
-  color: var(--color-delta-zero);
+/* Team display styles */
+.team-indicator {
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+.team-row {
+  font-weight: 600;
+}
+
+.team-member-row .member-indent {
+  margin-left: 12px;
+}
+
+.role-icon {
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.role-icon.fa-crown {
+  color: #ffd700;
 }
