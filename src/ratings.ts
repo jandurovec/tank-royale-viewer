@@ -168,6 +168,7 @@ export interface RankedResult {
 /**
  * Update ratings after a game ends.
  * Results should be ordered by placement (winner first).
+ * Caller is responsible for deduplicating bot instances before calling.
  */
 export function updateRatings(results: RankedResult[]): void {
   if (results.length < 2) return

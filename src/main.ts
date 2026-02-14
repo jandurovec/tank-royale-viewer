@@ -138,12 +138,31 @@ const connection = createConnection({
         const state = gameState.getState()
         // Capture old ratings before update for delta display
         const oldRatings = ui.captureRatingsSnapshot(results)
-        // Update ratings based on results
-        const rankedResults = results.map(r => {
+        // Preprocess results: deduplicate bot instances by averaging scores
+        const botScores = new Map<string, { version: string; scores: number[] }>()
+        for (const r of results) {
           const p = state.participants.get(r.id)
-          return { name: p?.name || '', version: p?.version || '', rank: r.rank }
-        }).filter(r => r.name)
-        ratings.updateRatings(rankedResults)
+          if (!p) continue
+          const existing = botScores.get(p.name)
+          if (existing) {
+            existing.scores.push(r.totalScore)
+          } else {
+            botScores.set(p.name, { version: p.version, scores: [r.totalScore] })
+          }
+        }
+
+        // Skip rating update if only 1 unique bot (battled itself)
+        if (botScores.size >= 2) {
+          // Calculate average score per bot and create ranking
+          const averaged = [...botScores.entries()].map(([name, data]) => ({
+            name,
+            version: data.version,
+            avgScore: data.scores.reduce((a, b) => a + b, 0) / data.scores.length
+          }))
+          averaged.sort((a, b) => b.avgScore - a.avgScore)
+          const rankedResults = averaged.map((r, i) => ({ name: r.name, version: r.version, rank: i + 1 }))
+          ratings.updateRatings(rankedResults)
+        }
         // Refresh bot list with updated tiers
         ui.updateBotList(currentBots)
         // Store for re-render on settings change

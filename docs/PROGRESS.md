@@ -214,6 +214,22 @@ Keep bot list visible during battles by docking it to the left, behind the arena
 - [x] `showBotListMini()` function in ui.ts
 - [x] Ratings toggle updates bot list during battle
 
+### Phase 9: Duplicate Bot Instance Handling ✅
+
+Handle battles with multiple instances of the same bot correctly.
+
+**Problem:** Tank Royale allows launching multiple instances of the same bot. Each instance gets a separate rank in results. Since ratings are stored per bot name (not instance), we need special handling.
+
+**Solution:**
+- [x] When battle results arrive, identify unique bots by name
+- [x] If only 1 unique bot (battled itself), skip rating update entirely
+- [x] If multiple unique bots, each potentially has multiple score occurrences:
+  - Average `totalScore` across all instances of the same bot
+  - Create synthetic ranking based on averaged scores
+  - Pass synthetic ranking to OpenSkill
+- [x] Preprocessing done in main.ts before calling `updateRatings()`
+- [x] `RankedResult` interface unchanged (caller provides deduplicated results)
+
 ## Key Technical Decisions
 
 1. **PixiJS v8** for GPU-accelerated rendering (CPU reserved for bots/server)
