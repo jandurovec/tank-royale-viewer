@@ -563,19 +563,19 @@ const tierIcons: Record<BotTier, string> = {
 }
 
 function getTierIcon(tier: BotTier, botName?: string): string {
-  let title: string = tier
+  let tooltip: string = tier
   let cssClass = 'tier-icon'
 
   if (tier === 'Unranked' && botName) {
     const gamesToGo = ratings.getGamesToRanked(botName)
-    title = `Unranked (Games to play: ${gamesToGo})`
+    tooltip = `Unranked (Games to play: ${gamesToGo})`
   } else if (botName && ratings.isProvisional(botName)) {
     const gamesToGo = ratings.getGamesToFullRank(botName)
-    title = `Provisional ${tier} (Games to play: ${gamesToGo})`
+    tooltip = `Provisional ${tier} (Games to play: ${gamesToGo})`
     cssClass = 'tier-icon provisional'
   }
 
-  return `<img src="${tierIcons[tier]}" class="${cssClass}" alt="${tier}" title="${title}">`
+  return `<span class="tier-icon-wrapper" data-tooltip="${tooltip}"><img src="${tierIcons[tier]}" class="${cssClass}" alt="${tier}"></span>`
 }
 
 function getPlatformIcon(platform?: string, lang?: string): string {
@@ -588,7 +588,8 @@ function getPlatformIcon(platform?: string, lang?: string): string {
   } else if (text === 'python') {
     icon = platformIcons.python
   }
-  return icon ? `<img src="${icon}" class="platform-icon" alt="${platform || lang || ''}" title="${platform || lang || ''}">` : ''
+  const tooltip = platform || lang || ''
+  return icon ? `<span class="platform-icon-wrapper" data-tooltip="${tooltip}"><img src="${icon}" class="platform-icon" alt="${tooltip}"></span>` : ''
 }
 
 export function showBotList(): void {

@@ -12,7 +12,7 @@
       <span id="round-info"></span>
       <span id="turn-info"></span>
     </div>
-    <button id="settings-btn" title="Settings">&#9881;</button>
+    <button id="settings-btn" data-tooltip="Settings">&#9881;</button>
     <div id="settings-panel">
       <label>
         Server URL
@@ -35,8 +35,8 @@
       <div class="settings-section">
         <span class="settings-section-title">Arena Logo</span>
         <div class="settings-button-row">
-          <button type="button" id="upload-logo-btn" title="Upload"><i class="fa-solid fa-folder-open"></i> Upload</button>
-          <button type="button" id="clear-logo-btn" class="danger" title="Remove"><i class="fa-solid fa-trash"></i> Remove</button>
+          <button type="button" id="upload-logo-btn"><i class="fa-solid fa-folder-open"></i> Upload</button>
+          <button type="button" id="clear-logo-btn" class="danger"><i class="fa-solid fa-trash"></i> Remove</button>
         </div>
         <input type="file" id="upload-logo-file" accept="image/*" style="display: none" />
         <label class="slider">
@@ -59,9 +59,9 @@
             Show skill ratings
           </label>
           <div class="settings-section-actions">
-            <button id="import-ratings-btn" type="button" class="icon-btn" title="Import"><i class="fa-solid fa-file-import"></i></button>
-            <button id="export-ratings-btn" type="button" class="icon-btn" title="Export"><i class="fa-solid fa-file-export"></i></button>
-            <button id="reset-ratings-btn" type="button" class="icon-btn danger" title="Reset"><i class="fa-solid fa-trash"></i></button>
+            <button id="import-ratings-btn" type="button" class="icon-btn" data-tooltip="Import"><i class="fa-solid fa-file-import"></i></button>
+            <button id="export-ratings-btn" type="button" class="icon-btn" data-tooltip="Export"><i class="fa-solid fa-file-export"></i></button>
+            <button id="reset-ratings-btn" type="button" class="icon-btn danger" data-tooltip="Reset"><i class="fa-solid fa-trash"></i></button>
           </div>
           <input type="file" id="import-ratings-file" accept=".json" style="display: none" />
         </div>

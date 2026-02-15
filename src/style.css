@@ -450,7 +450,8 @@ body {
   border-bottom: 1px solid var(--color-border-darker);
 }
 
-#bot-list tr:last-child td {
+#bot-list tr:last-child td,
+#results-table tr:last-child td {
   border-bottom: none;
 }
 
@@ -482,6 +483,14 @@ body {
   height: 24px;
 }
 
+.platform-icon-wrapper,
+.tier-icon-wrapper,
+.team-indicator,
+.droid-icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .tier-icon {
   height: 32px;
   width: auto;
@@ -500,7 +509,6 @@ body {
 .rating-col.provisional {
   opacity: 0.5;
 }
-
 
 #results-backdrop {
   display: none;
@@ -575,10 +583,6 @@ body {
   border-bottom: 1px solid var(--color-border-darker);
 }
 
-#results-table tr:last-child td {
-  border-bottom: none;
-}
-
 #results-table td:first-child {
   text-align: center;
 }
@@ -609,19 +613,22 @@ body {
   text-align: center;
 }
 
+.rank-medal.gold,
+.rank-medal.silver,
+.rank-medal.bronze {
+  color: #000;
+}
+
 .rank-medal.gold {
   background: linear-gradient(135deg, var(--color-medal-gold-start) 0%, var(--color-medal-gold-end) 100%);
-  color: #000;
 }
 
 .rank-medal.silver {
   background: linear-gradient(135deg, var(--color-medal-silver-start) 0%, var(--color-medal-silver-end) 100%);
-  color: #000;
 }
 
 .rank-medal.bronze {
   background: linear-gradient(135deg, var(--color-medal-bronze-start) 0%, var(--color-medal-bronze-end) 100%);
-  color: #000;
 }
 
 #arena {
@@ -711,8 +718,6 @@ body {
 
 /* Team display styles */
 .team-indicator {
-  display: inline-block;
-  vertical-align: middle;
   margin-left: 6px;
 }
 
@@ -725,8 +730,6 @@ body {
 }
 
 .droid-icon {
-  display: inline-block;
   margin-left: 4px;
-  vertical-align: middle;
   color: var(--color-text-secondary);
 }
