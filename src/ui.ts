@@ -465,7 +465,7 @@ export function updateBotList(bots: BotInfo[]): void {
   for (const entry of entries) {
     if (entry.type === 'team') {
       const teamColor = getTeamColor(entry.teamId)
-      const teamIndicator = `<i class="fa-solid fa-fw fa-bookmark team-indicator" style="color: ${teamColor}" title="Team"></i>`
+      const teamIndicator = `<span class="team-indicator" data-tooltip="Team"><i class="fa-solid fa-fw fa-bookmark" style="color: ${teamColor}"></i></span>`
 
       // Team header row
       const teamRatingCols = showRatings ? buildRatingCells(entry.name) : ''
@@ -477,7 +477,7 @@ export function updateBotList(bots: BotInfo[]): void {
         <td class="bot-platform"></td>
       </tr>`)
 
-      // Sort members: leaders (non-droids) first, then droids, each alphabetically
+      // Sort members: non-droids first, then droids, each alphabetically
       const sortedMembers = [...entry.members].sort((a, b) => {
         if (a.isDroid !== b.isDroid) return a.isDroid ? 1 : -1
         return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
@@ -485,9 +485,9 @@ export function updateBotList(bots: BotInfo[]): void {
 
       // Team member rows
       for (const bot of sortedMembers) {
-        const leaderIcon = bot.isDroid
-          ? ''
-          : ' <i class="fa-solid fa-fw fa-crown role-icon" title="Leader"></i>'
+        const droidIcon = bot.isDroid
+          ? ' <span class="droid-icon" data-tooltip="Droid (no radar, 120HP)"><i class="fa-solid fa-fw fa-eye-slash"></i></span>'
+          : ''
 
         const authorParts = formatAuthors(bot)
         const platformIcon = getPlatformIcon(bot.platform, bot.programmingLang)
@@ -498,7 +498,7 @@ export function updateBotList(bots: BotInfo[]): void {
         }
 
         rows.push(`<tr class="team-member-row">
-          <td><span class="member-indent"><span class="bot-name">${bot.name} <span class="bot-version">${bot.version}</span></span></span>${teamIndicator}${leaderIcon}</td>${memberRatingCols}
+          <td><span class="member-indent"><span class="bot-name">${bot.name} <span class="bot-version">${bot.version}</span></span></span>${teamIndicator}${droidIcon}</td>${memberRatingCols}
           <td>${authorParts}</td>
           <td class="bot-description">${bot.description || ''}</td>
           <td class="bot-platform">${platformIcon}</td>
@@ -713,7 +713,7 @@ export function showResults(results: BotResult[], oldRatings?: RatingsSnapshot):
     // Team indicator (after version) for team results
     const isTeam = teamKeys.has(`${r.id}:${r.name}`)
     const teamIndicator = isTeam
-      ? ` <i class="fa-solid fa-fw fa-bookmark team-indicator" style="color: ${getTeamColor(r.id)}" title="Team"></i>`
+      ? ` <span class="team-indicator" data-tooltip="Team"><i class="fa-solid fa-fw fa-bookmark" style="color: ${getTeamColor(r.id)}"></i></span>`
       : ''
 
     const name = `${r.name} <span class="bot-version">${r.version}</span>${teamIndicator}`

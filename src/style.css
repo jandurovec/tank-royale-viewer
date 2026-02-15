@@ -631,6 +631,7 @@ body {
   width: 100vw;
   height: 100vh;
   z-index: 1;
+  pointer-events: none;
 }
 
 #arena canvas {
@@ -659,18 +660,14 @@ body {
   font-variant-numeric: tabular-nums;
   color: var(--color-text-secondary);
   white-space: nowrap;
+}
+
+[data-tooltip] {
   position: relative;
   cursor: help;
 }
 
-.rating-header {
-  position: relative;
-  cursor: help;
-}
-
-.rating-col[data-tooltip]:hover::after,
-.rating-header[data-tooltip]:hover::after,
-#settings-panel label[data-tooltip]:hover::after {
+[data-tooltip]:hover::after {
   content: attr(data-tooltip);
   position: absolute;
   top: 100%;
@@ -687,11 +684,6 @@ body {
   pointer-events: none;
   margin-top: 4px;
   text-transform: none;
-}
-
-#settings-panel label[data-tooltip] {
-  position: relative;
-  cursor: help;
 }
 
 #settings-panel label[data-tooltip]:hover::after {
@@ -719,6 +711,7 @@ body {
 
 /* Team display styles */
 .team-indicator {
+  display: inline-block;
   vertical-align: middle;
   margin-left: 6px;
 }
@@ -731,11 +724,9 @@ body {
   margin-left: 12px;
 }
 
-.role-icon {
+.droid-icon {
+  display: inline-block;
   margin-left: 4px;
   vertical-align: middle;
-}
-
-.role-icon.fa-crown {
-  color: #ffd700;
+  color: var(--color-text-secondary);
 }

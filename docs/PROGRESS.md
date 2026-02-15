@@ -2,7 +2,7 @@
 
 This document tracks implementation progress for AI assistants and developers resuming work on this project.
 
-**Last updated:** 2026-02-14
+**Last updated:** 2026-02-15
 
 ## Current State
 
@@ -34,7 +34,7 @@ This document tracks implementation progress for AI assistants and developers re
 - ✅ Auto-scaling to fit viewport
 - ✅ Team support: teams grouped with header row, members indented below
 - ✅ Team color indicators (bookmark icon with assigned color)
-- ✅ Leader icon (crown) for non-droid team members
+- ✅ Droid icon (eye-slash) for droid team members (no radar, 120HP)
 
 #### Battle Rendering (PixiJS)
 - ✅ Arena background with coordinate transform (Y-flip)
@@ -245,7 +245,7 @@ Display teams in bot list, arena, and results.
 - [x] Extend `Participant` in gameState with team fields
 - [x] `teamColors.ts`: stateful color allocation with pool-based reuse
 - [x] Bot list: group by team, team header row with rating, member rows indented
-- [x] Leader indicated by crown icon, droids have no icon (just spacing)
+- [x] Droid icon (eye-slash) marks droids; normal bots have no icon
 - [x] Arena: team name label below bot name (in team color)
 - [x] Results: team color indicator, rank computed locally (server rank broken)
 - [x] Rating system: teams rated as unit under team name
