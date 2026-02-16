@@ -7,26 +7,38 @@ A web-based viewer for [Robocode Tank Royale](https://github.com/robocode-dev/ta
 ## Features
 
 - 📺 **TV broadcast experience** - Full-screen, designed for conference rooms and wall displays
-- 🔌 **WebSocket connection** to Tank Royale server
+- 🔌 **WebSocket connection** to Tank Royale server with auto-reconnect
 - 🎮 **Real-time battle visualization** that keeps up with any server TPS
 - 🚀 **GPU-accelerated graphics** using PixiJS/WebGL (frees CPU for bots)
-- 📊 **Live scoreboard** overlay with bot scores and rankings
+- 🤖 **Tank rendering** based on the official Robocode GUI style with enhancements
+- 👥 **Team support** with colored indicators and grouped displays
 - 🏆 **Battle results** always captured and displayed
-- 🤖 **Tank rendering** matching the official Robocode GUI style
+- 📈 **OpenSkill ratings** - Local skill tracking with tier badges (Scrap → Legend)
+- 🖼️ **Custom arena logo** - Upload your own background image
 - ⚙️ **Minimal UI** - Settings hidden behind a subtle gear icon
 
 ## Quick Start
 
-### Prerequisites
+Since this is a static web app running in your browser, you can use it directly at:
+
+**https://jandurovec.github.io/tank-royale-viewer/**
+
+No installation required - just open the link and connect to your local Tank Royale server.
+
+### Local Development
+
+If you want to modify the viewer or run it locally:
+
+#### Prerequisites
 
 - [Node.js](https://nodejs.org/) 22 LTS or later
 - [Tank Royale](https://github.com/robocode-dev/tank-royale/releases) (for running battles)
 
-### Installation
+#### Setup
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/tank-royale-viewer.git
+# Clone the repository (the official one or your fork)
+git clone https://github.com/jandurovec/tank-royale-viewer.git
 cd tank-royale-viewer
 
 # Install dependencies
@@ -36,7 +48,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173 in your browser.
+Open http://localhost:5173/tank-royale-viewer/ in your browser.
 
 ### Connecting to Tank Royale
 
@@ -45,7 +57,7 @@ Open http://localhost:5173 in your browser.
    java -jar robocode-tankroyale-gui-x.y.z.jar
    ```
 2. The server starts automatically on `ws://localhost:7654`
-3. In the viewer, click **Connect** (default URL is pre-filled)
+3. Open the viewer - it connects automatically to the default URL
 4. Start a battle in the Tank Royale GUI
 5. Watch the battle in the viewer!
 
@@ -58,29 +70,27 @@ The viewer is designed for full-screen presentation with minimal UI.
 Click the subtle gear icon in the top-right corner to access:
 - **Server URL:** WebSocket URL of the Tank Royale server (default: `ws://localhost:7654`)
 - **Secret:** Optional authentication secret if server has secrets enabled
-- **Connect/Disconnect:** Toggle connection to server
-
-Settings auto-hide once connected for a clean viewing experience.
+- **Arena logo:** Upload a custom background image with adjustable opacity and size
+- **OpenSkill ratings:** Toggle display, configure thresholds, export/import/reset ratings
 
 ### Views
 
-**Pre-Battle:** Shows list of joined bots like team introductions
+**Pre-Battle:** Shows list of connected bots with ratings and team groupings
 
 **During Battle:**
-- Full-screen arena with tanks and bullets
-- Semi-transparent scoreboard overlay
+- Full-screen arena with bots, bullets, and visual effects
+- Mini bot list docked left (visible through transparent arena margins)
 - Round and turn counter
 
-**Post-Battle:** Results screen with final rankings and statistics
+**Post-Battle:** Results screen with final rankings, statistics, and rating changes
 
 ### Recommended Setup
 
 1. Open viewer in browser
 2. Press F11 for full-screen mode
-3. Click gear icon, enter server URL, connect
-4. Settings panel auto-hides
-5. Start battle in Tank Royale GUI
-6. Enjoy the show!
+3. UI connects automaticall (click gear icon, to verify server URL and secret)
+4. Start battle in Tank Royale GUI
+5. Enjoy the show!
 
 ## Building for Production
 

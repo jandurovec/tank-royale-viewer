@@ -456,33 +456,29 @@ The renderer must transform Y coordinates: `screenY = arenaHeight - gameY`
 
 ## Bot Rendering
 
-### Target: Production Quality
+Bots are rendered similarly to the official Robocode Tank Royale GUI using procedural graphics:
 
-The production viewer should render bots similarly to the official Robocode Tank Royale GUI:
-- **Tank body** with tracks, properly oriented
-- **Turret** mounted on body, independently rotatable
-- **Radar dish** on turret, independently rotatable
-- **Visual effects** for firing, explosions, scan arcs
+- **Tank body** - Rectangle with tracks on both sides, proper orientation
+- **Turret** - Square mounted on body, independently rotatable
+- **Gun barrel** - Two-part cannon (thick base + barrel) extending from turret
+- **Radar dish** - Curved dish shape, independently rotatable (hidden for droids)
+- **Scan arcs** - Triangular sweeps or lines showing radar coverage
+- **Visual details** - Shadows, borders, highlights for 3D effect
+- **Labels** - Energy value above, name/version below
 
-This requires sprite-based rendering with rotation support.
+All graphics are drawn procedurally using PixiJS Graphics API, scaled from a 500-unit internal coordinate system to match the original Kotlin implementation. Bot colors from the server are applied to body, turret, radar, gun, tracks, and scan arc.
 
-### MVP: Simple Shapes
+### Differences from Official GUI
 
-For initial development and testing, bots can be rendered as simple shapes:
-- **Body:** Filled circle (radius 18 units) with direction indicator
-- **Turret:** Line extending from center showing gun direction
-- **Radar:** Arc showing radar direction and scan width
-- **Name label:** Text above the bot
+While the core tank rendering matches the official GUI, there are some intentional differences:
 
-This allows validating the protocol handling and game state management before investing in graphics.
+- **No internal ID** - The official GUI shows bot ID; we show only name and version
+- **Health bar** - We added a color-coded bar (green→yellow→red) below the bot name for visual HP indication; the official GUI only shows the numeric energy value
+- **Team name display** - Shown below the bot name using the assigned team color; the official GUI doesn't have team colors (team colors are a viewer-specific feature for distinguishing teams)
 
-### Implementation Path
+### Coordinate Transform
 
-1. **Phase 1 (MVP):** Simple geometric shapes
-2. **Phase 2:** Replace with tank sprites (can use assets from Tank Royale or create new ones)
-3. **Phase 3:** Add particle effects, smooth animations
-
-Bot colors are received from the server and applied to respective parts (body, turret, radar, etc.).
+Tank Royale uses degrees counter-clockwise from East. PixiJS uses radians clockwise. The renderer applies a 180° offset and negation to match the original GUI orientation.
 
 ## Tick Rate vs Frame Rate
 
