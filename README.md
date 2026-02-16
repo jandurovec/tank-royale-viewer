@@ -4,6 +4,14 @@ A web-based viewer for [Robocode Tank Royale](https://github.com/robocode-dev/ta
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
+## What This Is
+
+A **passive observer** designed for broadcasting battles on a shared display (projector, TV, conference room screen) - giving your audience a polished "live sports broadcast" experience.
+
+## What This Is Not
+
+This viewer **does not control battles**. There are no features for starting battles, selecting bots, or managing the server. Use the official Tank Royale GUI (or another controller) on a separate screen for that.
+
 ## Features
 
 - 📺 **TV broadcast experience** - Full-screen, designed for conference rooms and wall displays

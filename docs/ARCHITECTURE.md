@@ -6,6 +6,19 @@ This document describes the architecture of the Tank Royale Battle Viewer, inclu
 
 The Tank Royale Battle Viewer is a web application that connects to a Robocode Tank Royale server as an **observer** and renders battles in real-time. It receives game state updates via WebSocket and displays them using GPU-accelerated 2D graphics.
 
+### Design Philosophy: Passive Viewer
+
+This viewer is **intentionally a passive observer only**. It does not include any controller features such as starting battles, selecting bots, or managing the server.
+
+**Rationale:**
+
+The primary use case is **broadcasting live events on a big screen** - giving participants and audience a "live sports broadcast" experience. In this scenario:
+
+- The **viewer runs on a shared display** (projector, TV, conference room screen) visible to everyone
+- A **controller (e.g., official Tank Royale GUI) runs on the operator's private screen** where they manage battles, boot bots, and configure settings
+
+Separating viewing from control ensures the audience sees only the polished broadcast experience, while the operator retains full control without exposing administrative UI to the shared display.
+
 ## Tech Stack Decisions
 
 ### TypeScript over JavaScript
