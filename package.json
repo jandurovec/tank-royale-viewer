@@ -11,15 +11,15 @@
     "lint": "eslint src"
   },
   "devDependencies": {
-    "@eslint/js": "^9.0.0",
-    "eslint": "^9.0.0",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.2",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.0.0",
+    "typescript-eslint": "^8.56.1",
     "vite": "^7.2.4",
     "vitest": "^4.0.18"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^7.1.0",
+    "@fortawesome/fontawesome-free": "^7.2.0",
     "flag-icons": "^7.5.0",
     "openskill": "^4.1.0",
     "pixi.js": "^8.16.0"
