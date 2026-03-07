@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  base: '/tank-royale-viewer/'
+  base: process.env.VITE_BASE_URL ||  '/'
 })

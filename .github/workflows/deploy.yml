@@ -26,6 +26,8 @@ jobs:
       - run: npm ci
       - run: npm test -- --run
       - run: npm run build
+        env:
+          VITE_BASE_URL: /${{ github.event.repository.name }}/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
