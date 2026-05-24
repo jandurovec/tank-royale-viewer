@@ -3,12 +3,16 @@ import 'flag-icons/css/flag-icons.min.css'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import { createConnection } from './connection.js'
 import * as ui from './ui.js'
-import * as renderer from './rendering/index.js'
 import * as gameState from './gameState.js'
 import * as ratings from './ratings.js'
 import { purgeInactiveTeams } from './teamColors.js'
 import type { BotInfo, BotResult } from './ui.js'
 import type { BotState, BulletState, GameSetup, Participant } from './gameState.js'
+
+// PixiJS is large (~580 kB). Loading the rendering module dynamically lets
+// Vite split it into a separate chunk that downloads in parallel with the
+// main bundle, shrinking the initial JS that the browser must parse.
+const renderer = await import('./rendering/index.js')
 
 interface TickMessage {
   type: string
