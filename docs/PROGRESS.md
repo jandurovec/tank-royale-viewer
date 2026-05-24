@@ -38,7 +38,7 @@ This document tracks implementation progress for AI assistants and developers re
 
 #### Battle Rendering (PixiJS)
 - ✅ Arena background with coordinate transform (Y-flip)
-- ✅ Custom arena logo (user-uploaded, configurable size, 15% opacity)
+- ✅ Custom arena logo (user-uploaded, configurable size and opacity)
 - ✅ Full tank rendering matching Kotlin GUI:
   - Body with shading and border
   - Tracks (static links)
@@ -143,8 +143,8 @@ src/
 Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
 
 - [x] Install openskill, create `ratings.ts` module
-- [x] Rating parameters: mu=1200, sigma=400, beta=100, z=3, indexed by bot name
-- [x] Beta=100 for faster convergence (bot battles are mostly skill-determined)
+- [x] Rating parameters: OpenSkill defaults (μ=25, σ=μ/3, β=σ/2, τ=μ/300),
+      all four configurable in settings; ratings indexed by bot name
 - [x] Version change handling: keep mu, reset sigma
 - [x] Rank tiers based on value-based percentiles among fully-ranked bots:
   - Scrap (bottom 20%), Rookie (20-60%), Veteran (60-80%), Elite (80-95%), Legend (top 5%)

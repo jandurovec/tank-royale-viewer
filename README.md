@@ -56,7 +56,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173/tank-royale-viewer/ in your browser.
+Open http://localhost:5173/ in your browser.
 
 ### Connecting to Tank Royale
 
@@ -96,7 +96,7 @@ Click the subtle gear icon in the top-right corner to access:
 
 1. Open viewer in browser
 2. Press F11 for full-screen mode
-3. UI connects automaticall (click gear icon, to verify server URL and secret)
+3. UI connects automatically (click the gear icon to verify server URL and secret)
 4. Start battle in Tank Royale GUI
 5. Enjoy the show!
 

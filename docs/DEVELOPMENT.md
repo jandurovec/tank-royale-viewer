@@ -40,22 +40,40 @@ tank-royale-viewer/
 ├── package.json          # Dependencies and scripts
 ├── tsconfig.json         # TypeScript configuration
 ├── vite.config.ts        # Vite configuration
+├── vitest.config.ts      # Vitest configuration (jsdom env)
+├── eslint.config.js      # ESLint configuration
 ├── docs/                 # Documentation
 │   ├── ARCHITECTURE.md   # Design decisions
 │   ├── PROTOCOL.md       # WebSocket protocol reference
+│   ├── PROGRESS.md       # Implementation phase tracking
 │   └── DEVELOPMENT.md    # This file
 ├── AGENTS.md             # AI agent instructions
 ├── README.md             # User-facing documentation
 └── src/
     ├── main.ts           # Application entry point
-    ├── connection.ts     # WebSocket connection manager
-    ├── gameState.ts      # Game state management
-    ├── renderer.ts       # PixiJS rendering
-    ├── ui.ts             # UI controls
-    ├── styles.css        # Application styles
-    └── types/
-        └── protocol.ts   # TypeScript type definitions
+    ├── connection.ts     # WebSocket connection manager (+ test)
+    ├── gameState.ts      # Game state management (+ test)
+    ├── ui.ts             # DOM controls and view-state rendering
+    ├── style.css         # Application styles
+    ├── settings.ts       # Persisted settings (localStorage) (+ test)
+    ├── ratings.ts        # OpenSkill rating storage (+ test)
+    ├── tiers.ts          # Pure tier calculation (+ test)
+    ├── logoStorage.ts    # Custom arena logo storage (+ test)
+    ├── teamColors.ts     # Team color allocation (+ test)
+    ├── vite-env.d.ts     # Vite-injected type declarations
+    ├── assets/           # Platform and tier icons (SVG/PNG)
+    └── rendering/
+        ├── index.ts      # PixiJS app lifecycle and orchestration
+        ├── arena.ts      # Arena background and logo
+        ├── tank.ts       # Bot/tank graphics
+        ├── bullets.ts    # Bullet rendering
+        ├── effects.ts    # Explosions and burst effects
+        └── colors.ts     # Color utilities (+ test)
 ```
+
+Protocol message types are defined inline in the modules that consume
+them (`connection.ts`, `gameState.ts`, `ui.ts`) rather than centralized
+in a `types/` directory.
 
 ## Development Workflow
 

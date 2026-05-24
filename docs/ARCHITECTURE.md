@@ -221,11 +221,13 @@ A local rating system that tracks bot performance over time using the OpenSkill 
 ### OpenSkill Configuration
 
 - **Library:** `openskill` (npm package)
-- **Parameters:** μ=1200, σ=400, β=100, z=3
-- **Conservative rating:** μ - 3σ (determines rank tier after placement games)
-- **Beta=100** (vs default 200): Faster convergence, assuming bot battles are mostly skill-determined
+- **Parameters:** OpenSkill defaults — μ=25, σ=μ/3, β=σ/2, τ=μ/300 (all four
+  are configurable in the settings panel)
+- **Conservative rating:** `ordinal()` from openskill (μ minus a multiple of σ)
+  determines rank tier after placement games
 - Bots below the ranked games threshold are **Unranked** regardless of rating
-- Bots between ranked and provisional thresholds have **Provisional** rank (icon at 50% opacity)
+- Bots between ranked and provisional thresholds have **Provisional** rank
+  (icon at 50% opacity)
 
 ### Rank Tiers
 
@@ -253,7 +255,8 @@ Thresholds require minimum bot counts for each tier:
 - 5+ bots: + Legend threshold at 95%
 ### Features
 
-- **Local OpenSkill ratings** indexed by bot name ("Name Version" format)
+- **Local OpenSkill ratings** indexed by bot name (the server-provided `name`
+  field; `version` is stored as a property of each rating, not part of the key)
 - **Persisted in localStorage** (`tank-royale-viewer-ratings`) - survives browser refresh
 - **Recalculated after each battle** based on final rankings
 - **Displayed in both tables** (connected bots and results)
@@ -264,8 +267,8 @@ Thresholds require minimum bot counts for each tier:
 
 ```json
 {
-  "Spin Bot 1.0": { "mu": 1250.5, "sigma": 85.2, "version": "1.0", "games": 42 },
-  "Fire 1.0": { "mu": 1180.3, "sigma": 92.1, "version": "1.0", "games": 38 }
+  "Spin Bot": { "mu": 28.4, "sigma": 5.2, "version": "1.0", "games": 42 },
+  "Fire":     { "mu": 24.1, "sigma": 6.8, "version": "1.0", "games": 38 }
 }
 ```
 

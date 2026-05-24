@@ -20,6 +20,7 @@ A web-based viewer for Robocode Tank Royale battles designed for **large display
 npm install          # Install dependencies
 npm run dev          # Start dev server (http://localhost:5173)
 npm run build        # Production build (includes tsc type checking)
+npm run typecheck    # Run TypeScript type checking only (faster than build)
 npm run lint         # Run linter
 npm test             # Run tests
 ```
@@ -31,11 +32,23 @@ src/
 ├── main.ts           # Entry point, wires components together
 ├── connection.ts     # WebSocket connection to Tank Royale server
 ├── gameState.ts      # Battle state management
-├── renderer.ts       # PixiJS rendering
 ├── ui.ts             # DOM-based UI controls
-└── types/
-    └── protocol.ts   # TypeScript types for protocol messages
+├── settings.ts       # Persisted settings (localStorage)
+├── ratings.ts        # OpenSkill rating storage
+├── tiers.ts          # Pure tier calculation
+├── logoStorage.ts    # Custom arena logo storage
+├── teamColors.ts     # Team color allocation
+└── rendering/        # PixiJS rendering (modular)
+    ├── index.ts      # App lifecycle and orchestration
+    ├── arena.ts      # Arena background and logo
+    ├── tank.ts       # Bot/tank graphics
+    ├── bullets.ts    # Bullet rendering
+    ├── effects.ts    # Explosions and burst effects
+    └── colors.ts     # Color utilities
 ```
+
+Protocol message types are defined inline in the modules that consume
+them (rather than in a centralized `types/` directory).
 
 ## Coding Principles
 
@@ -50,7 +63,7 @@ src/
 const count = items.length; // Get the length of items
 
 // GOOD: comment explains WHY, not WHAT
-// TrueSkill sigma below 2.0 indicates confident rating
+// OpenSkill sigma below 2.0 indicates a confident rating
 if (rating.sigma < 2.0) { ... }
 ```
 
@@ -130,11 +143,11 @@ Fix any errors before committing. Do not commit code with lint errors.
 ```typescript
 // ✓ Correct
 import { Application } from 'pixi.js';
-import type { BotState } from './types/protocol.js';
-import { GameState } from './gameState.js';
+import type { BotState } from './gameState.js';
+import * as gameState from './gameState.js';
 
 // ✗ Incorrect
-import { GameState } from './gameState';  // Missing .js
+import * as gameState from './gameState';  // Missing .js
 ```
 
 ### Naming
@@ -147,11 +160,12 @@ import { GameState } from './gameState';  // Missing .js
 
 ### Protocol Types
 
-All message types from the Tank Royale server are defined in `src/types/protocol.ts`. When handling messages:
+Tank Royale message types are defined inline in the modules that consume
+them (`connection.ts`, `gameState.ts`, `ui.ts`). When handling messages:
 
 1. Parse JSON with `JSON.parse()`
 2. Check the `type` field to determine message type
-3. Cast to the appropriate interface
+3. Cast to the appropriate interface (defined in the consuming module)
 4. Handle with type-safe code
 
 ### Coordinate Transformation
@@ -173,16 +187,17 @@ const screenY = arenaHeight - gameY;
 
 ### Adding a New Protocol Message Type
 
-1. Add interface to `src/types/protocol.ts`
-2. Add to `MessageType` union
-3. Handle in `connection.ts` message handler
-4. Update `gameState.ts` if state changes needed
+1. Define a TypeScript interface for the message in the module that
+   handles it (typically `connection.ts` or `main.ts`)
+2. Add a case for `msg.type` in the message handler
+3. Update `gameState.ts` if state changes are needed
 
 ### Adding Visual Effects
 
-1. Create effect class/function in `renderer.ts`
-2. Trigger from game events in tick handler
-3. Clean up finished effects each frame
+1. Add the effect class/function in `src/rendering/effects.ts`
+2. Expose a trigger from `src/rendering/index.ts`
+3. Call it from the tick handler in `main.ts`
+4. Clean up finished effects each frame (effects manager handles this)
 
 ### Adding UI Controls
 
@@ -195,6 +210,7 @@ const screenY = arenaHeight - gameY;
 - `docs/ARCHITECTURE.md` - Design decisions and rationale
 - `docs/PROTOCOL.md` - Tank Royale WebSocket protocol
 - `docs/DEVELOPMENT.md` - Development setup and workflow
+- `docs/PROGRESS.md` - Implementation phase tracking
 
 ## Testing
 
@@ -218,7 +234,7 @@ Run the viewer against a live Tank Royale server:
 2. **Phase 2:** Proper tank sprites matching official Robocode GUI
 3. **Phase 3:** Particle effects, smooth animations, visual polish
 4. **Phase 4:** HP bar (green→red gradient) above bots
-5. **Phase 5:** TrueSkill rating system (localStorage, bot list display, export/import)
+5. **Phase 5:** OpenSkill rating system (localStorage, bot list display, export/import)
 
 ## View States
 
@@ -248,6 +264,6 @@ Run the viewer against a live Tank Royale server:
 
 - Centered horizontally and vertically
 - Flag(s) displayed inline before bot name (Olympics-style: `[US] Spin Bot 1.0`)
-- Columns: Flag + Bot name + version, Author, TrueSkill rating (Phase 5)
-- Alphabetically sorted by bot name
+- Columns: Bot name + version, Tier icon, Rating percentile, Author, Description, Platform
+- Sorted by rating percentile descending (alphabetical when ratings disabled)
 - In State 4: dimmed behind results overlay
