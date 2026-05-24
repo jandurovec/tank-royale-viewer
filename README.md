@@ -21,7 +21,7 @@ This viewer **does not control battles**. There are no features for starting bat
 - 🤖 **Tank rendering** based on the official Robocode GUI style with enhancements
 - 👥 **Team support** with colored indicators and grouped displays
 - 🏆 **Battle results** always captured and displayed
-- 📈 **OpenSkill ratings** - Local skill tracking with tier badges (Scrap → Legend)
+- 📈 **Skill ratings** - Local skill tracking (OpenSkill or TrueSkill, selectable) with tier badges (Scrap → Legend)
 - 🖼️ **Custom arena logo** - Upload your own background image
 - ⚙️ **Minimal UI** - Settings hidden behind a subtle gear icon
 
@@ -79,7 +79,7 @@ Click the subtle gear icon in the top-right corner to access:
 - **Server URL:** WebSocket URL of the Tank Royale server (default: `ws://localhost:7654`)
 - **Secret:** Optional authentication secret if server has secrets enabled
 - **Arena logo:** Upload a custom background image with adjustable opacity and size
-- **OpenSkill ratings:** Toggle display, configure thresholds, export/import/reset ratings
+- **Skill ratings:** Toggle display, choose rating algorithm (OpenSkill or TrueSkill), configure thresholds, export/import/reset ratings
 
 ### Views
 

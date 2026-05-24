@@ -52,7 +52,7 @@
       </div>
       <div class="settings-divider"></div>
       <div class="settings-section">
-        <span class="settings-section-title">OpenSkill Ratings</span>
+        <span class="settings-section-title">Skill Ratings</span>
         <div class="settings-row-with-actions">
           <label class="checkbox">
             <input type="checkbox" id="show-ratings" checked />
@@ -65,6 +65,13 @@
           </div>
           <input type="file" id="import-ratings-file" accept=".json" style="display: none" />
         </div>
+        <label data-tooltip="OpenSkill is patent-free and stable. TrueSkill is Microsoft's algorithm; both use the same μ/σ/β/τ parameters and produce μ/σ ratings, but their dynamics differ. Resetting stored ratings is recommended after switching.">
+          Rating algorithm
+          <select id="rating-algorithm">
+            <option value="openskill">OpenSkill</option>
+            <option value="trueskill">TrueSkill</option>
+          </select>
+        </label>
         <label data-tooltip="Minimum games before a bot gets a rank tier (below this shows as Unranked)">
           Ranked games threshold
           <input type="number" id="ranked-games-threshold" min="1" max="100" value="20" />

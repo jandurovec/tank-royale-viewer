@@ -110,7 +110,7 @@ The viewer has four distinct states:
   - Flag(s) inline before bot name (Olympics-style)
   - Bot name + version
   - Author
-  - TrueSkill rating (Phase 5)
+  - Skill rating (Phase 5)
 
 #### State 3: Battle in Progress
 ```
@@ -216,15 +216,29 @@ Bullet size should be proportional to power for visual distinction.
 
 ## Phase 5: Skill Rating System
 
-A local rating system that tracks bot performance over time using the OpenSkill algorithm.
+A local rating system that tracks bot performance over time. The user can
+choose between two Bayesian rating algorithms in the settings panel:
 
-### OpenSkill Configuration
+- **OpenSkill** (default) — patent-free Plackett-Luce / Bradley-Terry model
+  via the `openskill` npm package. Fast and stable for free-for-all games.
+- **TrueSkill** — Microsoft's factor-graph rating model via the `ts-trueskill`
+  npm package. The TrueSkill™ brand is restricted to non-commercial use.
 
-- **Library:** `openskill` (npm package)
-- **Parameters:** OpenSkill defaults — μ=25, σ=μ/3, β=σ/2, τ=μ/300 (all four
-  are configurable in the settings panel)
-- **Conservative rating:** `ordinal()` from openskill (μ minus a multiple of σ)
-  determines rank tier after placement games
+Both algorithms expose the same `μ`, `σ`, `β`, `τ` parameters, store the same
+`{mu, sigma}` per bot, and feed the same downstream tier/percentile logic in
+`tiers.ts`. Switching algorithms keeps existing stored ratings, but the
+rating dynamics will differ; the settings panel surfaces a warning toast
+suggesting a reset (same warning shown when μ/σ/β/τ are changed).
+
+### Configuration
+
+- **Default parameters:** μ=25, σ=μ/3, β=σ/2, τ=μ/300 (all four configurable
+  in the settings panel; defaults match OpenSkill's library defaults)
+- **TrueSkill draw probability** is hard-coded to 0 — Tank Royale matches
+  don't produce draws
+- **Conservative rating:** `ordinal()` (OpenSkill) or `expose()` (TrueSkill).
+  Both reduce to `μ − k·σ` with `k = mu/sigma = 3` at default parameters,
+  so tier thresholds remain comparable across algorithms.
 - Bots below the ranked games threshold are **Unranked** regardless of rating
 - Bots between ranked and provisional thresholds have **Provisional** rank
   (icon at 50% opacity)
@@ -255,8 +269,9 @@ Thresholds require minimum bot counts for each tier:
 - 5+ bots: + Legend threshold at 95%
 ### Features
 
-- **Local OpenSkill ratings** indexed by bot name (the server-provided `name`
-  field; `version` is stored as a property of each rating, not part of the key)
+- **Local skill ratings** (OpenSkill or TrueSkill, selectable) indexed by bot
+  name (the server-provided `name` field; `version` is stored as a property
+  of each rating, not part of the key)
 - **Persisted in localStorage** (`tank-royale-viewer-ratings`) - survives browser refresh
 - **Recalculated after each battle** based on final rankings
 - **Displayed in both tables** (connected bots and results)
@@ -428,12 +443,31 @@ Key responsibilities:
 - Handles rating export/import/reset with error toasts
 
 #### Ratings (`ratings.ts`)
-- OpenSkill integration for rating calculations
-- Persistence to localStorage
-- Handles "Unranked" status for bots below games threshold
-- Delegates tier calculation to tiers module
+- Algorithm-agnostic skill-rating storage. Does not import any rating
+  library directly — all algorithm-specific math is delegated to a
+  `RatingProvider` selected via `getRatingProvider()`
+- Persistence to localStorage with a uniform `BotRating { mu, sigma, version, games }` shape
+- Handles "Unranked" status for bots below the games threshold
+- Delegates tier calculation to `tiers.ts`
 - Rating updates after each completed battle
 - Exports `BotTier` type ('Unranked' | Tier)
+
+#### Rating Providers (`ratingProviders/`)
+- `index.ts` — defines the `RatingProvider` strategy interface
+  (`rate(teams, ranks)` and `conservative(r)`) plus a `getRatingProvider()`
+  factory that picks the active provider based on `settings.ratingAlgorithm`
+- `openskill.ts` — wraps the `openskill` library (default, patent-free,
+  Plackett-Luce / Bradley-Terry model)
+- `trueskill.ts` — wraps the `ts-trueskill` library (Microsoft TrueSkill
+  factor-graph model; draw probability fixed at 0 since Tank Royale matches
+  don't produce draws)
+- Each provider is a stateless singleton that reads μ/σ/β/τ from settings
+  on every call, so live edits in the settings panel take effect immediately
+- Frozen-reference canary tests in `ratings.test.ts` pin tight bounds around
+  observed mu/sigma values for each library on a fixed 3-bot fixture. These
+  fail loudly if a library upgrade silently changes the algorithm or its
+  defaults — the signal that stored ratings should be reset (or bounds
+  re-baselined consciously)
 
 #### Tiers (`tiers.ts`)
 - Pure tier calculation module (no external dependencies)

@@ -84,7 +84,8 @@ src/
 ├── ui.ts             # DOM manipulation + view states
 ├── style.css         # Styling
 ├── settings.ts       # Settings persistence (localStorage)
-├── ratings.ts        # Skill rating system (OpenSkill, localStorage, Unranked handling)
+├── ratings.ts        # Skill rating storage (algorithm-agnostic, localStorage, Unranked handling)
+├── ratingProviders/  # Pluggable algorithms: openskill.ts, trueskill.ts behind a RatingProvider interface
 ├── tiers.ts          # Pure tier calculation (value-based percentiles, caching)
 ├── logoStorage.ts    # Custom logo storage (localStorage)
 ├── teamColors.ts     # Team color allocation (stateful, consistent across views)
@@ -140,11 +141,14 @@ src/
 
 ### Phase 5: Skill Rating System ✅
 
-Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
+Using OpenSkill library (patent-free Weng-Lin Bayesian ranking) by default.
+TrueSkill (`ts-trueskill`) is available as an alternative algorithm,
+selectable in the settings panel.
 
 - [x] Install openskill, create `ratings.ts` module
-- [x] Rating parameters: OpenSkill defaults (μ=25, σ=μ/3, β=σ/2, τ=μ/300),
-      all four configurable in settings; ratings indexed by bot name
+- [x] Rating parameters: μ=25, σ=μ/3, β=σ/2, τ=μ/300 defaults (matching
+      OpenSkill library defaults), all four configurable in settings;
+      ratings indexed by bot name
 - [x] Version change handling: keep mu, reset sigma
 - [x] Rank tiers based on value-based percentiles among fully-ranked bots:
   - Scrap (bottom 20%), Rookie (20-60%), Veteran (60-80%), Elite (80-95%), Legend (top 5%)
@@ -156,7 +160,11 @@ Using OpenSkill library (patent-free Weng-Lin Bayesian ranking).
   - Unranked bots have dimmed rating display (50% opacity)
 - [x] Module separation: tiers.ts (pure calculation) vs ratings.ts (storage + Unranked logic)
 - [x] Debug logging for tier calculations (eligible bots, thresholds, assignments)
+- [x] Debug logging for rating updates (per-bot μ/σ transitions)
 - [x] Unit tests for tier calculation (vitest)
+- [x] Frozen-reference canary tests for both OpenSkill and TrueSkill: pin
+      tight mu/sigma bounds on a fixed 3-bot fixture so library upgrades
+      that silently change algorithm or defaults fail loudly
 - [x] Games counter: tracks number of ranked games per bot
 - [x] Update ratings on GameEndedEventForObserver
 - [x] Bot list table: add rank + mu columns
@@ -193,7 +201,7 @@ Display a custom logo/image centered on the arena floor during battles.
 
 Replace raw rating numbers with percentile-based display for more intuitive UX.
 
-**Rationale:** OpenSkill ratings are unbounded (can go negative, no upper limit). Raw numbers are unpredictable and confusing. Percentiles normalize ratings to a 0-100 scale based on the ranked bot population.
+**Rationale:** Bayesian skill ratings (OpenSkill, TrueSkill) are unbounded (can go negative, no upper limit). Raw numbers are unpredictable and confusing. Percentiles normalize ratings to a 0-100 scale based on the ranked bot population.
 
 - [x] Add percentile calculation to `tiers.ts` (uses min/max from fully-ranked bots)
 - [x] Add percentile API to `ratings.ts` (getPercentileForBot)
@@ -236,6 +244,10 @@ Handle battles with multiple instances of the same bot correctly.
   - Pass synthetic ranking to OpenSkill
 - [x] Preprocessing done in main.ts before calling `updateRatings()`
 - [x] `RankedResult` interface unchanged (caller provides deduplicated results)
+- [x] Rating algorithm switchable between OpenSkill (default) and TrueSkill
+      via a settings dropdown — both algorithms share the same μ/σ/β/τ
+      parameters, the same `{mu, sigma}` storage, and the same downstream
+      tier/percentile pipeline
 
 ### Phase 10: Team Support ✅
 

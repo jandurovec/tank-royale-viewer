@@ -56,7 +56,11 @@ tank-royale-viewer/
     ├── ui.ts             # DOM controls and view-state rendering
     ├── style.css         # Application styles
     ├── settings.ts       # Persisted settings (localStorage) (+ test)
-    ├── ratings.ts        # OpenSkill rating storage (+ test)
+    ├── ratings.ts        # Skill rating storage (algorithm-agnostic) (+ test)
+    ├── ratingProviders/   # Pluggable rating algorithm implementations
+    │   ├── index.ts       # RatingProvider strategy interface + factory
+    │   ├── openskill.ts   # OpenSkill (default, patent-free)
+    │   └── trueskill.ts   # TrueSkill (alternative, brand-restricted)
     ├── tiers.ts          # Pure tier calculation (+ test)
     ├── logoStorage.ts    # Custom arena logo storage (+ test)
     ├── teamColors.ts     # Team color allocation (+ test)

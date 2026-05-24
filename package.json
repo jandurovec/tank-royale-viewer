@@ -25,6 +25,7 @@
     "@fortawesome/fontawesome-free": "^7.2.0",
     "flag-icons": "^7.5.0",
     "openskill": "^4.1.0",
-    "pixi.js": "^8.16.0"
+    "pixi.js": "^8.16.0",
+    "ts-trueskill": "^5.1.0"
   }
 }

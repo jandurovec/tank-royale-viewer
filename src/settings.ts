@@ -1,5 +1,7 @@
 const STORAGE_KEY = 'tank-royale-viewer-settings'
 
+export type RatingAlgorithm = 'openskill' | 'trueskill'
+
 export interface Settings {
   url: string
   secret: string
@@ -8,6 +10,7 @@ export interface Settings {
   logoOpacity: number
   logoSize: number
   showRatings: boolean
+  ratingAlgorithm: RatingAlgorithm
   rankedGamesThreshold: number
   provisionalGamesThreshold: number
   ratingMu: number
@@ -16,11 +19,13 @@ export interface Settings {
   ratingTau: number
 }
 
-// OpenSkill library defaults
-const OPENSKILL_MU = 25
-const OPENSKILL_SIGMA = OPENSKILL_MU / 3
-const OPENSKILL_BETA = OPENSKILL_SIGMA / 2
-const OPENSKILL_TAU = OPENSKILL_MU / 300
+// Default rating parameters (μ=25, σ=μ/3, β=σ/2, τ=μ/300).
+// Both OpenSkill and TrueSkill accept the same parameter names with
+// compatible meanings; defaults are chosen to match OpenSkill exactly.
+const RATING_MU = 25
+const RATING_SIGMA = RATING_MU / 3
+const RATING_BETA = RATING_SIGMA / 2
+const RATING_TAU = RATING_MU / 300
 
 const DEFAULTS: Settings = {
   url: 'ws://localhost:7654',
@@ -30,12 +35,17 @@ const DEFAULTS: Settings = {
   logoOpacity: 50,
   logoSize: 50,
   showRatings: true,
+  ratingAlgorithm: 'openskill',
   rankedGamesThreshold: 20,
   provisionalGamesThreshold: 50,
-  ratingMu: OPENSKILL_MU,
-  ratingSigma: OPENSKILL_SIGMA,
-  ratingBeta: OPENSKILL_BETA,
-  ratingTau: OPENSKILL_TAU
+  ratingMu: RATING_MU,
+  ratingSigma: RATING_SIGMA,
+  ratingBeta: RATING_BETA,
+  ratingTau: RATING_TAU
+}
+
+function isRatingAlgorithm(value: unknown): value is RatingAlgorithm {
+  return value === 'openskill' || value === 'trueskill'
 }
 
 let current: Settings = { ...DEFAULTS }
@@ -48,7 +58,9 @@ export function load(): Settings {
       // Merge with defaults, validating types for each property
       current = { ...DEFAULTS }
       for (const key of Object.keys(DEFAULTS) as (keyof Settings)[]) {
-        if (typeof parsed[key] === typeof DEFAULTS[key]) {
+        if (key === 'ratingAlgorithm') {
+          if (isRatingAlgorithm(parsed[key])) current.ratingAlgorithm = parsed[key]
+        } else if (typeof parsed[key] === typeof DEFAULTS[key]) {
           current[key] = parsed[key] as never
         }
       }

@@ -34,7 +34,11 @@ src/
 ├── gameState.ts      # Battle state management
 ├── ui.ts             # DOM-based UI controls
 ├── settings.ts       # Persisted settings (localStorage)
-├── ratings.ts        # OpenSkill rating storage
+├── ratings.ts        # Skill rating storage (algorithm-agnostic)
+├── ratingProviders/  # OpenSkill / TrueSkill strategy implementations
+│   ├── index.ts      # RatingProvider interface, getRatingProvider() factory
+│   ├── openskill.ts  # OpenSkill implementation
+│   └── trueskill.ts  # TrueSkill implementation
 ├── tiers.ts          # Pure tier calculation
 ├── logoStorage.ts    # Custom arena logo storage
 ├── teamColors.ts     # Team color allocation
@@ -63,7 +67,7 @@ them (rather than in a centralized `types/` directory).
 const count = items.length; // Get the length of items
 
 // GOOD: comment explains WHY, not WHAT
-// OpenSkill sigma below 2.0 indicates a confident rating
+// Sigma below 2.0 indicates a confident rating (OpenSkill / TrueSkill)
 if (rating.sigma < 2.0) { ... }
 ```
 
@@ -234,7 +238,7 @@ Run the viewer against a live Tank Royale server:
 2. **Phase 2:** Proper tank sprites matching official Robocode GUI
 3. **Phase 3:** Particle effects, smooth animations, visual polish
 4. **Phase 4:** HP bar (green→red gradient) above bots
-5. **Phase 5:** OpenSkill rating system (localStorage, bot list display, export/import)
+5. **Phase 5:** Skill rating system - OpenSkill (default) or TrueSkill, selectable in settings (localStorage, bot list display, export/import)
 
 ## View States
 

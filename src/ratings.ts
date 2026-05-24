@@ -1,16 +1,11 @@
-import { rating, rate, ordinal, type Options } from 'openskill'
 import * as settings from './settings.js'
 import * as tiers from './tiers.js'
+import { getRatingProvider, type MuSigma } from './ratingProviders/index.js'
 
 // Bot tier includes 'Unranked' (insufficient games) plus calculated tiers
 export type BotTier = 'Unranked' | tiers.Tier
 
 const STORAGE_KEY = 'tank-royale-viewer-ratings'
-
-function getOptions(): Options {
-  const { ratingMu, ratingSigma, ratingBeta, ratingTau } = settings.get()
-  return { mu: ratingMu, sigma: ratingSigma, beta: ratingBeta, tau: ratingTau }
-}
 
 export interface BotRating {
   mu: number
@@ -75,7 +70,7 @@ export function getOrCreateRating(botName: string, version: string): BotRating {
 }
 
 export function getConservativeRating(botRating: BotRating): number {
-  return ordinal(rating({ mu: botRating.mu, sigma: botRating.sigma }), getOptions())
+  return getRatingProvider().conservative(botRating)
 }
 
 // Update tier cache with fully-ranked bot ratings
@@ -178,28 +173,39 @@ export function updateRatings(results: RankedResult[]): void {
     getOrCreateRating(result.name, result.version)
   }
 
-  // Build teams (each bot is a 1-player team) with current ratings
-  const teams = results.map(r => {
+  // Build teams (each bot is a 1-player team) with current {mu, sigma}
+  const teams: MuSigma[][] = results.map(r => {
     const botRating = ratings[r.name]
-    return [rating({ mu: botRating.mu, sigma: botRating.sigma })]
+    return [{ mu: botRating.mu, sigma: botRating.sigma }]
   })
 
-  // Ranks for openskill (1-based placement order)
+  // 1-based placement ranks
   const ranks = results.map(r => r.rank)
 
-  // Calculate new ratings
-  const newRatings = rate(teams, { ...getOptions(), rank: ranks })
+  // Recalculate using the active rating provider (OpenSkill or TrueSkill)
+  const newRatings = getRatingProvider().rate(teams, ranks)
+
+  const debug = settings.get().debug
 
   // Update stored ratings
   for (let i = 0; i < results.length; i++) {
     const result = results[i]
     const [newRating] = newRatings[i]
-    const currentGames = ratings[result.name].games
+    const old = ratings[result.name]
+    const newGames = old.games + 1
     ratings[result.name] = {
       mu: newRating.mu,
       sigma: newRating.sigma,
       version: result.version,
-      games: currentGames + 1
+      games: newGames
+    }
+    if (debug) {
+      console.log(
+        `[Rating] ${result.name} (rank ${result.rank}): ` +
+        `μ ${old.mu.toFixed(3)} → ${newRating.mu.toFixed(3)} (Δ${(newRating.mu - old.mu).toFixed(3)}), ` +
+        `σ ${old.sigma.toFixed(3)} → ${newRating.sigma.toFixed(3)} (Δ${(newRating.sigma - old.sigma).toFixed(3)}), ` +
+        `games=${newGames}`
+      )
     }
   }
 

@@ -105,6 +105,7 @@ describe('updateRatings', () => {
   // rating algorithm or its defaults have changed and stored ratings should be
   // reset (or the bounds re-baselined consciously).
   it('produces stable rating deltas for a fixed scenario (openskill canary)', () => {
+    settings.save({ ratingAlgorithm: 'openskill' })
     ratings.updateRatings([
       { name: 'A', version: '1.0', rank: 1 },
       { name: 'B', version: '1.0', rank: 2 },
@@ -123,9 +124,82 @@ describe('updateRatings', () => {
     expect(a.sigma).toBeGreaterThan(8.0)
     expect(a.sigma).toBeLessThan(8.3)
   })
+
+  // Frozen-reference canary: protects against silent algorithmic changes in ts-trueskill.
+  // Pinned to ±0.2 around observed values on ts-trueskill@5.1.0 with the project's
+  // default mu/sigma/beta/tau and drawProbability=0. If this test fails after a
+  // ts-trueskill upgrade, the rating algorithm or its defaults have changed and
+  // stored ratings should be reset (or the bounds re-baselined consciously).
+  // Note: unlike OpenSkill, TrueSkill drops the middle bot's sigma more than the
+  // outer bots' (the middle placement carries more information).
+  it('produces stable rating deltas for a fixed scenario (trueskill canary)', () => {
+    settings.save({ ratingAlgorithm: 'trueskill' })
+    ratings.updateRatings([
+      { name: 'A', version: '1.0', rank: 1 },
+      { name: 'B', version: '1.0', rank: 2 },
+      { name: 'C', version: '1.0', rank: 3 },
+    ])
+    const a = ratings.getRating('A')!
+    const b = ratings.getRating('B')!
+    const c = ratings.getRating('C')!
+    expect(a.mu).toBeGreaterThan(31.1)
+    expect(a.mu).toBeLessThan(31.5)
+    expect(b.mu).toBeGreaterThan(24.8)
+    expect(b.mu).toBeLessThan(25.2)
+    expect(c.mu).toBeGreaterThan(18.5)
+    expect(c.mu).toBeLessThan(18.9)
+    // Outer bots (A, C) share the same sigma; middle bot (B) drops faster.
+    expect(a.sigma).toBeGreaterThan(6.5)
+    expect(a.sigma).toBeLessThan(6.9)
+    expect(c.sigma).toBeGreaterThan(6.5)
+    expect(c.sigma).toBeLessThan(6.9)
+    expect(b.sigma).toBeGreaterThan(6.0)
+    expect(b.sigma).toBeLessThan(6.5)
+  })
+
+  // Switching the algorithm produces measurably different mu values from the
+  // same fixture, proving the dropdown actually rewires the math.
+  it('produces different mu values under OpenSkill vs TrueSkill for the same scenario', () => {
+    settings.save({ ratingAlgorithm: 'openskill' })
+    ratings.updateRatings([
+      { name: 'A', version: '1.0', rank: 1 },
+      { name: 'B', version: '1.0', rank: 2 },
+      { name: 'C', version: '1.0', rank: 3 },
+    ])
+    const openMu = {
+      a: ratings.getRating('A')!.mu,
+      b: ratings.getRating('B')!.mu,
+      c: ratings.getRating('C')!.mu,
+    }
+
+    ratings.__resetForTests()
+    settings.save({ ratingAlgorithm: 'trueskill' })
+    ratings.updateRatings([
+      { name: 'A', version: '1.0', rank: 1 },
+      { name: 'B', version: '1.0', rank: 2 },
+      { name: 'C', version: '1.0', rank: 3 },
+    ])
+    const tsMu = {
+      a: ratings.getRating('A')!.mu,
+      b: ratings.getRating('B')!.mu,
+      c: ratings.getRating('C')!.mu,
+    }
+
+    // At least one of the three differs by more than rounding noise.
+    const maxDelta = Math.max(
+      Math.abs(openMu.a - tsMu.a),
+      Math.abs(openMu.b - tsMu.b),
+      Math.abs(openMu.c - tsMu.c),
+    )
+    expect(maxDelta).toBeGreaterThan(0.1)
+  })
 })
 
-describe('getConservativeRating', () => {
+describe.each(['openskill', 'trueskill'] as const)('getConservativeRating (%s)', (algorithm) => {
+  beforeEach(() => {
+    settings.save({ ratingAlgorithm: algorithm })
+  })
+
   it('is monotonically increasing in mu', () => {
     const low = ratings.getConservativeRating({ mu: 20, sigma: 5, version: '1', games: 1 })
     const high = ratings.getConservativeRating({ mu: 30, sigma: 5, version: '1', games: 1 })
