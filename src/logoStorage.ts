@@ -44,3 +44,9 @@ function notifyChange(): void {
     cb(logo)
   }
 }
+
+// Test-only: reset module state without touching localStorage contents
+export function __resetForTests(): void {
+  cachedLogo = null
+  changeCallbacks.length = 0
+}

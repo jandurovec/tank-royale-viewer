@@ -257,5 +257,11 @@ export function invalidateTierCache(): void {
   tiers.invalidateTierCache()
 }
 
+// Test-only: reset module state without touching localStorage contents
+export function __resetForTests(): void {
+  ratings = {}
+  tiers.invalidateTierCache()
+}
+
 // Initialize on module load
 load()

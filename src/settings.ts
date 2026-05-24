@@ -76,5 +76,10 @@ export function getDefaults(): Settings {
   return { ...DEFAULTS }
 }
 
+// Test-only: reset module state to defaults
+export function __resetForTests(): void {
+  current = { ...DEFAULTS }
+}
+
 // Initialize on module load
 load()
