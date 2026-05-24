@@ -2,12 +2,12 @@
 
 This document tracks implementation progress for AI assistants and developers resuming work on this project.
 
-**Last updated:** 2026-02-15
+**Last updated:** 2026-05-24
 
 ## Current State
 
-**Phase:** 10 (Team Support) - Complete
-**Status:** Full battle viewer with bot list visible during battles
+**Phase:** 11 (Theme Switching) - Complete
+**Status:** Full battle viewer with light/dark theme toggle
 
 ### What's Working
 
@@ -25,6 +25,7 @@ This document tracks implementation progress for AI assistants and developers re
 - ✅ Skill Ratings section with icon buttons (import/export/reset using Font Awesome)
 - ✅ Toast notifications: green for success, red for errors
 - ✅ View states: Connecting → Waiting → Battle → Results
+- ✅ Light/dark theme toggle (sun/moon icon left of gear), persisted in settings
 
 #### Bot List
 - ✅ Bot list with flags, authors, description, platform icons
@@ -262,6 +263,32 @@ Display teams in bot list, arena, and results.
 - [x] Results: team color indicator, rank computed locally (server rank broken)
 - [x] Rating system: teams rated as unit under team name
 - [x] Colors purged on disconnect, returned to pool for reuse
+
+### Phase 11: Theme Switching ✅
+
+Light/dark theme toggle for the surrounding UI chrome. The PixiJS arena
+itself stays dark in both themes — bullet, scan-arc, and explosion colors
+come from the Tank Royale protocol assuming a dark playing field, so the
+arena is treated as a "broadcast graphic" that doesn't follow page theme.
+The status / round / turn pills sit on (or next to) the arena and follow
+the same rule.
+
+**Approach:** CSS custom properties on `:root` with overrides under
+`:root[data-theme="light"]`. JS only toggles the `data-theme` attribute
+on `<html>`; the browser repaints every DOM element automatically. No
+JS push into the PixiJS canvas is needed because canvas colors are
+intentionally fixed.
+
+- [x] UI colors centralized as CSS variables in `:root`
+- [x] Light-theme overrides defined under `:root[data-theme="light"]`
+- [x] Sun/moon toggle button placed left of the settings gear (icon shows
+      the theme the user will switch *to*: sun while dark, moon while light)
+- [x] Theme persisted in `settings.ts` with type-validated load
+- [x] Status / round / turn pills use dedicated `--color-status-*` vars
+      that are intentionally not overridden in light theme
+- [x] Brighter `--color-danger` in light mode so dark icons stay readable
+- [x] Arena background, bot labels, bullets, and effects: untouched —
+      keep their original dark-arena-friendly hardcoded colors
 
 ## Key Technical Decisions
 

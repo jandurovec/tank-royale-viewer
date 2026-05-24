@@ -1,5 +1,17 @@
 /* ==========================================================================
    Color Palette
+
+   Theme is selected via [data-theme="..."] on <html>. Variable names describe
+   their *role* in the visual hierarchy, not their literal color — e.g.
+   --color-border-dark is the higher-contrast border tier (visible mid-gray
+   against either background); --color-border-darker is the subtler tier that
+   blends closer to the page background.
+
+   Note: the PixiJS arena, bot labels, and the status/round/turn overlays
+   are deliberately *not* themed — they sit on (or are) the broadcast-style
+   arena, whose dark background is assumed by bullet/scan/explosion colors
+   coming from the Tank Royale protocol. The --color-status-* variables are
+   defined only in :root and intentionally not overridden in light theme.
    ========================================================================== */
 :root {
   /* Base colors */
@@ -16,9 +28,13 @@
   /* Overlay backgrounds (semi-transparent) */
   --color-overlay: rgba(0, 0, 0, 0.6);
   --color-overlay-heavy: rgba(0, 0, 0, 0.85);
-  --color-overlay-dark: rgba(50, 50, 50, 0.8);
-  --color-overlay-light: rgba(75, 75, 75, 0.8);
   --color-panel-bg: rgba(45, 45, 45, 0.95);
+
+  /* Status bar pills (always dark, never themed). */
+  --color-status-bg: rgba(0, 0, 0, 0.6);
+  --color-status-bg-mid: rgba(50, 50, 50, 0.8);
+  --color-status-bg-soft: rgba(75, 75, 75, 0.8);
+  --color-status-text: #fff;
 
   /* Borders and dividers */
   --color-border: #555;
@@ -45,6 +61,39 @@
   /* Rating delta colors */
   --color-delta-up: #4caf50;
   --color-delta-down: #f44336;
+}
+
+:root[data-theme="light"] {
+  /* Body background is the only consumer of --color-bg, and it sits under
+     the transparent margins of the PixiJS canvas. Picking a light gray
+     (rather than near-white) keeps white bot labels recognizable if they
+     spill past the arena edge — at ~3:1 contrast the letters are readable
+     even if not crisp. The white settings panel, bot list, and results
+     table still provide the "light theme" feel. */
+  --color-bg: #909090;
+  --color-text: #1a1a1a;
+  --color-text-secondary: #4a4a4a;
+  --color-text-muted: #6a6a6a;
+
+  --color-surface: #ffffff;
+  --color-surface-elevated: #e6e6e6;
+  --color-surface-elevated-hover: #d4d4d4;
+
+  --color-overlay: rgba(255, 255, 255, 0.75);
+  --color-overlay-heavy: rgba(255, 255, 255, 0.92);
+  --color-panel-bg: rgba(252, 252, 252, 0.97);
+
+  --color-border: #c8c8c8;
+  --color-border-subtle: #d8d8d8;
+  --color-border-dark: #b0b0b0;
+  --color-border-darker: #e0e0e0;
+
+  --color-disabled-text: #aaaaaa;
+
+  /* Salmon-toned danger background so dark text/icons stand out clearly
+     against it in light mode (~5.7:1 contrast vs --color-text #1a1a1a). */
+  --color-danger: #fa8072;
+  --color-danger-hover: #ee6e60;
 }
 
 /* ==========================================================================
@@ -105,7 +154,8 @@ body {
 
 #status-bar > span {
   padding: 8px 16px;
-  background: var(--color-overlay);
+  background: var(--color-status-bg);
+  color: var(--color-status-text);
 }
 
 /* When battle info is shown, status has left-rounded corners */
@@ -132,21 +182,18 @@ body {
 
 #status.live {
   background: var(--color-success);
-  color: var(--color-text);
   font-weight: 700;
 }
 
 #status-bar #round-info {
   display: none;
-  background: var(--color-overlay-dark);
-  color: var(--color-text);
+  background: var(--color-status-bg-mid);
   font-weight: 400;
 }
 
 #status-bar #turn-info {
   display: none;
-  background: var(--color-overlay-light);
-  color: var(--color-text);
+  background: var(--color-status-bg-soft);
   font-weight: 400;
 }
 
@@ -155,22 +202,32 @@ body {
   50% { opacity: 0.4; }
 }
 
-#settings-btn {
+#settings-btn,
+#theme-btn {
   position: fixed;
   top: 16px;
-  right: 16px;
   width: 36px;
   height: 36px;
   background: var(--color-overlay);
   border: none;
   border-radius: 4px;
   color: var(--color-text-muted);
-  font-size: 20px;
   cursor: pointer;
   z-index: 100;
 }
 
-#settings-btn:hover {
+#settings-btn {
+  right: 16px;
+  font-size: 20px;
+}
+
+#theme-btn {
+  right: 60px;
+  font-size: 16px;
+}
+
+#settings-btn:hover,
+#theme-btn:hover {
   color: var(--color-text);
 }
 

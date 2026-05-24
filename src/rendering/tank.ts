@@ -27,6 +27,10 @@ export function setScanOpacity(opacity: number): void {
   scanOpacity = opacity
 }
 
+// Bot labels render on the (always-dark) arena, so they keep the original
+// hardcoded light fills regardless of the page theme.
+const ENERGY_TEXT_COLOR = 0xffffff
+const LABEL_TEXT_COLOR = 0xcccccc
 
 export function createBotGraphics(): Container {
   const container = new Container()
@@ -74,7 +78,7 @@ export function createBotGraphics(): Container {
   // Energy text (above bot)
   const energyStyle = new TextStyle({
     fontSize: 12,
-    fill: 0xffffff,
+    fill: ENERGY_TEXT_COLOR,
     fontFamily: 'system-ui, sans-serif'
   })
   const energyText = new Text({ text: '', style: energyStyle })
@@ -86,7 +90,7 @@ export function createBotGraphics(): Container {
   // Name text (below bot)
   const labelStyle = new TextStyle({
     fontSize: 11,
-    fill: 0xcccccc,
+    fill: LABEL_TEXT_COLOR,
     fontFamily: 'system-ui, sans-serif'
   })
   const nameText = new Text({ text: '', style: labelStyle })

@@ -1,11 +1,13 @@
 const STORAGE_KEY = 'tank-royale-viewer-settings'
 
 export type RatingAlgorithm = 'openskill' | 'trueskill'
+export type Theme = 'dark' | 'light'
 
 export interface Settings {
   url: string
   secret: string
   debug: boolean
+  theme: Theme
   scanOpacity: number
   logoOpacity: number
   logoSize: number
@@ -31,6 +33,7 @@ const DEFAULTS: Settings = {
   url: 'ws://localhost:7654',
   secret: '',
   debug: false,
+  theme: 'dark',
   scanOpacity: 5,
   logoOpacity: 50,
   logoSize: 50,
@@ -48,6 +51,10 @@ function isRatingAlgorithm(value: unknown): value is RatingAlgorithm {
   return value === 'openskill' || value === 'trueskill'
 }
 
+function isTheme(value: unknown): value is Theme {
+  return value === 'dark' || value === 'light'
+}
+
 let current: Settings = { ...DEFAULTS }
 
 export function load(): Settings {
@@ -60,6 +67,8 @@ export function load(): Settings {
       for (const key of Object.keys(DEFAULTS) as (keyof Settings)[]) {
         if (key === 'ratingAlgorithm') {
           if (isRatingAlgorithm(parsed[key])) current.ratingAlgorithm = parsed[key]
+        } else if (key === 'theme') {
+          if (isTheme(parsed[key])) current.theme = parsed[key]
         } else if (typeof parsed[key] === typeof DEFAULTS[key]) {
           current[key] = parsed[key] as never
         }

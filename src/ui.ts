@@ -13,6 +13,7 @@ import * as logoStorage from './logoStorage.js'
 import { getTeamColor } from './teamColors.js'
 import { getState } from './gameState.js'
 import type { BotTier } from './ratings.js'
+import type { Theme } from './settings.js'
 
 const toastEl = document.getElementById('toast')!
 const statusBarEl = document.getElementById('status-bar')!
@@ -21,6 +22,7 @@ const roundInfoEl = document.getElementById('round-info')!
 const turnInfoEl = document.getElementById('turn-info')!
 const settingsBtn = document.getElementById('settings-btn')!
 const settingsPanel = document.getElementById('settings-panel')!
+const themeBtn = document.getElementById('theme-btn')!
 const serverUrlInput = document.getElementById('server-url') as HTMLInputElement
 const serverSecretInput = document.getElementById('server-secret') as HTMLInputElement
 const showRatingsCheckbox = document.getElementById('show-ratings') as HTMLInputElement
@@ -51,6 +53,28 @@ let logoOpacityCallback: ((opacity: number) => void) | null = null
 let logoSizeCallback: ((size: number) => void) | null = null
 let showRatingsCallback: ((show: boolean) => void) | null = null
 let connectionSettingsCallback: (() => void) | null = null
+
+// Icon and tooltip both describe what clicking will do next — sun + "Switch
+// to light theme" while currently dark, moon + "Switch to dark theme" while
+// currently light. Common modern convention.
+function applyTheme(theme: Theme): void {
+  document.documentElement.setAttribute('data-theme', theme)
+  if (theme === 'dark') {
+    themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>'
+    themeBtn.setAttribute('data-tooltip', 'Switch to light theme')
+  } else {
+    themeBtn.innerHTML = '<i class="fa-solid fa-moon"></i>'
+    themeBtn.setAttribute('data-tooltip', 'Switch to dark theme')
+  }
+}
+
+applyTheme(settings.get().theme)
+
+themeBtn.addEventListener('click', () => {
+  const next: Theme = settings.get().theme === 'dark' ? 'light' : 'dark'
+  settings.save({ theme: next })
+  applyTheme(next)
+})
 
 // Ratings export/import/reset handlers
 exportRatingsBtn.addEventListener('click', () => {

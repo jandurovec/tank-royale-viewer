@@ -1,6 +1,12 @@
 import { Assets, Container, Graphics, Sprite, Texture } from 'pixi.js'
 import * as logoStorage from '../logoStorage.js'
 
+// Arena background is intentionally not themed — bot bullet, scan-arc, and
+// explosion colors (sourced from the Tank Royale protocol or hardcoded in
+// BURST_COLORS) all assume a dark playing field.
+const ARENA_BG_COLOR = 0x000000
+const ARENA_BORDER_COLOR = 0x333333
+
 let currentContainer: Container | null = null
 let currentArenaWidth = 0
 let currentArenaHeight = 0
@@ -92,8 +98,8 @@ export function drawArenaBackground(
   const bg = new Graphics()
   bg.label = 'arena-bg'
   bg.rect(0, 0, arenaWidth, arenaHeight)
-  bg.fill({ color: 0x000000 })
-  bg.stroke({ color: 0x333333, width: 2 / scale })
+  bg.fill({ color: ARENA_BG_COLOR })
+  bg.stroke({ color: ARENA_BORDER_COLOR, width: 2 / scale })
   arenaContainer.addChildAt(bg, 0)
 
   // Update logo sprite

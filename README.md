@@ -23,6 +23,7 @@ This viewer **does not control battles**. There are no features for starting bat
 - 🏆 **Battle results** always captured and displayed
 - 📈 **Skill ratings** - Local skill tracking (OpenSkill or TrueSkill, selectable) with tier badges (Scrap → Legend)
 - 🖼️ **Custom arena logo** - Upload your own background image
+- 🌓 **Light/dark theme** - Toggle the surrounding UI between themes; the arena stays dark for broadcast clarity
 - ⚙️ **Minimal UI** - Settings hidden behind a subtle gear icon
 
 ## Quick Start
