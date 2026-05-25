@@ -1,6 +1,7 @@
 import javaSvg from './assets/java.svg'
 import pythonSvg from './assets/python.svg'
 import dotnetSvg from './assets/dotnet.svg'
+import nodejsSvg from './assets/nodejs.svg'
 import tierScrapPng from './assets/tier-scrap.png'
 import tierRookiePng from './assets/tier-rookie.png'
 import tierVeteranPng from './assets/tier-veteran.png'
@@ -586,7 +587,8 @@ function formatAuthors(bot: BotInfo): string {
 const platformIcons: Record<string, string> = {
   jvm: javaSvg,
   python: pythonSvg,
-  dotnet: dotnetSvg
+  dotnet: dotnetSvg,
+  nodejs: nodejsSvg
 }
 
 const tierIcons: Record<BotTier, string> = {
@@ -623,8 +625,10 @@ function getPlatformIcon(platform?: string, lang?: string): string {
     icon = platformIcons.dotnet
   } else if (text === 'python') {
     icon = platformIcons.python
+  } else if (/^node(\.?js)?$/.test(text)) {
+    icon = platformIcons.nodejs
   }
-  const tooltip = platform || lang || ''
+  const tooltip = platform ? (lang ? `${platform} (${lang})` : platform) : (lang || '')
   return icon ? `<span class="platform-icon-wrapper" data-tooltip="${tooltip}"><img src="${icon}" class="platform-icon" alt="${tooltip}"></span>` : ''
 }
 
