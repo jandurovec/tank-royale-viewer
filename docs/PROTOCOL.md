@@ -306,6 +306,10 @@ Sent if the game is aborted:
 }
 ```
 
+The viewer returns to the waiting view, retaining the current connected-bot
+list while clearing battle graphics, effects, round and turn indicators, and
+any previous results.
+
 ## Bot Constants
 
 | Constant | Value | Description |

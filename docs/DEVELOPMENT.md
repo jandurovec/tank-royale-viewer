@@ -143,18 +143,21 @@ import { GameState } from './gameState.js';
 import type { BotState } from './types/protocol.js';
 ```
 
-## Testing with Tank Royale
+## Automated Testing
 
-### Automated Solo Battle Journey
+### Browser Journeys
 
 ```bash
 npm run test:e2e
 ```
 
-The browser test starts Vite, mocks the Tank Royale WebSocket at the browser
-boundary, completes the observer handshake, and replays a sanitized server
-1.0.2 battle from the waiting view through final results. It does not require a
-live Tank Royale server.
+The browser tests start Vite and mock the Tank Royale WebSocket at the browser
+boundary. They replay a sanitized server 1.0.2 battle from the waiting view
+through final results and verify cleanup across abort, disconnect, reconnect,
+server URL changes, reload, and subsequent battles. They do not require a live
+Tank Royale server.
+
+## Testing with Tank Royale
 
 ### Local Server Setup
 

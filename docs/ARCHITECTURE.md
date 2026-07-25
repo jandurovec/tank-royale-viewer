@@ -188,6 +188,12 @@ The viewer has four distinct states:
 per-round results overlay. The viewer remains in the battle view until the next
 round starts or the game ends. This matches the official Java GUI.
 
+Disconnecting or changing the server connection clears the active battle,
+round and turn indicators, results, cached bot list, team colors, and renderer
+graphics before reconnecting. An aborted game clears battle and result state
+but preserves the current connected-bot list. Every new game clears the
+previous arena and results before initializing its own setup.
+
 ### Bot List Dock Transition
 
 When a battle starts, the bot list animates from centered to docked on the left. This keeps bot information at least partially visible during battles—fully visible on wide displays where the arena doesn't fill the viewport.

@@ -41,6 +41,23 @@ let currentBots: BotInfo[] = []
 let lastResults: { results: BotResult[]; oldRatings: ReturnType<typeof ui.captureRatingsSnapshot> } | null = null
 let battleInProgress = false
 
+function clearBattleState(): void {
+  battleInProgress = false
+  lastResults = null
+  ui.hideResults()
+  ui.hideRoundTurn()
+  renderer.hide()
+  gameState.reset()
+}
+
+function clearConnectionState(): void {
+  clearBattleState()
+  currentBots = []
+  purgeInactiveTeams([])
+  ui.updateBotList(currentBots)
+  ui.hideBotList()
+}
+
 function processTickEvent(event: TickEvent, botStates: BotState[]): void {
   switch (event.type) {
     case 'BotDeathEvent': {
@@ -80,10 +97,7 @@ function processTickEvent(event: TickEvent, botStates: BotState[]): void {
 const connection = createConnection({
   onConnecting: () => {
     ui.setStatus('connecting')
-    ui.hideBotList()
-    ui.hideResults()
-    renderer.hide()
-    gameState.reset()
+    clearConnectionState()
   },
   onConnected: () => {
     ui.setStatus('live')
@@ -91,10 +105,7 @@ const connection = createConnection({
   },
   onDisconnected: () => {
     ui.setStatus('connecting')
-    ui.hideBotList()
-    ui.hideResults()
-    renderer.hide()
-    gameState.reset()
+    clearConnectionState()
   },
   onError: (msg) => ui.showToast(`Server: ${msg}`),
   onMessage: (msg) => {
@@ -109,6 +120,7 @@ const connection = createConnection({
         break
       }
       case 'GameStartedEventForObserver': {
+        clearBattleState()
         battleInProgress = true
         const gameMsg = msg as GameStartedMessage
         const setup = gameMsg.gameSetup
@@ -178,10 +190,7 @@ const connection = createConnection({
         break
       }
       case 'GameAbortedEvent':
-        battleInProgress = false
-        renderer.hide()
-        ui.hideRoundTurn()
-        gameState.reset()
+        clearBattleState()
         ui.showBotList()
         break
     }
