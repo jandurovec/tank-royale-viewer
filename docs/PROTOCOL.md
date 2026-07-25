@@ -221,6 +221,14 @@ Events that can appear in the `events` array:
 | `BulletHitWallEvent` | A bullet hit the wall |
 | `ScannedBotEvent` | A bot scanned another bot |
 
+Visual effects follow battle turns rather than elapsed time. Bot death
+explosions contain 15 bursts with a 50-turn period, while bullet-hit effects
+have a 25-turn period. The viewer keeps an internal effect turn when the
+server's turn number resets, allowing an in-progress effect to continue into
+the next round. Starting or ending a game, aborting it, or disconnecting
+clears effects. If turns advance through an effect period before the next
+display frame, the animation can finish without being drawn.
+
 ### RoundEndedEventForObserver
 
 Sent when a round ends:

@@ -11,7 +11,8 @@ The messages follow the official Tank Royale schemas at commit
   `GameStartedEventForObserver`, selected firing and lethal ticks, and
   `GameEndedEventForObserver` are derived from expanded real messages. Session
   IDs and network addresses are replaced. Intermediate turn ranges are
-  intentionally omitted.
+  intentionally omitted. The lethal tick retains the observed
+  `BulletHitBotEvent`, `BotDeathEvent` order.
 - Its bot-list snapshots are constructed from the observed participant
   metadata, and its one-round `RoundEndedEventForObserver` reuses the final
   results as the server does.

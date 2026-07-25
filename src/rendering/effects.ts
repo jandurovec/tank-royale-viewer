@@ -1,4 +1,4 @@
-import { Graphics } from 'pixi.js'
+import type { Graphics } from 'pixi.js'
 import { BURST_COLORS, lerpColor } from './colors.js'
 
 interface Effect {
@@ -119,9 +119,12 @@ class Explosion implements Effect {
 // Effect manager
 const effects: Effect[] = []
 let currentTurn = 0
+let lastGameTurn = 0
 
 export function setCurrentTurn(turn: number): void {
-  currentTurn = turn
+  // Server turn numbers reset each round; effect age must remain monotonic.
+  currentTurn += turn < lastGameTurn ? turn : turn - lastGameTurn
+  lastGameTurn = turn
 }
 
 export function addBotDeathExplosion(x: number, y: number): void {
@@ -162,4 +165,6 @@ export function renderEffects(g: Graphics, arenaHeight: number): void {
 
 export function clearEffects(): void {
   effects.length = 0
+  currentTurn = 0
+  lastGameTurn = 0
 }

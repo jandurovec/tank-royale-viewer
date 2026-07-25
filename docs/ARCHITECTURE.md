@@ -433,7 +433,7 @@ A modular system for GPU-accelerated battle visualization:
 - **`arena.ts`** - Arena background and border rendering
 - **`tank.ts`** - Bot/tank graphics creation and update
 - **`bullets.ts`** - Bullet rendering with size based on power
-- **`effects.ts`** - Explosions and burst effects (tick-based timing)
+- **`effects.ts`** - Turn-based explosions and hit bursts that span rounds
 - **`colors.ts`** - Color constants, parsing, and interpolation utilities
 
 Key responsibilities:

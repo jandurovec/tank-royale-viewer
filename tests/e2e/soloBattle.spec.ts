@@ -6,6 +6,7 @@ interface ProtocolMessage {
   readonly type: string
   readonly bots?: readonly unknown[]
   readonly turnNumber?: number
+  readonly events?: readonly { readonly type: string }[]
 }
 
 interface ProtocolFixture {
@@ -83,6 +84,10 @@ test('shows a real solo battle journey from waiting through results', async ({ p
 
   const ticks = fixture.messages.filter(message => message.type === 'TickEventForObserver')
   expect(ticks.map(tick => tick.turnNumber)).toEqual([671, 1482])
+  expect(ticks[1]?.events?.map(event => event.type)).toEqual([
+    'BulletHitBotEvent',
+    'BotDeathEvent'
+  ])
 
   socket.send(JSON.stringify(ticks[0]))
   await expect(page.locator('#turn-info')).toHaveText('TURN 671')
