@@ -81,6 +81,8 @@ tank-royale-viewer/
         ├── tank.ts       # Bot/tank graphics
         ├── bullets.ts    # Bullet rendering
         ├── effects.ts    # Explosions and burst effects
+        ├── layers.ts     # Bullet and effect layer ordering
+        ├── transforms.ts # Coordinate and rotation conversions
         └── colors.ts     # Color utilities (+ test)
 ```
 

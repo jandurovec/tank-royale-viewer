@@ -1,5 +1,6 @@
 import type { Graphics } from 'pixi.js'
 import { BURST_COLORS, lerpColor } from './colors.js'
+import { gameYToScreenY } from './transforms.js'
 
 interface Effect {
   isFinished(): boolean
@@ -60,10 +61,7 @@ class CircleBurst implements Effect {
     // Calculate alpha (fade out)
     const alpha = 1 - t
 
-    // Transform Y coordinate
-    const screenY = arenaHeight - this.y
-
-    g.circle(this.x, screenY, radius)
+    g.circle(this.x, gameYToScreenY(this.y, arenaHeight), radius)
     g.fill({ color, alpha })
   }
 }

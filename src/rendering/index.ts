@@ -1,9 +1,15 @@
 import { Application, Container, Graphics } from 'pixi.js'
 import { getState } from '../gameState.js'
 import { drawArenaBackground } from './arena.js'
-import { createBotGraphics, updateBotGraphics, type TeamInfo } from './tank.js'
+import {
+  createBotGraphics,
+  removeStaleBotGraphics,
+  updateBotGraphics,
+  type TeamInfo
+} from './tank.js'
 import { renderBullets } from './bullets.js'
 import { renderEffects, clearEffects } from './effects.js'
+import { placeTransientLayers } from './layers.js'
 import { getTeamColorNumeric } from '../teamColors.js'
 
 // Re-export effects API for main.ts
@@ -111,26 +117,20 @@ function render(): void {
     updateBotGraphics(botContainer, bot, arenaHeight, teamInfo)
   }
 
-  // Remove bots that are no longer in the state
-  for (const [id, container] of botGraphics) {
-    if (!currentBotIds.has(id)) {
-      arenaContainer.removeChild(container)
-      botGraphics.delete(id)
-    }
-  }
+  removeStaleBotGraphics(arenaContainer, botGraphics, currentBotIds)
 
   // Render bullets
   if (bulletGraphics) {
-    renderBullets(bulletGraphics, arenaContainer, state.bullets, arenaHeight)
+    renderBullets(bulletGraphics, state.bullets, arenaHeight)
   }
 
   // Render effects (explosions, bursts)
-  if (effectsGraphics && arenaContainer) {
-    if (effectsGraphics.parent) {
-      arenaContainer.removeChild(effectsGraphics)
-    }
+  if (effectsGraphics) {
     renderEffects(effectsGraphics, arenaHeight)
-    arenaContainer.addChild(effectsGraphics)
+  }
+
+  if (bulletGraphics && effectsGraphics) {
+    placeTransientLayers(arenaContainer, bulletGraphics, effectsGraphics)
   }
 }
 

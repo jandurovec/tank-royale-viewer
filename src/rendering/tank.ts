@@ -12,6 +12,11 @@ import {
   DEFAULT_GUN_COLOR,
   DEFAULT_SCAN_COLOR
 } from './colors.js'
+import {
+  directionToScreenRadians,
+  gameYToScreenY,
+  tankDirectionToRotation
+} from './transforms.js'
 
 // Virtual coordinate space is 500 units, scaled to 36 pixels (matching original Kotlin)
 const BOT_SIZE = 36
@@ -127,9 +132,8 @@ export function updateBotGraphics(
   arenaHeight: number,
   teamInfo?: TeamInfo
 ): void {
-  // Transform coordinates: Y-flip
   container.x = bot.x
-  container.y = arenaHeight - bot.y
+  container.y = gameYToScreenY(bot.y, arenaHeight)
 
   // Get colors
   const bodyColor = parseColor(bot.bodyColor, DEFAULT_BODY_COLOR)
@@ -141,9 +145,9 @@ export function updateBotGraphics(
 
   // Body rotation: Tank Royale uses degrees counter-clockwise from East
   // PixiJS uses radians clockwise from East, and Kotlin adds 180° offset
-  const bodyRotation = (-bot.direction + 180) * (Math.PI / 180)
-  const gunRotation = (-bot.gunDirection + 180) * (Math.PI / 180)
-  const radarRotation = (-bot.radarDirection + 180) * (Math.PI / 180)
+  const bodyRotation = tankDirectionToRotation(bot.direction)
+  const gunRotation = tankDirectionToRotation(bot.gunDirection)
+  const radarRotation = tankDirectionToRotation(bot.radarDirection)
 
   // Update body container rotation
   const bodyContainer = container.getChildByLabel('bodyContainer') as Container
@@ -162,9 +166,10 @@ export function updateBotGraphics(
   }
 
   // Update radar
-  if (!bot.isDroid) {
-    const radar = container.getChildByLabel('radar') as Graphics
-    if (radar) {
+  const radar = container.getChildByLabel('radar') as Graphics
+  if (radar) {
+    radar.visible = !bot.isDroid
+    if (!bot.isDroid) {
       radar.rotation = radarRotation
       drawRadar(radar, radarColor)
     }
@@ -173,6 +178,7 @@ export function updateBotGraphics(
   // Update scan arc
   const scanArc = container.getChildByLabel('scanArc') as Graphics
   if (scanArc) {
+    scanArc.visible = !bot.isDroid
     drawScanArc(scanArc, bot, scanColor)
   }
 
@@ -211,6 +217,19 @@ export function updateBotGraphics(
       teamText.text = ''
       teamText.visible = false
       if (healthBar) healthBar.y = BOT_SIZE / 2 + 17
+    }
+  }
+}
+
+export function removeStaleBotGraphics(
+  arenaContainer: Container,
+  botGraphics: Map<number, Container>,
+  currentBotIds: ReadonlySet<number>
+): void {
+  for (const [id, container] of botGraphics) {
+    if (!currentBotIds.has(id)) {
+      arenaContainer.removeChild(container)
+      botGraphics.delete(id)
     }
   }
 }
@@ -353,15 +372,15 @@ function drawScanArc(g: Graphics, bot: BotState, scanColor: number): void {
     // Very small sweep - draw as line
     // Tank Royale: 0° = East, counter-clockwise positive
     // Screen coords: Y is flipped, so negate angle
-    const radarRad = -bot.radarDirection * (Math.PI / 180)
+    const radarRad = directionToScreenRadians(bot.radarDirection)
     g.moveTo(0, 0)
     g.lineTo(Math.cos(radarRad) * radius, Math.sin(radarRad) * radius)
     g.stroke({ color: scanColor, width: 1, alpha: scanOpacity })
   } else {
     // Draw arc/pie slice
     // Convert angles for screen coordinates (Y-flipped)
-    let startAngle = -bot.radarDirection * (Math.PI / 180)
-    let sweep = -radarSweep * (Math.PI / 180)
+    let startAngle = directionToScreenRadians(bot.radarDirection)
+    let sweep = directionToScreenRadians(radarSweep)
 
     // Normalize: ensure we draw the smaller arc
     if (sweep < 0) {
@@ -382,8 +401,7 @@ function drawScanArc(g: Graphics, bot: BotState, scanColor: number): void {
 function drawHealthBar(g: Graphics, energy: number, isDroid?: boolean): void {
   g.clear()
 
-  const maxEnergy = isDroid ? 120 : 100
-  const healthPercent = Math.max(0, Math.min(1, energy / maxEnergy))
+  const healthPercent = getHealthPercent(energy, isDroid)
 
   if (healthPercent <= 0) return
 
@@ -400,6 +418,11 @@ function drawHealthBar(g: Graphics, energy: number, isDroid?: boolean): void {
 
   g.rect(x, 0, barWidth, barHeight)
   g.fill({ color })
+}
+
+export function getHealthPercent(energy: number, isDroid?: boolean): number {
+  const maxEnergy = isDroid ? 120 : 100
+  return Math.max(0, Math.min(1, energy / maxEnergy))
 }
 
 function getHealthColor(percent: number): number {
