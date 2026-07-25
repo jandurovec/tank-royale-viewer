@@ -59,6 +59,26 @@ describe('updateRatings', () => {
     expect(l.mu).toBeLessThan(defaults.ratingMu)
   })
 
+  it.each(['openskill', 'trueskill'] as const)('passes shared placements to %s as a tie', algorithm => {
+    settings.save({ ratingAlgorithm: algorithm })
+    ratings.updateRatings([
+      { name: 'Winner', version: '1.0', rank: 1 },
+      { name: 'Tied Alpha', version: '1.0', rank: 2 },
+      { name: 'Tied Bravo', version: '1.0', rank: 2 },
+      { name: 'Fourth', version: '1.0', rank: 4 }
+    ])
+
+    const winner = ratings.getRating('Winner')!
+    const tiedAlpha = ratings.getRating('Tied Alpha')!
+    const tiedBravo = ratings.getRating('Tied Bravo')!
+    const fourth = ratings.getRating('Fourth')!
+
+    expect(tiedAlpha.mu).toBeCloseTo(tiedBravo.mu)
+    expect(tiedAlpha.sigma).toBeCloseTo(tiedBravo.sigma)
+    expect(winner.mu).toBeGreaterThan(tiedAlpha.mu)
+    expect(tiedAlpha.mu).toBeGreaterThan(fourth.mu)
+  })
+
   it('decreases sigma for participants', () => {
     const defaults = settings.getDefaults()
     ratings.updateRatings([

@@ -1,0 +1,82 @@
+{
+  "description": "Equal scores use shared-placement ranking and deterministic participant ordering",
+  "schemaCommit": "86a4bd58514bcdc4d36f1dd374900e6eae3b29f3",
+  "fixtureKind": "message-fragment",
+  "provenance": "Schema-derived result scenario; not a battle recording",
+  "messages": [
+    {
+      "type": "GameEndedEventForObserver",
+      "numberOfRounds": 1,
+      "results": [
+        {
+          "id": 1,
+          "name": "Winner",
+          "version": "1.0",
+          "rank": 1,
+          "isTeam": false,
+          "survival": 60,
+          "lastSurvivorBonus": 20,
+          "bulletDamage": 40,
+          "bulletKillBonus": 0,
+          "ramDamage": 0,
+          "ramKillBonus": 0,
+          "totalScore": 120,
+          "firstPlaces": 1,
+          "secondPlaces": 0,
+          "thirdPlaces": 0
+        },
+        {
+          "id": 2,
+          "name": "Tied Alpha",
+          "version": "1.0",
+          "rank": 2,
+          "isTeam": false,
+          "survival": 50,
+          "lastSurvivorBonus": 0,
+          "bulletDamage": 50,
+          "bulletKillBonus": 0,
+          "ramDamage": 0,
+          "ramKillBonus": 0,
+          "totalScore": 100,
+          "firstPlaces": 0,
+          "secondPlaces": 1,
+          "thirdPlaces": 0
+        },
+        {
+          "id": 4,
+          "name": "Tied Bravo",
+          "version": "1.0",
+          "rank": 2,
+          "isTeam": false,
+          "survival": 50,
+          "lastSurvivorBonus": 0,
+          "bulletDamage": 50,
+          "bulletKillBonus": 0,
+          "ramDamage": 0,
+          "ramKillBonus": 0,
+          "totalScore": 100,
+          "firstPlaces": 0,
+          "secondPlaces": 1,
+          "thirdPlaces": 0
+        },
+        {
+          "id": 5,
+          "name": "Fourth",
+          "version": "1.0",
+          "rank": 4,
+          "isTeam": false,
+          "survival": 20,
+          "lastSurvivorBonus": 0,
+          "bulletDamage": 30,
+          "bulletKillBonus": 0,
+          "ramDamage": 0,
+          "ramKillBonus": 0,
+          "totalScore": 50,
+          "firstPlaces": 0,
+          "secondPlaces": 0,
+          "thirdPlaces": 0
+        }
+      ]
+    }
+  ]
+}

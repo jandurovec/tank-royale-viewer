@@ -1,0 +1,162 @@
+{
+  "description": "Focused team identity fixture where a team result and solo result share the same numeric ID",
+  "schemaCommit": "86a4bd58514bcdc4d36f1dd374900e6eae3b29f3",
+  "serverVersion": "1.0.2",
+  "fixtureKind": "message-fragment",
+  "provenance": "Schema-derived team scenario; no real team battle recording is currently available",
+  "omittedMessages": "RoundStartedEvent, TickEventForObserver, and RoundEndedEventForObserver",
+  "messages": [
+    {
+      "type": "BotListUpdate",
+      "bots": [
+        {
+          "sessionId": "session-lead",
+          "name": "Team Lead",
+          "version": "1.0",
+          "authors": ["Alice"],
+          "countryCodes": ["SK"],
+          "gameTypes": ["classic"],
+          "platform": "JVM 21",
+          "programmingLang": "Java 21",
+          "teamId": 3,
+          "teamName": "Alpha Team",
+          "teamVersion": "1.0",
+          "isDroid": false,
+          "debuggerAttached": false,
+          "host": "127.0.0.1",
+          "port": 52001
+        },
+        {
+          "sessionId": "session-droid",
+          "name": "Team Droid",
+          "version": "1.0",
+          "authors": ["Alice"],
+          "countryCodes": ["SK"],
+          "gameTypes": ["classic"],
+          "platform": "JVM 21",
+          "programmingLang": "Java 21",
+          "teamId": 3,
+          "teamName": "Alpha Team",
+          "teamVersion": "1.0",
+          "isDroid": true,
+          "debuggerAttached": false,
+          "host": "127.0.0.1",
+          "port": 52002
+        },
+        {
+          "sessionId": "session-solo",
+          "name": "Solo",
+          "version": "1.0",
+          "authors": ["Bob"],
+          "countryCodes": ["CZ"],
+          "gameTypes": ["classic"],
+          "platform": ".NET 8",
+          "programmingLang": "C# 12",
+          "isDroid": false,
+          "debuggerAttached": false,
+          "host": "127.0.0.1",
+          "port": 52003
+        }
+      ]
+    },
+    {
+      "type": "GameStartedEventForObserver",
+      "gameSetup": {
+        "gameType": "classic",
+        "arenaWidth": 800,
+        "isArenaWidthLocked": false,
+        "arenaHeight": 600,
+        "isArenaHeightLocked": false,
+        "minNumberOfParticipants": 2,
+        "isMinNumberOfParticipantsLocked": false,
+        "isMaxNumberOfParticipantsLocked": false,
+        "numberOfRounds": 1,
+        "isNumberOfRoundsLocked": false,
+        "gunCoolingRate": 0.1,
+        "isGunCoolingRateLocked": false,
+        "maxInactivityTurns": 450,
+        "isMaxInactivityTurnsLocked": false,
+        "turnTimeout": 1000000,
+        "isTurnTimeoutLocked": false,
+        "readyTimeout": 1000000,
+        "isReadyTimeoutLocked": false,
+        "defaultTurnsPerSecond": 30
+      },
+      "participants": [
+        {
+          "id": 1,
+          "sessionId": "session-lead",
+          "name": "Team Lead",
+          "version": "1.0",
+          "authors": ["Alice"],
+          "teamId": 3,
+          "teamName": "Alpha Team",
+          "teamVersion": "1.0",
+          "isDroid": false,
+          "debuggerAttached": false
+        },
+        {
+          "id": 2,
+          "sessionId": "session-droid",
+          "name": "Team Droid",
+          "version": "1.0",
+          "authors": ["Alice"],
+          "teamId": 3,
+          "teamName": "Alpha Team",
+          "teamVersion": "1.0",
+          "isDroid": true,
+          "debuggerAttached": false
+        },
+        {
+          "id": 3,
+          "sessionId": "session-solo",
+          "name": "Solo",
+          "version": "1.0",
+          "authors": ["Bob"],
+          "isDroid": false,
+          "debuggerAttached": false
+        }
+      ]
+    },
+    {
+      "type": "GameEndedEventForObserver",
+      "numberOfRounds": 1,
+      "results": [
+        {
+          "id": 3,
+          "name": "Alpha Team",
+          "version": "1.0",
+          "rank": 1,
+          "isTeam": true,
+          "survival": 50,
+          "lastSurvivorBonus": 0,
+          "bulletDamage": 50,
+          "bulletKillBonus": 0,
+          "ramDamage": 0,
+          "ramKillBonus": 0,
+          "totalScore": 100,
+          "firstPlaces": 1,
+          "secondPlaces": 0,
+          "thirdPlaces": 0
+        },
+        {
+          "id": 3,
+          "name": "Solo",
+          "version": "1.0",
+          "rank": 2,
+          "isTeam": false,
+          "survival": 50,
+          "lastSurvivorBonus": 0,
+          "bulletDamage": 40,
+          "bulletKillBonus": 0,
+          "ramDamage": 0,
+          "ramKillBonus": 0,
+          "totalScore": 90,
+          "firstPlaces": 0,
+          "secondPlaces": 1,
+          "thirdPlaces": 0
+        }
+      ]
+    }
+  ]
+}

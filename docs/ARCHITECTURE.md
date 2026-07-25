@@ -416,7 +416,15 @@ The panel should slide in/out smoothly and auto-hide when connection is establis
 - Stores bot states (position, direction, energy, colors)
 - Stores bullet states (position, direction, power)
 - Tracks round and turn numbers
-- Accumulates results for display
+- Stores participant identity used when preparing team results
+
+#### Result Preparation (`resultPreparation.ts`)
+- Collapses repeated result records by bot or team name and averages every
+  displayed score component
+- Sorts by total score descending, then participant ID and name
+- Assigns shared placements such as `1, 2, 2, 4` for equal total scores
+- Identifies teams by matching both result ID and name against participants
+- Produces the single ordered result set used by the UI and rating providers
 
 #### Rendering Module (`rendering/`)
 A modular system for GPU-accelerated battle visualization:

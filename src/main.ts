@@ -6,8 +6,10 @@ import * as ui from './ui.js'
 import * as gameState from './gameState.js'
 import * as ratings from './ratings.js'
 import { purgeInactiveTeams } from './teamColors.js'
-import type { BotInfo, BotResult } from './ui.js'
+import { prepareResults } from './resultPreparation.js'
+import type { BotInfo } from './ui.js'
 import type { BotState, BulletState, GameSetup, Participant } from './gameState.js'
+import type { BattleResult, PreparedResult } from './resultPreparation.js'
 
 // PixiJS is large (~580 kB). Loading the rendering module dynamically lets
 // Vite split it into a separate chunk that downloads in parallel with the
@@ -36,9 +38,14 @@ interface GameStartedMessage {
   participants: Participant[]
 }
 
+interface GameEndedMessage {
+  type: string
+  results: BattleResult[]
+}
+
 let lastSettings = ui.getSettings()
 let currentBots: BotInfo[] = []
-let lastResults: { results: BotResult[]; oldRatings: ReturnType<typeof ui.captureRatingsSnapshot> } | null = null
+let lastResults: { results: PreparedResult[]; oldRatings: ReturnType<typeof ui.captureRatingsSnapshot> } | null = null
 let battleInProgress = false
 
 function clearBattleState(): void {
@@ -109,7 +116,7 @@ const connection = createConnection({
   },
   onError: (msg) => ui.showToast(`Server: ${msg}`),
   onMessage: (msg) => {
-    const m = msg as { type: string; bots?: BotInfo[]; results?: BotResult[] }
+    const m = msg as { type: string; bots?: BotInfo[] }
     switch (m.type) {
       case 'BotListUpdate': {
         currentBots = m.bots || []
@@ -155,33 +162,18 @@ const connection = createConnection({
         battleInProgress = false
         renderer.hide()
         ui.hideRoundTurn()
-        const results = m.results || []
+        const gameEndedMsg = msg as GameEndedMessage
+        const results = prepareResults(
+          gameEndedMsg.results || [],
+          gameState.getState().participants.values()
+        )
         // Capture old ratings before update for delta display
         const oldRatings = ui.captureRatingsSnapshot(results)
-        // Preprocess results: deduplicate by name (works for both teams and solo bots)
-        // Use r.name directly - server provides teamName for teams, botName for solo bots
-        const botScores = new Map<string, { version: string; scores: number[] }>()
-        for (const r of results) {
-          const existing = botScores.get(r.name)
-          if (existing) {
-            existing.scores.push(r.totalScore)
-          } else {
-            botScores.set(r.name, { version: r.version, scores: [r.totalScore] })
-          }
-        }
-
-        // Skip rating update if only 1 unique bot (battled itself)
-        if (botScores.size >= 2) {
-          // Calculate average score per bot and create ranking
-          const averaged = [...botScores.entries()].map(([name, data]) => ({
-            name,
-            version: data.version,
-            avgScore: data.scores.reduce((a, b) => a + b, 0) / data.scores.length
-          }))
-          averaged.sort((a, b) => b.avgScore - a.avgScore)
-          const rankedResults = averaged.map((r, i) => ({ name: r.name, version: r.version, rank: i + 1 }))
-          ratings.updateRatings(rankedResults)
-        }
+        ratings.updateRatings(results.map(result => ({
+          name: result.name,
+          version: result.version,
+          rank: result.placement
+        })))
         // Refresh bot list with updated tiers
         ui.updateBotList(currentBots)
         // Store for re-render on settings change

@@ -65,6 +65,7 @@ tank-royale-viewer/
     ├── style.css         # Application styles
     ├── settings.ts       # Persisted settings (localStorage) (+ test)
     ├── ratings.ts        # Skill rating storage (algorithm-agnostic) (+ test)
+    ├── resultPreparation.ts # Result ordering, aggregation, placement (+ test)
     ├── ratingProviders/   # Pluggable rating algorithm implementations
     │   ├── index.ts       # RatingProvider strategy interface + factory
     │   ├── openskill.ts   # OpenSkill (default, patent-free)
@@ -154,8 +155,8 @@ npm run test:e2e
 The browser tests start Vite and mock the Tank Royale WebSocket at the browser
 boundary. They replay a sanitized server 1.0.2 battle from the waiting view
 through final results and verify cleanup across abort, disconnect, reconnect,
-server URL changes, reload, and subsequent battles. They do not require a live
-Tank Royale server.
+server URL changes, reload, subsequent battles, team identity, and shared
+placements. They do not require a live Tank Royale server.
 
 ## Testing with Tank Royale
 

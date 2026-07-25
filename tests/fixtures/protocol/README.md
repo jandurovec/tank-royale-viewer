@@ -15,6 +15,11 @@ The messages follow the official Tank Royale schemas at commit
 - Its bot-list snapshots are constructed from the observed participant
   metadata, and its one-round `RoundEndedEventForObserver` reuses the final
   results as the server does.
+- `team-id-collision-battle.json` is a schema-derived fragment that gives a
+  team and a solo bot the same numeric ID. It verifies that participant name
+  and ID are both used for team identity.
+- `tied-results.json` is a schema-derived result fragment for deterministic
+  shared placements (`1, 2, 2, 4`).
 
 Do not infer that omitted turns or messages were absent from the original
 battle. Replay tests should treat this fixture as a condensed scenario, not a

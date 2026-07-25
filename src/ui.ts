@@ -12,8 +12,8 @@ import * as settings from './settings.js'
 import * as ratings from './ratings.js'
 import * as logoStorage from './logoStorage.js'
 import { getTeamColor } from './teamColors.js'
-import { getState } from './gameState.js'
 import type { BotTier } from './ratings.js'
+import type { PreparedResult } from './resultPreparation.js'
 import type { Theme } from './settings.js'
 
 const toastEl = document.getElementById('toast')!
@@ -650,42 +650,6 @@ export function hideBotList(): void {
   botListContainer.classList.remove('visible')
 }
 
-export interface BotResult {
-  id: number
-  name: string
-  version: string
-  // Note: server sends 'rank' but it's unreliable (always 0 for multi-member teams, stale for others)
-  // We compute rank locally by sorting by totalScore
-  totalScore: number
-  survival: number
-  lastSurvivorBonus: number
-  bulletDamage: number
-  bulletKillBonus: number
-  ramDamage: number
-  ramKillBonus: number
-  firstPlaces: number
-  secondPlaces: number
-  thirdPlaces: number
-}
-
-/**
- * Build a Set of "teamId:teamName" keys for quick team result detection.
- * Must check BOTH id AND name because teamId can collide with botId.
- *
- * This is ONLY needed for the team indicator in results. If the server API is
- * updated to explicitly mark results as team vs bot, this can be simplified to
- * just check a flag on the result object.
- */
-function buildTeamKeys(participantMap: Map<number, { teamId?: number; teamName?: string }>): Set<string> {
-  const keys = new Set<string>()
-  for (const p of participantMap.values()) {
-    if (p.teamId !== undefined && p.teamName) {
-      keys.add(`${p.teamId}:${p.teamName}`)
-    }
-  }
-  return keys
-}
-
 function bonusCell(value: number): string {
   return value ? `<td class="bonus">${value}</td>` : '<td class="bonus"></td>'
 }
@@ -720,7 +684,7 @@ export interface RatingsSnapshot {
   [botName: string]: { percentile: number | null; tier: BotTier }
 }
 
-export function captureRatingsSnapshot(results: BotResult[]): RatingsSnapshot {
+export function captureRatingsSnapshot(results: readonly PreparedResult[]): RatingsSnapshot {
   const snapshot: RatingsSnapshot = {}
   // Use result.name directly - server provides teamName for teams, botName for solo bots
   for (const r of results) {
@@ -732,34 +696,21 @@ export function captureRatingsSnapshot(results: BotResult[]): RatingsSnapshot {
   return snapshot
 }
 
-export function showResults(results: BotResult[], oldRatings?: RatingsSnapshot): void {
+export function showResults(results: readonly PreparedResult[], oldRatings?: RatingsSnapshot): void {
   resultsBackdrop.classList.add('visible')
   resultsContainer.classList.add('visible')
   botListContainer.classList.add('visible')
   botListContainer.classList.add('mini')
 
   const showRatingsCol = settings.get().showRatings
-  const participantMap = getState().participants
-
-  // Sort by totalScore descending (server rank is broken for teams)
-  const sorted = [...results].sort((a, b) => b.totalScore - a.totalScore)
-
-  // Build team lookup for O(1) detection
-  const teamKeys = buildTeamKeys(participantMap)
-
-  resultsBody.innerHTML = sorted.map((r, index) => {
-    // Compute rank locally (index + 1)
-    const computedRank = index + 1
-
-    // Team indicator (after version) for team results
-    const isTeam = teamKeys.has(`${r.id}:${r.name}`)
-    const teamIndicator = isTeam
+  resultsBody.innerHTML = results.map(r => {
+    const teamIndicator = r.isTeam
       ? ` <span class="team-indicator" data-tooltip="Team"><i class="fa-solid fa-fw fa-bookmark" style="color: ${getTeamColor(r.id)}"></i></span>`
       : ''
 
     const name = `${r.name} <span class="bot-version">${r.version}</span>${teamIndicator}`
-    const rankClass = computedRank === 1 ? 'gold' : computedRank === 2 ? 'silver' : computedRank === 3 ? 'bronze' : ''
-    const rankContent = rankClass ? `<span class="rank-medal ${rankClass}">${computedRank}</span>` : computedRank
+    const rankClass = r.placement === 1 ? 'gold' : r.placement === 2 ? 'silver' : r.placement === 3 ? 'bronze' : ''
+    const rankContent = rankClass ? `<span class="rank-medal ${rankClass}">${r.placement}</span>` : r.placement
 
     // Rating columns (conditional)
     let ratingCols = ''
