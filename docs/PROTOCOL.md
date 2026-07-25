@@ -130,13 +130,13 @@ Sent when a battle begins:
 }
 ```
 
-### RoundStartedEventForObserver
+### RoundStartedEvent
 
 Sent at the start of each round:
 
 ```json
 {
-  "type": "RoundStartedEventForObserver",
+  "type": "RoundStartedEvent",
   "roundNumber": 1
 }
 ```
@@ -249,6 +249,10 @@ Sent when a round ends:
   ]
 }
 ```
+
+The viewer accepts this event without changing view state or showing a
+per-round result overlay. Battle rendering continues with the next round. Only
+`GameEndedEventForObserver` opens the final results view.
 
 ### GameEndedEventForObserver
 

@@ -184,6 +184,10 @@ The viewer has four distinct states:
               (back to State 3)
 ```
 
+`RoundEndedEventForObserver` does not introduce another view state or show a
+per-round results overlay. The viewer remains in the battle view until the next
+round starts or the game ends. This matches the official Java GUI.
+
 ### Bot List Dock Transition
 
 When a battle starts, the bot list animates from centered to docked on the left. This keeps bot information at least partially visible during battles—fully visible on wide displays where the arena doesn't fill the viewport.
@@ -489,6 +493,9 @@ Key responsibilities:
 3. **Game State** updates internal state based on event
 4. **Renderer** reads state and updates graphics
 5. **UI** reads state and updates DOM
+
+Messages are processed in WebSocket delivery order. The viewer does not reorder
+ticks or add stale-message suppression within one connection.
 
 ## Coordinate System
 

@@ -1,0 +1,381 @@
+{
+  "description": "Condensed, sanitized two-bot battle based on expanded Tank Royale server 1.0.2 messages",
+  "schemaCommit": "86a4bd58514bcdc4d36f1dd374900e6eae3b29f3",
+  "serverVersion": "1.0.2",
+  "provenance": "Expanded game-start, selected tick, and game-end messages come from a real battle; bot lists and round end are constructed from those messages and server behavior; identifiers and addresses are sanitized",
+  "omittedTurnRanges": ["1-670", "672-1481"],
+  "messages": [
+    {
+      "type": "BotListUpdate",
+      "bots": []
+    },
+    {
+      "type": "BotListUpdate",
+      "bots": [
+        {
+          "sessionId": "session-walls",
+          "name": "Walls",
+          "version": "1.0",
+          "authors": ["Mathew Nelson", "Flemming N. Larsen"],
+          "description": "Moves around the outer edge with the gun facing in.",
+          "countryCodes": ["US", "DK"],
+          "gameTypes": [],
+          "platform": "JVM",
+          "programmingLang": "Java 11",
+          "isDroid": false,
+          "debuggerAttached": false,
+          "host": "127.0.0.1",
+          "port": 51001
+        }
+      ]
+    },
+    {
+      "type": "BotListUpdate",
+      "bots": [
+        {
+          "sessionId": "session-walls",
+          "name": "Walls",
+          "version": "1.0",
+          "authors": ["Mathew Nelson", "Flemming N. Larsen"],
+          "description": "Moves around the outer edge with the gun facing in.",
+          "countryCodes": ["US", "DK"],
+          "gameTypes": [],
+          "platform": "JVM",
+          "programmingLang": "Java 11",
+          "isDroid": false,
+          "debuggerAttached": false,
+          "host": "127.0.0.1",
+          "port": 51001
+        },
+        {
+          "sessionId": "session-ram-fire",
+          "name": "Ram Fire",
+          "version": "1.0",
+          "authors": ["Mathew Nelson", "Flemming N. Larsen"],
+          "description": "Drives at bots trying to ram them. Fires when it hits them.",
+          "countryCodes": ["US", "DK"],
+          "gameTypes": [],
+          "platform": "JVM",
+          "programmingLang": "Java 11",
+          "isDroid": false,
+          "debuggerAttached": false,
+          "host": "127.0.0.1",
+          "port": 51002
+        }
+      ]
+    },
+    {
+      "gameSetup": {
+        "gameType": "classic",
+        "arenaWidth": 800,
+        "isArenaWidthLocked": true,
+        "arenaHeight": 600,
+        "isArenaHeightLocked": true,
+        "minNumberOfParticipants": 2,
+        "isMinNumberOfParticipantsLocked": true,
+        "isMaxNumberOfParticipantsLocked": true,
+        "numberOfRounds": 1,
+        "isNumberOfRoundsLocked": true,
+        "gunCoolingRate": 0.1,
+        "isGunCoolingRateLocked": true,
+        "maxInactivityTurns": 450,
+        "isMaxInactivityTurnsLocked": true,
+        "turnTimeout": 30000,
+        "isTurnTimeoutLocked": false,
+        "readyTimeout": 1000000,
+        "isReadyTimeoutLocked": false,
+        "defaultTurnsPerSecond": 30
+      },
+      "participants": [
+        {
+          "id": 1,
+          "sessionId": "session-walls",
+          "name": "Walls",
+          "version": "1.0",
+          "authors": ["Mathew Nelson", "Flemming N. Larsen"],
+          "description": "Moves around the outer edge with the gun facing in.",
+          "countryCodes": ["US", "DK"],
+          "gameTypes": [],
+          "platform": "JVM",
+          "programmingLang": "Java 11",
+          "isDroid": false,
+          "debuggerAttached": false
+        },
+        {
+          "id": 2,
+          "sessionId": "session-ram-fire",
+          "name": "Ram Fire",
+          "version": "1.0",
+          "authors": ["Mathew Nelson", "Flemming N. Larsen"],
+          "description": "Drives at bots trying to ram them. Fires when it hits them.",
+          "countryCodes": ["US", "DK"],
+          "gameTypes": [],
+          "platform": "JVM",
+          "programmingLang": "Java 11",
+          "isDroid": false,
+          "debuggerAttached": false
+        }
+      ],
+      "type": "GameStartedEventForObserver"
+    },
+    {
+      "type": "RoundStartedEvent",
+      "roundNumber": 1
+    },
+    {
+      "roundNumber": 1,
+      "botStates": [
+        {
+          "id": 1,
+          "sessionId": "session-walls",
+          "name": "Walls",
+          "version": "1.0",
+          "isDroid": false,
+          "energy": 79.0,
+          "x": 782.0,
+          "y": 582.0,
+          "direction": 160.0,
+          "gunDirection": 250.0,
+          "radarDirection": 250.0,
+          "radarSweep": 10.0,
+          "speed": 0.0,
+          "turnRate": 10.0,
+          "gunTurnRate": 0.0,
+          "radarTurnRate": 0.0,
+          "gunHeat": 1.4,
+          "enemyCount": 1,
+          "bodyColor": "#000000",
+          "turretColor": "#000000",
+          "radarColor": "#FFA500",
+          "bulletColor": "#00FFFF",
+          "scanColor": "#00FFFF",
+          "isDebuggingEnabled": false
+        },
+        {
+          "id": 2,
+          "sessionId": "session-ram-fire",
+          "name": "Ram Fire",
+          "version": "1.0",
+          "isDroid": false,
+          "energy": 64.50693390313131,
+          "x": 442.32093513837793,
+          "y": 108.50743187690516,
+          "direction": 12.20827522362147,
+          "gunDirection": 12.20827522362147,
+          "radarDirection": 12.20827522362147,
+          "radarSweep": 0.0,
+          "speed": 8.0,
+          "turnRate": 0.0,
+          "gunTurnRate": 0.0,
+          "radarTurnRate": 0.0,
+          "gunHeat": 0.0,
+          "enemyCount": 1,
+          "bodyColor": "#999999",
+          "turretColor": "#888888",
+          "radarColor": "#666666",
+          "isDebuggingEnabled": false
+        }
+      ],
+      "bulletStates": [
+        {
+          "bulletId": 9,
+          "ownerId": 1,
+          "power": 2.0,
+          "x": 773.7359222112242,
+          "y": 570.6993354929429,
+          "direction": 233.8223196276569,
+          "color": "#00FFFF"
+        }
+      ],
+      "events": [
+        {
+          "bullet": {
+            "bulletId": 9,
+            "ownerId": 1,
+            "power": 2.0,
+            "x": 782.0,
+            "y": 582.0,
+            "direction": 233.8223196276569,
+            "color": "#00FFFF"
+          },
+          "turnNumber": 671,
+          "type": "BulletFiredEvent"
+        }
+      ],
+      "turnNumber": 671,
+      "type": "TickEventForObserver"
+    },
+    {
+      "roundNumber": 1,
+      "botStates": [
+        {
+          "id": 1,
+          "sessionId": "session-walls",
+          "name": "Walls",
+          "version": "1.0",
+          "isDroid": false,
+          "energy": 59.0,
+          "x": 522.0,
+          "y": 582.0,
+          "direction": 180.0,
+          "gunDirection": 270.0,
+          "radarDirection": 270.0,
+          "radarSweep": 0.0,
+          "speed": 8.0,
+          "turnRate": 0.0,
+          "gunTurnRate": 0.0,
+          "radarTurnRate": 0.0,
+          "gunHeat": 0.9999999999999997,
+          "enemyCount": 0,
+          "bodyColor": "#000000",
+          "turretColor": "#000000",
+          "radarColor": "#FFA500",
+          "bulletColor": "#00FFFF",
+          "scanColor": "#00FFFF",
+          "isDebuggingEnabled": false
+        },
+        {
+          "id": 2,
+          "sessionId": "session-ram-fire",
+          "name": "Ram Fire",
+          "version": "1.0",
+          "isDroid": false,
+          "energy": -5.3965887439836,
+          "x": 557.1820301285542,
+          "y": 77.56860283095887,
+          "direction": 83.12518197129563,
+          "gunDirection": 83.12518197129563,
+          "radarDirection": 83.12518197129563,
+          "radarSweep": 0.0,
+          "speed": 8.0,
+          "turnRate": 0.0,
+          "gunTurnRate": 0.0,
+          "radarTurnRate": 0.0,
+          "gunHeat": 0.0,
+          "enemyCount": 1,
+          "bodyColor": "#999999",
+          "turretColor": "#888888",
+          "radarColor": "#666666",
+          "isDebuggingEnabled": false
+        }
+      ],
+      "bulletStates": [
+        {
+          "bulletId": 25,
+          "ownerId": 1,
+          "power": 2.0,
+          "x": 560.7776161320866,
+          "y": 512.0106738303657,
+          "direction": 268.9994143337181,
+          "color": "#00FFFF"
+        }
+      ],
+      "events": [
+        {
+          "victimId": 2,
+          "bullet": {
+            "bulletId": 24,
+            "ownerId": 1,
+            "power": 2.0,
+            "x": 579.6166172863399,
+            "y": 89.99901788576051,
+            "direction": 247.64030582463047,
+            "color": "#00FFFF"
+          },
+          "damage": 10.0,
+          "energy": -5.3965887439836,
+          "turnNumber": 1482,
+          "type": "BulletHitBotEvent"
+        },
+        {
+          "victimId": 2,
+          "turnNumber": 1482,
+          "type": "BotDeathEvent"
+        }
+      ],
+      "turnNumber": 1482,
+      "type": "TickEventForObserver"
+    },
+    {
+      "type": "RoundEndedEventForObserver",
+      "roundNumber": 1,
+      "turnNumber": 1482,
+      "results": [
+        {
+          "id": 1,
+          "name": "Walls",
+          "isTeam": false,
+          "version": "1.0",
+          "rank": 1,
+          "survival": 50,
+          "lastSurvivorBonus": 10,
+          "bulletDamage": 85,
+          "bulletKillBonus": 16,
+          "ramDamage": 0,
+          "ramKillBonus": 0,
+          "totalScore": 162,
+          "firstPlaces": 1,
+          "secondPlaces": 0,
+          "thirdPlaces": 0
+        },
+        {
+          "id": 2,
+          "name": "Ram Fire",
+          "isTeam": false,
+          "version": "1.0",
+          "rank": 2,
+          "survival": 0,
+          "lastSurvivorBonus": 0,
+          "bulletDamage": 0,
+          "bulletKillBonus": 0,
+          "ramDamage": 0,
+          "ramKillBonus": 0,
+          "totalScore": 0,
+          "firstPlaces": 0,
+          "secondPlaces": 1,
+          "thirdPlaces": 0
+        }
+      ]
+    },
+    {
+      "numberOfRounds": 1,
+      "results": [
+        {
+          "id": 1,
+          "name": "Walls",
+          "isTeam": false,
+          "version": "1.0",
+          "rank": 1,
+          "survival": 50,
+          "lastSurvivorBonus": 10,
+          "bulletDamage": 85,
+          "bulletKillBonus": 16,
+          "ramDamage": 0,
+          "ramKillBonus": 0,
+          "totalScore": 162,
+          "firstPlaces": 1,
+          "secondPlaces": 0,
+          "thirdPlaces": 0
+        },
+        {
+          "id": 2,
+          "name": "Ram Fire",
+          "isTeam": false,
+          "version": "1.0",
+          "rank": 2,
+          "survival": 0,
+          "lastSurvivorBonus": 0,
+          "bulletDamage": 0,
+          "bulletKillBonus": 0,
+          "ramDamage": 0,
+          "ramKillBonus": 0,
+          "totalScore": 0,
+          "firstPlaces": 0,
+          "secondPlaces": 1,
+          "thirdPlaces": 0
+        }
+      ],
+      "type": "GameEndedEventForObserver"
+    }
+  ]
+}

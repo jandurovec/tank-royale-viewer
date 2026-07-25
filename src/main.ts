@@ -121,7 +121,7 @@ const connection = createConnection({
         renderer.show()
         break
       }
-      case 'RoundStartedEventForObserver': {
+      case 'RoundStartedEvent': {
         const roundMsg = msg as { roundNumber: number }
         gameState.setRound(roundMsg.roundNumber)
         break

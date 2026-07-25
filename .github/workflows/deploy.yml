@@ -24,7 +24,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm test -- --run
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:all
       - run: npm run build
         env:
           VITE_BASE_URL: /${{ github.event.repository.name }}/

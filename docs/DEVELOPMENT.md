@@ -31,6 +31,14 @@ npm run dev
 | `npm run preview` | Preview production build locally |
 | `npm run lint` | Run ESLint |
 | `npm run typecheck` | Run TypeScript type checking |
+| `npm run test:unit` | Run Vitest once |
+| `npm run test:e2e` | Run the Chromium battle-journey test |
+| `npm run test:all` | Run lint, type checking, unit tests, and browser tests |
+
+`npm run test:e2e` automatically installs the Playwright-managed Chromium
+version required by the locked dependency. No global or manual browser
+installation is required. GitHub Actions additionally installs Chromium's
+Linux system dependencies before running the same command.
 
 ## Project Structure
 
@@ -137,6 +145,17 @@ import type { BotState } from './types/protocol.js';
 
 ## Testing with Tank Royale
 
+### Automated Solo Battle Journey
+
+```bash
+npm run test:e2e
+```
+
+The browser test starts Vite, mocks the Tank Royale WebSocket at the browser
+boundary, completes the observer handshake, and replays a sanitized server
+1.0.2 battle from the waiting view through final results. It does not require a
+live Tank Royale server.
+
 ### Local Server Setup
 
 1. Ensure Java 11+ is installed
@@ -195,7 +214,7 @@ The production build:
 
 1. Create a feature branch
 2. Make changes with tests
-3. Run `npm run lint` and `npm run typecheck`
+3. Run `npm run test:all` and `npm run build`
 4. Submit a pull request
 
 See AGENTS.md for coding conventions that help maintain consistency.
