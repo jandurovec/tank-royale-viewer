@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -19,19 +22,19 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.0",
-    "@types/node": "^22.19.15",
-    "eslint": "^10.0.2",
+    "@types/node": "^24.13.3",
+    "eslint": "^10.8.0",
     "jsdom": "^29.1.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.56.1",
-    "vite": "^8.0.14",
-    "vitest": "^4.0.18"
+    "typescript-eslint": "^8.65.0",
+    "vite": "^8.1.5",
+    "vitest": "^4.1.10"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^7.2.0",
+    "@fortawesome/fontawesome-free": "^7.3.1",
     "flag-icons": "^7.5.0",
-    "openskill": "^4.1.0",
-    "pixi.js": "^8.16.0",
+    "openskill": "^5.0.1",
+    "pixi.js": "^8.19.0",
     "ts-trueskill": "^5.1.0"
   }
 }

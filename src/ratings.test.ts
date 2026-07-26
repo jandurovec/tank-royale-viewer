@@ -120,7 +120,7 @@ describe('updateRatings', () => {
   })
 
   // Frozen-reference canary: protects against silent algorithmic changes in openskill.
-  // Pinned to ±0.2 around observed values on openskill@4.1.0 with the project's
+  // Pinned to ±0.2 around observed values on openskill@5.0.1 with the project's
   // default mu/sigma/beta/tau. If this test fails after an openskill upgrade, the
   // rating algorithm or its defaults have changed and stored ratings should be
   // reset (or the bounds re-baselined consciously).

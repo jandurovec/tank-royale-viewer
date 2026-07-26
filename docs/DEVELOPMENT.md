@@ -4,11 +4,9 @@ This document describes how to set up the development environment and work on th
 
 ## Prerequisites
 
-- **Node.js** 22 or later (LTS recommended)
+- **Node.js** 24 or later (24 LTS is the tested CI baseline)
 - **npm** (comes with Node.js)
 - **Tank Royale Server** for testing (optional during UI development)
-
-> **Note:** Node.js 18 reached EOL in April 2025, and Node.js 20 EOL is April 2026. Use Node.js 22 LTS for longest support (until April 2027).
 
 ## Quick Start
 

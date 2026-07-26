@@ -40,7 +40,7 @@ If you want to modify the viewer or run it locally:
 
 #### Prerequisites
 
-- [Node.js](https://nodejs.org/) 22 LTS or later
+- [Node.js](https://nodejs.org/) 24 or later (24 LTS recommended)
 - [Tank Royale](https://github.com/robocode-dev/tank-royale/releases) (for running battles)
 
 #### Setup
