@@ -13,6 +13,7 @@ let currentArenaHeight = 0
 let logoTexture: Texture | null = null
 let logoSizeFraction = 0.5
 let logoOpacityFraction = 0.5
+let logoUpdateVersion = 0
 
 export function setLogoOpacity(fraction: number): void {
   logoOpacityFraction = fraction
@@ -30,6 +31,8 @@ export function setLogoSize(fraction: number): void {
 
 // Subscribe to logo changes
 logoStorage.onLogoChange(() => {
+  // A previous load may finish after the logo has been replaced or cleared.
+  logoUpdateVersion += 1
   // Clear cached texture so it reloads on next draw
   if (logoTexture) {
     logoTexture.destroy()
@@ -46,20 +49,22 @@ async function updateLogoSprite(
   arenaWidth: number,
   arenaHeight: number
 ): Promise<void> {
-  // Remove old logo if exists
-  const oldLogo = arenaContainer.getChildByLabel('arena-logo')
-  if (oldLogo) arenaContainer.removeChild(oldLogo)
+  const updateVersion = ++logoUpdateVersion
+
+  // Remove every previous logo. Concurrent updates may have left more than one.
+  for (const child of [...arenaContainer.children]) {
+    if (child.label === 'arena-logo') arenaContainer.removeChild(child)
+  }
 
   const logoData = logoStorage.getLogo()
   if (!logoData) return
 
   try {
     // Load texture from base64 data URL
-    if (!logoTexture) {
-      logoTexture = await Assets.load(logoData)
-    }
-    const texture = logoTexture
+    const texture = logoTexture ?? await Assets.load(logoData)
+    if (updateVersion !== logoUpdateVersion) return
     if (!texture) return
+    logoTexture = texture
 
     const logo = new Sprite(texture)
     logo.label = 'arena-logo'
