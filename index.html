@@ -15,26 +15,28 @@
     <button id="theme-btn" data-tooltip="Switch to light theme"><i class="fa-solid fa-sun"></i></button>
     <button id="settings-btn" data-tooltip="Settings">&#9881;</button>
     <div id="settings-panel">
-      <label>
-        Server URL
-        <input type="text" id="server-url" value="ws://localhost:7654" />
-      </label>
-      <label>
-        Secret (optional)
-        <input type="password" id="server-secret" value="" placeholder="Leave blank if not required" />
-      </label>
-      <label class="slider">
-        <span class="slider-label">Scan arc opacity</span>
-        <input type="range" id="scan-opacity" min="0" max="100" value="5" />
-        <span id="scan-opacity-value">5%</span>
-      </label>
-      <label class="checkbox">
-        <input type="checkbox" id="debug-log" />
-        Enable debug logging
-      </label>
-      <div class="settings-divider"></div>
-      <div class="settings-section">
-        <span class="settings-section-title">Arena Logo</span>
+      <section class="settings-section settings-general" aria-labelledby="general-settings-title">
+        <span id="general-settings-title" class="settings-section-title">General</span>
+        <label>
+          Server URL
+          <input type="text" id="server-url" value="ws://localhost:7654" />
+        </label>
+        <label>
+          Secret (optional)
+          <input type="password" id="server-secret" value="" placeholder="Leave blank if not required" />
+        </label>
+        <label class="slider">
+          <span class="slider-label">Scan arc opacity</span>
+          <input type="range" id="scan-opacity" min="0" max="100" value="5" />
+          <span id="scan-opacity-value">5%</span>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="debug-log" />
+          Enable debug logging
+        </label>
+      </section>
+      <section class="settings-section settings-arena-logo" aria-labelledby="arena-logo-settings-title">
+        <span id="arena-logo-settings-title" class="settings-section-title">Arena Logo</span>
         <div class="settings-button-row">
           <button type="button" id="upload-logo-btn"><i class="fa-solid fa-folder-open"></i> Upload</button>
           <button type="button" id="clear-logo-btn" class="danger"><i class="fa-solid fa-trash"></i> Remove</button>
@@ -50,10 +52,9 @@
           <input type="range" id="logo-size" min="10" max="100" value="50" />
           <span id="logo-size-value">50%</span>
         </label>
-      </div>
-      <div class="settings-divider"></div>
-      <div class="settings-section">
-        <span class="settings-section-title">Skill Ratings</span>
+      </section>
+      <section class="settings-section settings-skill-ratings" aria-labelledby="skill-ratings-settings-title">
+        <span id="skill-ratings-settings-title" class="settings-section-title">Skill Ratings</span>
         <div class="settings-row-with-actions">
           <label class="checkbox">
             <input type="checkbox" id="show-ratings" checked />
@@ -99,7 +100,41 @@
             <input type="number" id="rating-tau" min="0" max="100" step="0.001" value="0.083" />
           </label>
         </div>
-      </div>
+      </section>
+      <section class="settings-section settings-battle-feed" aria-labelledby="battle-feed-settings-title">
+        <span id="battle-feed-settings-title" class="settings-section-title">Battle Feed</span>
+        <label class="checkbox">
+          <input type="checkbox" id="show-battle-event-feed" checked />
+          Show battle feed
+        </label>
+        <fieldset id="battle-feed-event-options">
+          <legend>Events</legend>
+          <div class="battle-feed-event-column">
+            <label class="checkbox">
+              <input type="checkbox" id="show-round-winner-events" checked />
+              Round winners
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" id="show-aggregate-lead-events" checked />
+              Aggregate lead
+            </label>
+          </div>
+          <div class="battle-feed-event-column">
+            <label class="checkbox">
+              <input type="checkbox" id="show-elimination-events" checked />
+              Bot eliminations
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" id="show-bullet-hit-events" />
+              Bullet damage
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" id="show-ramming-events" />
+              Ramming
+            </label>
+          </div>
+        </fieldset>
+      </section>
     </div>
     <div id="bot-list-container">
       <div id="waiting-message">Waiting for bots to connect...</div>
@@ -144,6 +179,7 @@
       </table>
     </div>
     <div id="arena"></div>
+    <div id="battle-event-feed" aria-live="polite"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -369,12 +369,14 @@ The module maintains a map of allocated colors and returns freed colors to the p
 ### Settings Panel (Top-Right Gear Icon)
 
 Clicking the gear icon reveals a settings overlay:
-- Server WebSocket URL
-- Optional authentication secret
-- Connect/Disconnect button
-- Display options (if any)
+- A CSS Grid with General, Arena Logo, Skill Ratings, and Battle Feed sections
+  in row-major order
+- Persisted Battle Feed master and category controls. Disabling a category
+  removes its active feed cards immediately, but does not affect protocol
+  processing, scoring, round tracking, arena rendering, or hit effects.
 
-The panel should slide in/out smoothly and auto-hide when connection is established.
+The panel is anchored to the top-right and sizes its two columns responsively
+without TypeScript layout calculations.
 
 ## Application Architecture
 
@@ -445,6 +447,47 @@ Key responsibilities:
 - Renders bot components: body (square), turret, radar (future)
 - Displays visual effects (explosions, hit bursts)
 - Handles coordinate transform (Y-flip from game to screen)
+- Exposes the rendered arena's viewport rectangle and layout notifications for
+  DOM overlays without giving the renderer knowledge of those overlays
+
+Visual effects follow battle turns rather than elapsed time. Bot-death
+explosions contain 15 bursts over 50 turns, while bullet-hit effects span 25
+turns. The renderer maintains an internal effect turn across server round
+resets so an in-progress effect can continue into the next round. Starting or
+ending a game, aborting it, or disconnecting clears all active effects.
+
+#### Battle Event Feed (`broadcast/`)
+- `roundTracker.ts` turns cumulative round-result snapshots into semantic
+  round-winner and aggregate-lead events. It emits the round winner first,
+  followed by a newly entered aggregate leader when applicable. Participant
+  identity is the pair of `isTeam` and `id`, never the display name.
+- `tickEventReducer.ts` turns one tick's hit and death events into semantic
+  bullet-hit, ramming, and elimination events. A non-lethal collision is a
+  ramming event only when the protocol's `rammed` flag is exactly true. It
+  resolves names only from supplied participant IDs and handles reciprocal
+  collision events independently. A bullet hit or bot collision with remaining
+  victim energy at or below zero becomes an elimination instead of a routine
+  hit. The first lethal event per victim wins, a matching `BotDeathEvent` is
+  suppressed, and an unresolved attacker falls back to victim-only wording.
+  The reducer does not retain cross-tick state or infer an attacker.
+- `timedEventQueue.ts` retains round events, aggregate-lead changes, and
+  eliminations for five seconds, and bullet hits and ramming for two seconds
+  of wall-clock time. It clears every timer on battle lifecycle cleanup and can
+  remove a matching subset while clearing those events' expiry timers.
+- `eventFilter.ts` maps presentation-category choices to semantic events. It
+  has no dependency on persisted settings; `main.ts` supplies the current
+  choices when adding or removing feed notifications.
+- `eventFeed.ts` owns the event-feed DOM element, wording, card presentation,
+  and viewport/layout observers. It does not interpret protocol messages.
+- `feedPosition.ts` is a pure calculation that places the feed lane from 12px
+  past the arena through the viewport's 16px safe edge when that gutter is at
+  least its CSS-defined minimum width. Below that threshold it preserves the
+  minimum width, right-aligns it to the safe edge, and overlaps the arena only
+  by the shortfall. Extremely narrow viewports contract the lane between the
+  safe margins.
+- The renderer's `arenaViewportRect.ts` converts Pixi layout coordinates into
+  viewport-space geometry. The renderer supplies this geometry to the feed
+  through a callback.
 
 #### Settings (`settings.ts`)
 - Manages application settings with localStorage persistence
@@ -452,6 +495,9 @@ Key responsibilities:
 - Handles load/save with fallback to defaults on parse errors
 - Settings survive browser refresh
 - Includes `showRatings` toggle for enabling/disabling skill rating display
+- Includes persisted flat booleans for the battle-feed master and its five
+  supported visual categories; bullet-hit and ramming notifications default
+  to off
 
 #### UI (`ui.ts`)
 - Manages DOM elements for controls

@@ -22,6 +22,17 @@ describe('getDefaults', () => {
     settings.load()
     expect(settings.get().url).not.toBe('ws://hacked')
   })
+
+  it('enables the selected battle feed categories by default', () => {
+    expect(settings.getDefaults()).toMatchObject({
+      showBattleEventFeed: true,
+      showRoundWinnerEvents: true,
+      showAggregateLeadEvents: true,
+      showEliminationEvents: true,
+      showBulletHitEvents: false,
+      showRammingEvents: false
+    })
+  })
 })
 
 describe('save / load round-trip', () => {
@@ -50,6 +61,13 @@ describe('save / load round-trip', () => {
     expect(s.url).toBe('ws://first')
     expect(s.debug).toBe(true)
     expect(s.scanOpacity).toBe(99)
+  })
+
+  it('persists battle feed choices', () => {
+    settings.save({ showBattleEventFeed: false, showBulletHitEvents: true, showRammingEvents: true })
+    settings.__resetForTests()
+    settings.load()
+    expect(settings.get()).toMatchObject({ showBattleEventFeed: false, showBulletHitEvents: true, showRammingEvents: true })
   })
 })
 
@@ -94,5 +112,13 @@ describe('per-key type validation', () => {
     expect(loaded.url).toBe('ws://known')
     const asRecord = loaded as unknown as Record<string, unknown>
     expect(asRecord.unknownKey).toBeUndefined()
+  })
+
+  it('rejects battle feed values with invalid types', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ showBattleEventFeed: 'no', showBulletHitEvents: true, showRammingEvents: true }))
+    const loaded = settings.load()
+    expect(loaded.showBattleEventFeed).toBe(true)
+    expect(loaded.showBulletHitEvents).toBe(true)
+    expect(loaded.showRammingEvents).toBe(true)
   })
 })

@@ -1,6 +1,8 @@
 # Tank Royale WebSocket Protocol
 
 This document describes the WebSocket protocol used to communicate with the Tank Royale server as an observer.
+Viewer-specific rendering, state transitions, and broadcast behavior are
+documented in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Connection
 
@@ -196,8 +198,15 @@ Sent every turn with the complete game state:
     {
       "type": "BulletHitBotEvent",
       "turnNumber": 42,
-      "bulletId": 1,
       "victimId": 2,
+      "bullet": {
+        "bulletId": 1,
+        "ownerId": 1,
+        "power": 2.0,
+        "x": 300.0,
+        "y": 400.0,
+        "direction": 180.0
+      },
       "damage": 8.0,
       "energy": 92.0
     },
@@ -221,13 +230,13 @@ Events that can appear in the `events` array:
 | `BulletHitWallEvent` | A bullet hit the wall |
 | `ScannedBotEvent` | A bot scanned another bot |
 
-Visual effects follow battle turns rather than elapsed time. Bot death
-explosions contain 15 bursts with a 50-turn period, while bullet-hit effects
-have a 25-turn period. The viewer keeps an internal effect turn when the
-server's turn number resets, allowing an in-progress effect to continue into
-the next round. Starting or ending a game, aborting it, or disconnecting
-clears effects. If turns advance through an effect period before the next
-display frame, the animation can finish without being drawn.
+`BulletHitBotEvent` includes the complete `bullet` state, the victim ID, the
+damage dealt, and the victim's remaining energy after the hit.
+
+`BotHitBotEvent` is directional. It includes `botId`, `victimId`, the victim's
+remaining energy and position, and a `rammed` flag. The current server emits
+one observer event in each direction for a collision; `rammed` is `true` when
+the bot identified by `botId` drove into the victim.
 
 ### RoundEndedEventForObserver
 
@@ -258,9 +267,8 @@ Sent when a round ends:
 }
 ```
 
-The viewer accepts this event without changing view state or showing a
-per-round result overlay. Battle rendering continues with the next round. Only
-`GameEndedEventForObserver` opens the final results view.
+The score fields, including `firstPlaces` and `totalScore`, are accumulated
+through the completed round rather than containing just that round's values.
 
 ### GameEndedEventForObserver
 
@@ -298,17 +306,15 @@ For team battles, the server aggregates scores at the team level:
 - **Team result:** `id` = teamId, `name` = teamName, `version` = teamVersion
 - **Solo bot result:** `id` = botId, `name` = botName, `version` = botVersion
 
-**Known issues:**
+**Known protocol issues:**
 
-1. **ID collision:** Team IDs and bot IDs can have the same numeric value (e.g., Team 3 and Bot 3 can coexist). To detect whether a result is for a team, check if any participant has matching `teamId` AND `teamName`.
+1. **ID collision:** Team IDs and bot IDs can have the same numeric value
+   (for example, Team 3 and Bot 3 can coexist). A numeric result ID alone
+   therefore does not establish whether the result belongs to a team or bot.
 
 2. **Rank field unreliable:** The `rank` field is broken for team battles.
    Multi-member teams always have `rank=0` due to a server bug in score
-   aggregation. The viewer computes results once for both display and ratings:
-   repeated names are collapsed by averaging their score fields, results are
-   sorted by `totalScore` descending and then by participant ID and name, and
-   equal totals receive shared placements such as `1, 2, 2, 4`. A self-battle
-   therefore produces one prepared participant and does not update ratings.
+   aggregation.
 
 ### GameAbortedEvent
 
@@ -319,10 +325,6 @@ Sent if the game is aborted:
   "type": "GameAbortedEvent"
 }
 ```
-
-The viewer returns to the waiting view, retaining the current connected-bot
-list while clearing battle graphics, effects, round and turn indicators, and
-any previous results.
 
 ## Bot Constants
 

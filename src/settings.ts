@@ -19,6 +19,12 @@ export interface Settings {
   ratingSigma: number
   ratingBeta: number
   ratingTau: number
+  showBattleEventFeed: boolean
+  showRoundWinnerEvents: boolean
+  showAggregateLeadEvents: boolean
+  showEliminationEvents: boolean
+  showBulletHitEvents: boolean
+  showRammingEvents: boolean
 }
 
 // Default rating parameters (μ=25, σ=μ/3, β=σ/2, τ=μ/300).
@@ -44,7 +50,13 @@ const DEFAULTS: Settings = {
   ratingMu: RATING_MU,
   ratingSigma: RATING_SIGMA,
   ratingBeta: RATING_BETA,
-  ratingTau: RATING_TAU
+  ratingTau: RATING_TAU,
+  showBattleEventFeed: true,
+  showRoundWinnerEvents: true,
+  showAggregateLeadEvents: true,
+  showEliminationEvents: true,
+  showBulletHitEvents: false,
+  showRammingEvents: false
 }
 
 function isRatingAlgorithm(value: unknown): value is RatingAlgorithm {

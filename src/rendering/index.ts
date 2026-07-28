@@ -11,6 +11,8 @@ import { renderBullets } from './bullets.js'
 import { renderEffects, clearEffects } from './effects.js'
 import { placeTransientLayers } from './layers.js'
 import { getTeamColorNumeric } from '../teamColors.js'
+import { getArenaViewportRect as calculateArenaViewportRect } from './arenaViewportRect.js'
+import type { ArenaViewportRect } from './arenaViewportRect.js'
 
 // Re-export effects API for main.ts
 export {
@@ -35,6 +37,7 @@ let effectsGraphics: Graphics | null = null
 let arenaWidth = 0
 let arenaHeight = 0
 let scale = 1
+const layoutListeners = new Set<(rect: ArenaViewportRect | null) => void>()
 
 export async function init(container: HTMLElement): Promise<void> {
   app = new Application()
@@ -59,6 +62,13 @@ export async function init(container: HTMLElement): Promise<void> {
   // Listen to renderer resize event (fires after PixiJS updates screen dimensions)
   app.renderer.on('resize', updateLayout)
   app.ticker.add(render)
+  updateLayout()
+}
+
+export function onArenaLayoutChange(listener: (rect: ArenaViewportRect | null) => void): () => void {
+  layoutListeners.add(listener)
+  listener(getArenaViewportRect())
+  return () => layoutListeners.delete(listener)
 }
 
 export function setArenaSize(width: number, height: number): void {
@@ -85,6 +95,27 @@ function updateLayout(): void {
 
   // Draw arena background
   drawArenaBackground(arenaContainer, arenaWidth, arenaHeight, scale)
+  notifyLayoutListeners()
+}
+
+function getArenaViewportRect(): ArenaViewportRect | null {
+  if (!app || !arenaContainer) return null
+  const canvasRect = app.canvas.getBoundingClientRect()
+  return calculateArenaViewportRect(
+    { left: canvasRect.left, top: canvasRect.top, width: canvasRect.width, height: canvasRect.height },
+    app.screen.width,
+    app.screen.height,
+    arenaContainer.x,
+    arenaContainer.y,
+    arenaContainer.scale.x,
+    arenaWidth,
+    arenaHeight
+  )
+}
+
+function notifyLayoutListeners(): void {
+  const rect = getArenaViewportRect()
+  for (const listener of layoutListeners) listener(rect)
 }
 
 function render(): void {
@@ -138,12 +169,14 @@ export function show(): void {
   if (app) {
     app.canvas.style.display = 'block'
   }
+  updateLayout()
 }
 
 export function hide(): void {
   if (app) {
     app.canvas.style.display = 'none'
   }
+  notifyLayoutListeners()
   // Remove bot graphics from container and clear map
   if (arenaContainer) {
     for (const [, container] of botGraphics) {
@@ -169,4 +202,5 @@ export function destroy(): void {
   }
   arenaContainer = null
   botGraphics.clear()
+  layoutListeners.clear()
 }

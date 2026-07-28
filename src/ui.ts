@@ -48,12 +48,20 @@ const logoOpacityValue = document.getElementById('logo-opacity-value')!
 const logoSizeSlider = document.getElementById('logo-size') as HTMLInputElement
 const logoSizeValue = document.getElementById('logo-size-value')!
 const uploadLogoFile = document.getElementById('upload-logo-file') as HTMLInputElement
+const showBattleEventFeedCheckbox = document.getElementById('show-battle-event-feed') as HTMLInputElement
+const battleFeedEventOptions = document.getElementById('battle-feed-event-options') as HTMLFieldSetElement
+const showRoundWinnerEventsCheckbox = document.getElementById('show-round-winner-events') as HTMLInputElement
+const showAggregateLeadEventsCheckbox = document.getElementById('show-aggregate-lead-events') as HTMLInputElement
+const showEliminationEventsCheckbox = document.getElementById('show-elimination-events') as HTMLInputElement
+const showBulletHitEventsCheckbox = document.getElementById('show-bullet-hit-events') as HTMLInputElement
+const showRammingEventsCheckbox = document.getElementById('show-ramming-events') as HTMLInputElement
 
 let scanOpacityCallback: ((opacity: number) => void) | null = null
 let logoOpacityCallback: ((opacity: number) => void) | null = null
 let logoSizeCallback: ((size: number) => void) | null = null
 let showRatingsCallback: ((show: boolean) => void) | null = null
 let connectionSettingsCallback: (() => void) | null = null
+let battleFeedSettingsCallback: (() => void) | null = null
 
 // Icon and tooltip both describe what clicking will do next — sun + "Switch
 // to light theme" while currently dark, moon + "Switch to dark theme" while
@@ -203,6 +211,13 @@ function initSettingsForm(): void {
   ratingSigmaInput.value = String(s.ratingSigma)
   ratingBetaInput.value = String(s.ratingBeta)
   ratingTauInput.value = String(s.ratingTau)
+  showBattleEventFeedCheckbox.checked = s.showBattleEventFeed
+  showRoundWinnerEventsCheckbox.checked = s.showRoundWinnerEvents
+  showAggregateLeadEventsCheckbox.checked = s.showAggregateLeadEvents
+  showEliminationEventsCheckbox.checked = s.showEliminationEvents
+  showBulletHitEventsCheckbox.checked = s.showBulletHitEvents
+  showRammingEventsCheckbox.checked = s.showRammingEvents
+  battleFeedEventOptions.disabled = !s.showBattleEventFeed
 }
 
 initSettingsForm()
@@ -246,6 +261,33 @@ showRatingsCheckbox.addEventListener('change', () => {
     showRatingsCallback(showRatingsCheckbox.checked)
   }
 })
+
+showBattleEventFeedCheckbox.addEventListener('change', () => {
+  settings.save({ showBattleEventFeed: showBattleEventFeedCheckbox.checked })
+  battleFeedEventOptions.disabled = !showBattleEventFeedCheckbox.checked
+  battleFeedSettingsCallback?.()
+})
+
+const battleFeedEventCheckboxes = [
+  showRoundWinnerEventsCheckbox,
+  showAggregateLeadEventsCheckbox,
+  showEliminationEventsCheckbox,
+  showBulletHitEventsCheckbox,
+  showRammingEventsCheckbox
+]
+
+for (const checkbox of battleFeedEventCheckboxes) {
+  checkbox.addEventListener('change', () => {
+    settings.save({
+      showRoundWinnerEvents: showRoundWinnerEventsCheckbox.checked,
+      showAggregateLeadEvents: showAggregateLeadEventsCheckbox.checked,
+      showEliminationEvents: showEliminationEventsCheckbox.checked,
+      showBulletHitEvents: showBulletHitEventsCheckbox.checked,
+      showRammingEvents: showRammingEventsCheckbox.checked
+    })
+    battleFeedSettingsCallback?.()
+  })
+}
 
 // Live update for ranked games threshold
 rankedGamesThresholdInput.addEventListener('change', () => {
@@ -416,6 +458,10 @@ export function onShowRatingsChange(callback: (show: boolean) => void): void {
 
 export function onConnectionSettingsChange(callback: () => void): void {
   connectionSettingsCallback = callback
+}
+
+export function onBattleFeedSettingsChange(callback: () => void): void {
+  battleFeedSettingsCallback = callback
 }
 
 export function closeSettings(): void {

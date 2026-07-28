@@ -14,6 +14,7 @@
    defined only in :root and intentionally not overridden in light theme.
    ========================================================================== */
 :root {
+  --battle-event-feed-min-width: 230px;
   /* Base colors */
   --color-bg: #1a1a1a;
   --color-text: #fff;
@@ -29,12 +30,22 @@
   --color-overlay: rgba(0, 0, 0, 0.6);
   --color-overlay-heavy: rgba(0, 0, 0, 0.85);
   --color-panel-bg: rgba(45, 45, 45, 0.95);
+  --color-settings-section-bg: rgba(32, 32, 32, 0.78);
 
   /* Status bar pills (always dark, never themed). */
   --color-status-bg: rgba(0, 0, 0, 0.6);
   --color-status-bg-mid: rgba(50, 50, 50, 0.8);
   --color-status-bg-soft: rgba(75, 75, 75, 0.8);
   --color-status-text: #fff;
+
+  /* Battle event feed (always dark, never themed). */
+  --color-battle-event-background: rgba(12, 16, 24, 0.78);
+  --color-battle-event-text: #fff;
+  --color-battle-event-shadow: rgba(0, 0, 0, 0.7);
+  --color-battle-event-round-winner-accent: #d5a843;
+  --color-battle-event-aggregate-lead-accent: #7edc9a;
+  --color-battle-event-elimination-accent: #d75a5a;
+  --color-battle-event-hit-accent: #d2d6dc;
 
   /* Borders and dividers */
   --color-border: #555;
@@ -82,6 +93,7 @@
   --color-overlay: rgba(255, 255, 255, 0.75);
   --color-overlay-heavy: rgba(255, 255, 255, 0.92);
   --color-panel-bg: rgba(252, 252, 252, 0.97);
+  --color-settings-section-bg: #f2f2f2;
 
   --color-border: #c8c8c8;
   --color-border-subtle: #d8d8d8;
@@ -241,12 +253,18 @@ body {
   border-radius: 8px;
   padding: 16px;
   z-index: 100;
-  flex-direction: column;
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    "general arena-logo"
+    "skill-ratings battle-feed";
+  gap: 14px 16px;
+  width: min(720px, calc(100vw - 32px));
+  max-height: calc(100vh - 76px);
+  box-sizing: border-box;
 }
 
 #settings-panel.open {
-  display: flex;
+  display: grid;
 }
 
 #settings-panel label {
@@ -274,7 +292,8 @@ body {
   padding: 8px;
   color: var(--color-text);
   font-size: 14px;
-  width: 320px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 #settings-panel input[type="checkbox"] {
@@ -287,7 +306,7 @@ body {
   align-items: center;
   gap: 8px;
   color: var(--color-text-secondary);
-  width: 320px;
+  width: 100%;
 }
 
 #settings-panel .slider-label {
@@ -356,17 +375,19 @@ body {
   background: var(--color-danger-hover);
 }
 
-.settings-divider {
-  height: 1px;
-  background: var(--color-border-subtle);
-  margin: 8px 0;
-}
-
 .settings-section {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  background: var(--color-settings-section-bg);
+  border-radius: 6px;
+  padding: 10px;
 }
+
+.settings-general { grid-area: general; }
+.settings-arena-logo { grid-area: arena-logo; }
+.settings-skill-ratings { grid-area: skill-ratings; }
+.settings-battle-feed { grid-area: battle-feed; }
 
 .settings-row-with-actions {
   display: flex;
@@ -401,7 +422,7 @@ body {
 .settings-param-row {
   display: flex;
   gap: 8px;
-  width: 320px;
+  width: 100%;
 }
 
 .settings-param-row .param-input {
@@ -419,6 +440,65 @@ body {
   padding: 6px;
   font-size: 12px;
   box-sizing: border-box;
+}
+
+#battle-feed-event-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 12px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 4px;
+}
+
+#battle-feed-event-options legend {
+  padding: 0 4px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.battle-feed-event-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+#battle-feed-event-options label.checkbox {
+  white-space: nowrap;
+}
+
+#battle-feed-event-options:disabled {
+  opacity: 0.5;
+}
+
+@media (max-width: 760px) {
+  #settings-panel {
+    gap: 10px 12px;
+    padding: 12px;
+  }
+
+  #settings-panel .slider-label {
+    min-width: 82px;
+  }
+
+  #settings-panel input[type="text"],
+  #settings-panel input[type="password"],
+  #settings-panel input[type="number"] {
+    padding: 6px;
+  }
+}
+
+@media (max-height: 650px) {
+  #settings-panel {
+    gap: 10px 12px;
+    padding: 12px;
+  }
+
+  .settings-section {
+    padding: 8px;
+  }
 }
 
 #bot-list-container {
@@ -696,6 +776,54 @@ body {
 
 #arena canvas {
   display: block;
+}
+
+#battle-event-feed {
+  position: fixed;
+  width: min(var(--battle-event-feed-min-width), calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.battle-event-feed-card {
+  width: fit-content;
+  max-width: 100%;
+  padding: 10px 12px;
+  background: var(--color-battle-event-background);
+  color: var(--color-battle-event-text);
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-shadow: 0 1px 2px var(--color-battle-event-shadow);
+}
+
+.battle-event-feed-card strong {
+  font-weight: 700;
+}
+
+.battle-event-feed-card--round-winner {
+  border-left: 3px solid var(--color-battle-event-round-winner-accent);
+}
+
+.battle-event-feed-card--aggregate-lead {
+  border-left: 3px solid var(--color-battle-event-aggregate-lead-accent);
+}
+
+.battle-event-feed-card--bullet-hit {
+  border-left: 3px solid var(--color-battle-event-hit-accent);
+}
+
+.battle-event-feed-card--ramming {
+  border-left: 3px solid var(--color-battle-event-hit-accent);
+}
+
+.battle-event-feed-card--elimination {
+  border-left: 3px solid var(--color-battle-event-elimination-accent);
 }
 
 /* Rank tier column */

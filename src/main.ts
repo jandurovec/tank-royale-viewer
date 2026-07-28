@@ -7,7 +7,13 @@ import * as gameState from './gameState.js'
 import * as ratings from './ratings.js'
 import { purgeInactiveTeams } from './teamColors.js'
 import { prepareResults } from './resultPreparation.js'
+import { BattleEventFeed, presentBattleEvents } from './broadcast/eventFeed.js'
+import { RoundTracker, type RoundResult } from './broadcast/roundTracker.js'
+import { TimedEventQueue } from './broadcast/timedEventQueue.js'
+import { filterBattleEvents, isBattleEventEnabled } from './broadcast/eventFilter.js'
+import { reduceTickBroadcastEvents, type BroadcastTickEvent } from './broadcast/tickEventReducer.js'
 import type { BotInfo } from './ui.js'
+import type { BattleBroadcastEvent } from './broadcast/events.js'
 import type { BotState, BulletState, GameSetup, Participant } from './gameState.js'
 import type { BattleResult, PreparedResult } from './resultPreparation.js'
 
@@ -15,6 +21,9 @@ import type { BattleResult, PreparedResult } from './resultPreparation.js'
 // Vite split it into a separate chunk that downloads in parallel with the
 // main bundle, shrinking the initial JS that the browser must parse.
 const renderer = await import('./rendering/index.js')
+const arenaContainer = document.getElementById('arena')!
+const eventFeedElement = document.getElementById('battle-event-feed')!
+const eventFeed = new BattleEventFeed(eventFeedElement)
 
 interface TickMessage {
   type: string
@@ -25,11 +34,23 @@ interface TickMessage {
   events: TickEvent[]
 }
 
+interface EventBullet {
+  readonly bulletId: number
+  readonly ownerId: number
+  readonly power: number
+  readonly x: number
+  readonly y: number
+}
+
 interface TickEvent {
-  type: string
-  victimId?: number
-  bullet?: { x: number; y: number }
-  hitBullet?: { x: number; y: number }
+  readonly type: string
+  readonly victimId?: number
+  readonly botId?: number
+  readonly bullet?: EventBullet
+  readonly hitBullet?: { readonly x: number; readonly y: number }
+  readonly damage?: number
+  readonly energy?: number
+  readonly rammed?: boolean
 }
 
 interface GameStartedMessage {
@@ -43,13 +64,31 @@ interface GameEndedMessage {
   results: BattleResult[]
 }
 
+interface RoundEndedMessage {
+  type: string
+  roundNumber: number
+  results: RoundResult[]
+}
+
 let lastSettings = ui.getSettings()
 let currentBots: BotInfo[] = []
 let lastResults: { results: PreparedResult[]; oldRatings: ReturnType<typeof ui.captureRatingsSnapshot> } | null = null
 let battleInProgress = false
+const roundTracker = new RoundTracker()
+const eventQueue = new TimedEventQueue(events => eventFeed.setItems(presentBattleEvents(events)))
+
+function addBattleFeedEvents(events: readonly BattleBroadcastEvent[]): void {
+  eventQueue.add(filterBattleEvents(events, ui.getSettings()))
+}
+
+function clearEventFeed(): void {
+  eventQueue.clear()
+  roundTracker.clear()
+}
 
 function clearBattleState(): void {
   battleInProgress = false
+  clearEventFeed()
   lastResults = null
   ui.hideResults()
   ui.hideRoundTurn()
@@ -145,6 +184,11 @@ const connection = createConnection({
         gameState.setRound(roundMsg.roundNumber)
         break
       }
+      case 'RoundEndedEventForObserver': {
+        const roundEndedMsg = msg as RoundEndedMessage
+        addBattleFeedEvents(roundTracker.process(roundEndedMsg.roundNumber, roundEndedMsg.results || []))
+        break
+      }
       case 'TickEventForObserver': {
         const tickMsg = msg as TickMessage
         gameState.updateTick(tickMsg.roundNumber, tickMsg.turnNumber, tickMsg.botStates, tickMsg.bulletStates || [])
@@ -152,6 +196,10 @@ const connection = createConnection({
         renderer.setCurrentTurn(tickMsg.turnNumber)
         // Update round/turn display
         ui.showRoundTurn(tickMsg.roundNumber, tickMsg.turnNumber)
+        addBattleFeedEvents(reduceTickBroadcastEvents(
+          tickMsg.events as BroadcastTickEvent[],
+          gameState.getState().participants
+        ))
         // Process events for effects
         for (const event of tickMsg.events || []) {
           processTickEvent(event, tickMsg.botStates)
@@ -160,6 +208,7 @@ const connection = createConnection({
       }
       case 'GameEndedEventForObserver': {
         battleInProgress = false
+        clearEventFeed()
         renderer.hide()
         ui.hideRoundTurn()
         const gameEndedMsg = msg as GameEndedMessage
@@ -202,6 +251,15 @@ ui.onConnectionSettingsChange(() => {
   }
 })
 
+ui.onBattleFeedSettingsChange(() => {
+  const feedSettings = ui.getSettings()
+  if (!feedSettings.showBattleEventFeed) {
+    eventQueue.clear()
+    return
+  }
+  eventQueue.removeWhere(event => !isBattleEventEnabled(event, feedSettings))
+})
+
 // Subscribe to showRatings changes to re-render tables
 ui.onShowRatingsChange(() => {
   // Bot list content can be updated anytime (doesn't change visibility)
@@ -214,10 +272,9 @@ ui.onShowRatingsChange(() => {
   }
 })
 
-// Initialize renderer
-const arenaContainer = document.getElementById('arena')!
 renderer.init(arenaContainer).then(() => {
   renderer.hide()
+  renderer.onArenaLayoutChange(eventFeed.setArenaRect.bind(eventFeed))
   // Subscribe to scan opacity, logo opacity, and logo size changes
   ui.onScanOpacityChange(renderer.setScanOpacity)
   ui.onLogoOpacityChange(renderer.setLogoOpacity)
