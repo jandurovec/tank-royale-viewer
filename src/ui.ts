@@ -477,6 +477,7 @@ export function toggleSettings(): void {
 }
 
 export interface BotInfo {
+  sessionId?: string
   name: string
   version: string
   authors: string[]

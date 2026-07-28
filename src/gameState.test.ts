@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import {
   getState,
+  enrichParticipants,
   setGameSetup,
   setParticipants,
   setRound,
@@ -64,6 +65,42 @@ describe('gameState', () => {
     expect(getState().participants.size).toBe(1)
     expect(getState().participants.get(3)?.name).toBe('C')
     expect(getState().participants.get(1)).toBeUndefined()
+  })
+
+  it('enrichParticipants fills missing metadata without replacing authoritative values', () => {
+    setParticipants([
+      { id: 1, name: 'Authoritative', version: '1.0' },
+      { id: 3, name: '', version: '' }
+    ])
+
+    enrichParticipants([
+      {
+        id: 1,
+        sessionId: 'session-authoritative',
+        name: 'Tick name',
+        version: '2.0',
+        teamId: 4,
+        teamName: 'Tick Team',
+        teamVersion: '1.0'
+      },
+      { id: 2, name: 'Late joiner', version: '1.0' },
+      { id: 3, sessionId: 'session-missing', name: 'Filled name', version: '3.0' }
+    ])
+
+    expect(getState().participants.get(1)).toMatchObject({
+      sessionId: 'session-authoritative',
+      name: 'Authoritative',
+      version: '1.0',
+      teamId: 4,
+      teamName: 'Tick Team',
+      teamVersion: '1.0'
+    })
+    expect(getState().participants.get(2)).toMatchObject({ name: 'Late joiner', version: '1.0' })
+    expect(getState().participants.get(3)).toMatchObject({
+      sessionId: 'session-missing',
+      name: 'Filled name',
+      version: '3.0'
+    })
   })
 
   it('setRound resets turnNumber', () => {

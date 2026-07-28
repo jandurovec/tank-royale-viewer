@@ -105,11 +105,24 @@ describe('createConnection - basic lifecycle', () => {
     ws.message(SERVER_HANDSHAKE)
 
     expect(cb.onConnected).toHaveBeenCalledTimes(1)
+    expect(cb.onConnected).toHaveBeenCalledWith(null)
     expect(conn.isConnected()).toBe(true)
   })
 })
 
 describe('handshake response', () => {
+  it('forwards the exact game setup from ServerHandshake', () => {
+    const cb = makeCallbacks()
+    createConnection(cb).connect('ws://localhost:7654')
+    const ws = FakeWebSocket.instances[0]
+    const gameSetup = { arenaWidth: 1200, arenaHeight: 800, numberOfRounds: 3 }
+
+    ws.open()
+    ws.message({ ...SERVER_HANDSHAKE, gameSetup })
+
+    expect(cb.onConnected).toHaveBeenCalledWith(gameSetup)
+  })
+
   it('sends an ObserverHandshake with sessionId, name, version (no secret by default)', () => {
     const cb = makeCallbacks()
     createConnection(cb).connect('ws://localhost:7654')

@@ -1,0 +1,101 @@
+{
+  "description": "Condensed Tank Royale server 0.35.0 late-observer messages without GameStartedEventForObserver",
+  "serverVersion": "0.35.0",
+  "provenance": "Schema-derived late-observer scenario. Bot identities arrive in BotListUpdate; the tick intentionally has sessionId but omits name and version as in server 0.35.0.",
+  "messages": [
+    {
+      "type": "BotListUpdate",
+      "bots": [
+        {
+          "sessionId": "session-alice",
+          "name": "Alice Bot",
+          "version": "1.0",
+          "authors": ["Alice"],
+          "description": "Patrols the edge of the arena.",
+          "countryCodes": ["US"],
+          "gameTypes": [],
+          "platform": "JVM",
+          "programmingLang": "Java 11",
+          "isDroid": false,
+          "debuggerAttached": false,
+          "host": "127.0.0.1",
+          "port": 51001
+        },
+        {
+          "sessionId": "session-bob",
+          "name": "Bob Bot",
+          "version": "1.0",
+          "authors": ["Bob"],
+          "description": "Chases nearby opponents.",
+          "countryCodes": ["US"],
+          "gameTypes": [],
+          "platform": "JVM",
+          "programmingLang": "Java 11",
+          "isDroid": false,
+          "debuggerAttached": false,
+          "host": "127.0.0.1",
+          "port": 51002
+        }
+      ]
+    },
+    {
+      "type": "TickEventForObserver",
+      "roundNumber": 4,
+      "turnNumber": 321,
+      "botStates": [
+        {
+          "id": 1,
+          "sessionId": "session-alice",
+          "isDroid": false,
+          "energy": 80,
+          "x": 700,
+          "y": 500,
+          "direction": 180,
+          "gunDirection": 180,
+          "radarDirection": 180,
+          "radarSweep": 0,
+          "speed": 0,
+          "turnRate": 0,
+          "gunTurnRate": 0,
+          "radarTurnRate": 0,
+          "gunHeat": 0,
+          "enemyCount": 1,
+          "bodyColor": "#000000",
+          "turretColor": "#000000",
+          "radarColor": "#FFA500",
+          "isDebuggingEnabled": false
+        },
+        {
+          "id": 2,
+          "sessionId": "session-bob",
+          "isDroid": false,
+          "energy": 0,
+          "x": 100,
+          "y": 100,
+          "direction": 0,
+          "gunDirection": 0,
+          "radarDirection": 0,
+          "radarSweep": 0,
+          "speed": 0,
+          "turnRate": 0,
+          "gunTurnRate": 0,
+          "radarTurnRate": 0,
+          "gunHeat": 0,
+          "enemyCount": 1,
+          "bodyColor": "#999999",
+          "turretColor": "#888888",
+          "radarColor": "#666666",
+          "isDebuggingEnabled": false
+        }
+      ],
+      "bulletStates": [],
+      "events": [
+        {
+          "type": "BotDeathEvent",
+          "victimId": 2,
+          "turnNumber": 321
+        }
+      ]
+    }
+  ]
+}

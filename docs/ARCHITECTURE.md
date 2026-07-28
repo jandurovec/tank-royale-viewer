@@ -167,7 +167,7 @@ The viewer has four distinct states:
          +--> |   Waiting   | <------ on battle end
          |    |   (State 2) |         (show results)
          |    +------+------+
-         |           | on GameStarted (bot list docks to left)
+         |           | on game start or confirmed late join
          |           v
          |    +-------------+
          |    |   Battle    |
@@ -184,15 +184,29 @@ The viewer has four distinct states:
               (back to State 3)
 ```
 
+The viewer normally enters the battle state on
+`GameStartedEventForObserver`. A late observer can miss that event, so the
+viewer also caches the optional `gameSetup` from `ServerHandshake`. Because
+the server retains the last game's setup after the game finishes, the
+handshake alone does not prove that a battle is active. The first
+`TickEventForObserver` confirms activity and starts the battle with the cached
+setup. A tick received without a cached setup leaves the viewer in the waiting
+state.
+
+For late joins, participant names and versions come directly from tick bot
+states when available. With older servers, the viewer matches each tick bot's
+`sessionId` to `BotListUpdate`. A later `GameStartedEventForObserver` remains
+authoritative.
+
 `RoundEndedEventForObserver` does not introduce another view state or show a
 per-round results overlay. The viewer remains in the battle view until the next
 round starts or the game ends. This matches the official Java GUI.
 
 Disconnecting or changing the server connection clears the active battle,
-round and turn indicators, results, cached bot list, team colors, and renderer
-graphics before reconnecting. An aborted game clears battle and result state
-but preserves the current connected-bot list. Every new game clears the
-previous arena and results before initializing its own setup.
+round and turn indicators, results, cached bot list, cached handshake setup,
+team colors, and renderer graphics before reconnecting. An aborted game clears
+battle and result state but preserves the current connected-bot list. Every new
+game clears the previous arena and results before initializing its own setup.
 
 ### Bot List Dock Transition
 
@@ -408,6 +422,7 @@ without TypeScript layout calculations.
 #### Connection (`connection.ts`)
 - Establishes WebSocket connection to Tank Royale server
 - Performs observer handshake protocol
+- Forwards the optional handshake game setup for late-observer recovery
 - Parses incoming JSON messages into typed objects
 - Emits typed events for other components to handle
 - Handles reconnection on disconnect
@@ -418,7 +433,7 @@ without TypeScript layout calculations.
 - Stores bot states (position, direction, energy, colors)
 - Stores bullet states (position, direction, power)
 - Tracks round and turn numbers
-- Stores participant identity used when preparing team results
+- Stores and enriches participant identity used for rendering and team results
 
 #### Result Preparation (`resultPreparation.ts`)
 - Collapses repeated result records by bot or team name and averages every

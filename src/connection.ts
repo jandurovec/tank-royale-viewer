@@ -1,3 +1,5 @@
+import type { GameSetup } from './gameState.js'
+
 const RETRY_INTERVAL = 5000
 const CONNECT_TIMEOUT = 3000
 const VIEWER_NAME = 'Tank Royale Viewer'
@@ -5,7 +7,7 @@ const VIEWER_VERSION = '0.1.0'
 
 export interface ConnectionCallbacks {
   onConnecting: () => void
-  onConnected: () => void
+  onConnected: (gameSetup: GameSetup | null) => void
   onDisconnected: () => void
   onError: (message: string) => void
   onMessage: (msg: unknown) => void
@@ -43,7 +45,7 @@ export function createConnection(callbacks: ConnectionCallbacks): Connection {
       }
       callbacks.debug('Sending:', handshake)
       ws?.send(JSON.stringify(handshake))
-      callbacks.onConnected()
+      callbacks.onConnected(msg.gameSetup ?? null)
     } else {
       callbacks.onMessage(msg)
     }

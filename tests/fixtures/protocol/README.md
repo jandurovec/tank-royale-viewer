@@ -21,6 +21,10 @@ The messages follow the official Tank Royale schemas at commit
   and ID are both used for team identity.
 - `tied-results.json` is a schema-derived result fragment for deterministic
   shared placements (`1, 2, 2, 4`).
+- `late-observer-v035.json` is a server 0.35.0 late-observer fragment. It has
+  no `GameStartedEventForObserver`; its tick has `sessionId` but deliberately
+  omits bot `name` and `version`, so replay coverage verifies recovery from
+  the preceding bot list.
 
 Do not infer that omitted turns or messages were absent from the original
 battle. Replay tests should treat this fixture as a condensed scenario, not a

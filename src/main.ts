@@ -74,6 +74,7 @@ let lastSettings = ui.getSettings()
 let currentBots: BotInfo[] = []
 let lastResults: { results: PreparedResult[]; oldRatings: ReturnType<typeof ui.captureRatingsSnapshot> } | null = null
 let battleInProgress = false
+let handshakeGameSetup: GameSetup | null = null
 const roundTracker = new RoundTracker()
 const eventQueue = new TimedEventQueue(events => eventFeed.setItems(presentBattleEvents(events)))
 
@@ -98,10 +99,53 @@ function clearBattleState(): void {
 
 function clearConnectionState(): void {
   clearBattleState()
+  handshakeGameSetup = null
   currentBots = []
   purgeInactiveTeams([])
   ui.updateBotList(currentBots)
   ui.hideBotList()
+}
+
+function participantFromBotState(bot: BotState, botsBySessionId: ReadonlyMap<string, BotInfo>): Participant | null {
+  const listedBot = bot.sessionId ? botsBySessionId.get(bot.sessionId) : undefined
+  const name = bot.name ?? listedBot?.name
+  const version = bot.version ?? listedBot?.version
+  if (!name || !version) return null
+
+  return {
+    id: bot.id,
+    sessionId: bot.sessionId,
+    name,
+    version,
+    teamId: listedBot?.teamId,
+    teamName: listedBot?.teamName,
+    teamVersion: listedBot?.teamVersion
+  }
+}
+
+function participantsFromTick(botStates: readonly BotState[]): Participant[] {
+  const botsBySessionId = new Map<string, BotInfo>()
+  for (const bot of currentBots) {
+    if (bot.sessionId) {
+      botsBySessionId.set(bot.sessionId, bot)
+    }
+  }
+
+  return botStates
+    .map(bot => participantFromBotState(bot, botsBySessionId))
+    .filter((participant): participant is Participant => participant !== null)
+}
+
+function beginBattle(setup: GameSetup, participants: Participant[], roundNumber: number, turnNumber: number): void {
+  clearBattleState()
+  battleInProgress = true
+  gameState.setGameSetup(setup)
+  gameState.setParticipants(participants)
+  renderer.setArenaSize(setup.arenaWidth, setup.arenaHeight)
+  ui.showBotListMini()
+  ui.hideResults()
+  ui.showRoundTurn(roundNumber, turnNumber)
+  renderer.show()
 }
 
 function processTickEvent(event: TickEvent, botStates: BotState[]): void {
@@ -145,7 +189,8 @@ const connection = createConnection({
     ui.setStatus('connecting')
     clearConnectionState()
   },
-  onConnected: () => {
+  onConnected: (gameSetup) => {
+    handshakeGameSetup = gameSetup
     ui.setStatus('live')
     ui.showBotList()
   },
@@ -166,17 +211,8 @@ const connection = createConnection({
         break
       }
       case 'GameStartedEventForObserver': {
-        clearBattleState()
-        battleInProgress = true
         const gameMsg = msg as GameStartedMessage
-        const setup = gameMsg.gameSetup
-        gameState.setGameSetup(setup)
-        gameState.setParticipants(gameMsg.participants || [])
-        renderer.setArenaSize(setup.arenaWidth, setup.arenaHeight)
-        ui.showBotListMini()
-        ui.hideResults()
-        ui.showRoundTurn(1, 0)
-        renderer.show()
+        beginBattle(gameMsg.gameSetup, gameMsg.participants || [], 1, 0)
         break
       }
       case 'RoundStartedEvent': {
@@ -191,6 +227,19 @@ const connection = createConnection({
       }
       case 'TickEventForObserver': {
         const tickMsg = msg as TickMessage
+        const tickParticipants = participantsFromTick(tickMsg.botStates)
+        if (!battleInProgress && handshakeGameSetup) {
+          beginBattle(
+            handshakeGameSetup,
+            tickParticipants,
+            tickMsg.roundNumber,
+            tickMsg.turnNumber
+          )
+        }
+        if (!battleInProgress) {
+          break
+        }
+        gameState.enrichParticipants(tickParticipants)
         gameState.updateTick(tickMsg.roundNumber, tickMsg.turnNumber, tickMsg.botStates, tickMsg.bulletStates || [])
         // Update effect system's current turn before processing events
         renderer.setCurrentTurn(tickMsg.turnNumber)

@@ -1,5 +1,8 @@
 export interface BotState {
   id: number
+  sessionId?: string
+  name?: string
+  version?: string
   energy: number
   x: number
   y: number
@@ -36,6 +39,7 @@ export interface GameSetup {
 
 export interface Participant {
   id: number
+  sessionId?: string
   name: string
   version: string
   // Team fields (optional - only present for team members)
@@ -74,6 +78,23 @@ export function setParticipants(participants: Participant[]): void {
   state.participants.clear()
   for (const p of participants) {
     state.participants.set(p.id, p)
+  }
+}
+
+export function enrichParticipants(participants: Participant[]): void {
+  for (const participant of participants) {
+    const existing = state.participants.get(participant.id)
+    if (!existing) {
+      state.participants.set(participant.id, participant)
+      continue
+    }
+
+    existing.sessionId ??= participant.sessionId
+    existing.name ||= participant.name
+    existing.version ||= participant.version
+    existing.teamId ??= participant.teamId
+    existing.teamName ??= participant.teamName
+    existing.teamVersion ??= participant.teamVersion
   }
 }
 

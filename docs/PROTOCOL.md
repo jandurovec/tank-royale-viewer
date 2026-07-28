@@ -25,7 +25,8 @@ All messages are JSON objects with a `type` field indicating the message type:
 
 ### 1. Server → Observer: ServerHandshake
 
-Sent immediately when a client connects:
+Sent immediately when a client connects. The optional `gameSetup` field is
+included below when one is available:
 
 ```json
 {
@@ -46,6 +47,17 @@ Sent immediately when a client connects:
   }
 }
 ```
+
+`gameSetup` may be absent when the server does not yet have a game setup. Once
+a game has been started, the server retains its setup and includes it in later
+handshakes, even after that game has finished. It therefore describes the most
+recent game, not necessarily a game that is currently running.
+
+This retained setup lets an observer that connects during a battle recover the
+arena dimensions and other settings even though it missed
+`GameStartedEventForObserver`. The observer should wait for a
+`TickEventForObserver` to confirm that a battle is in progress before using the
+handshake setup to enter its battle state.
 
 ### 2. Observer → Server: ObserverHandshake
 
@@ -155,6 +167,9 @@ Sent every turn with the complete game state:
   "botStates": [
     {
       "id": 1,
+      "sessionId": "bot-session-id",
+      "name": "Alice Bot",
+      "version": "1.0",
       "energy": 100.0,
       "x": 150.5,
       "y": 200.3,
@@ -214,6 +229,11 @@ Sent every turn with the complete game state:
   ]
 }
 ```
+
+Current server versions include `sessionId`, `name`, and `version` in each bot
+state. Servers before 0.36.0 omit `name` and `version`; an observer supporting
+those versions can match `sessionId` against `BotListUpdate` to recover the
+bot's identity.
 
 ### Event Types in TickEventForObserver
 

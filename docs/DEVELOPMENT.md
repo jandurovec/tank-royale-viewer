@@ -154,9 +154,11 @@ npm run test:e2e
 
 The browser tests start Vite and mock the Tank Royale WebSocket at the browser
 boundary. They replay a sanitized server 1.0.2 battle from the waiting view
-through final results and verify cleanup across abort, disconnect, reconnect,
-server URL changes, reload, subsequent battles, team identity, and shared
-placements. They do not require a live Tank Royale server.
+through final results, plus a schema-derived server 0.35 late-observer
+sequence. They verify late-join recovery and legacy bot identity matching as
+well as cleanup across abort, disconnect, reconnect, server URL changes,
+reload, subsequent battles, team identity, and shared placements. They do not
+require a live Tank Royale server.
 
 ## Testing with Tank Royale
 

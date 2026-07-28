@@ -2,18 +2,20 @@
 
 This document tracks implementation progress for AI assistants and developers resuming work on this project.
 
-**Last updated:** 2026-05-24
+**Last updated:** 2026-07-28
 
 ## Current State
 
 **Phase:** 11 (Theme Switching) - Complete
-**Status:** Full battle viewer with light/dark theme toggle
+**Status:** Full battle viewer with light/dark theme toggle and late-observer recovery
 
 ### What's Working
 
 #### Connection & Protocol
 - ✅ WebSocket connection with auto-reconnect (5s interval, 3s timeout)
 - ✅ Observer handshake protocol
+- ✅ Late observers enter an active battle from retained handshake setup plus the first tick
+- ✅ Bot identity from tick metadata, with `sessionId` bot-list matching for older servers
 - ✅ Toast notifications for server errors
 - ✅ Game state management (`gameState.ts`)
 
